@@ -33,22 +33,21 @@ export function DataProvider({ children }) {
     localStorage.setItem('prime-pets-activity-log', JSON.stringify(activityLog));
   }, [activityLog]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const res = await axios.get('/api/data');
-        setSlides(res.data.slides || []);
-        setCategories(res.data.categories || []);
-        setDeals(res.data.deals || []);
-        setProducts(res.data.products || []);
-        setFrontendSettings(res.data.frontendSettings || null);
-      } catch (error) {
-        console.error("Failed to fetch initial data:", error);
-      } finally {
-        setLoading(false);
-      }
+  const refreshData = async () => {
+    try {
+      const res = await axios.get('/api/data');
+      setSlides(res.data.slides || []);
+      setCategories(res.data.categories || []);
+      setDeals(res.data.deals || []);
+      setProducts(res.data.products || []);
+      setFrontendSettings(res.data.frontendSettings || null);
+    } catch (error) {
+      console.error("Failed to fetch initial data:", error);
     }
-    fetchData();
+  };
+
+  useEffect(() => {
+    refreshData().finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -65,7 +64,8 @@ export function DataProvider({ children }) {
       products, setProducts,
       frontendSettings, setFrontendSettings,
       activityLog, logActivity,
-      loading
+      loading,
+      refreshData
     }}>
       {children}
     </DataContext.Provider>

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const admin = require('../firebaseAdmin');
+const adminAuth = require('../firebaseAdmin');
 const prisma = require('../db');
 
 // Middleware to verify Firebase token
@@ -12,7 +12,7 @@ const verifyToken = async (req, res, next) => {
 
   const token = authHeader.split('Bearer ')[1];
   try {
-    const decodedToken = await admin.auth().verifyIdToken(token);
+    const decodedToken = await adminAuth.verifyIdToken(token);
     req.user = decodedToken;
     next();
   } catch (error) {

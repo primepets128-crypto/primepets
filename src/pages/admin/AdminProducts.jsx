@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
 import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Package } from 'lucide-react';
 
 export default function AdminProducts() {
-  const { products, setProducts, categories } = useData();
+  const { products, categories, refreshData } = useData();
   const { showToast } = useCart();
   const [editing, setEditing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,23 +20,35 @@ export default function AdminProducts() {
 
   const uniqueBrands = [...new Set(products.map(p => p.brand).filter(Boolean))];
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (editing.id) {
-      const updatedEditing = { ...editing, price: Number(editing.price), mrp: Number(editing.mrp) };
-      setProducts(products.map(p => p.id === editing.id ? updatedEditing : p));
-      showToast('Product updated successfully!');
-    } else {
-      setProducts([...products, { ...editing, id: Date.now(), price: Number(editing.price), mrp: Number(editing.mrp) }]);
-      showToast('New product added!');
+    try {
+      const payload = { ...editing, price: Number(editing.price), mrp: Number(editing.mrp) };
+      if (editing.id) {
+        await axios.put(`/api/products/${editing.id}`, payload);
+        showToast('Product updated successfully!');
+      } else {
+        await axios.post('/api/products', payload);
+        showToast('New product added!');
+      }
+      await refreshData();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      showToast('Error saving product.');
     }
-    setIsModalOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this product?')) {
-      setProducts(products.filter(p => p.id !== id));
-      showToast('Product deleted.');
+      try {
+        await axios.delete(`/api/products/${id}`);
+        showToast('Product deleted.');
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        showToast('Error deleting product.');
+      }
     }
   };
 

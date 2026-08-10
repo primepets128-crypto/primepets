@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
 import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, LayoutTemplate } from 'lucide-react';
 
 export default function AdminSlides() {
-  const { slides, setSlides } = useData();
+  const { slides, refreshData } = useData();
   const { showToast } = useCart();
   const [editing, setEditing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,22 +19,34 @@ export default function AdminSlides() {
     dog: '', cat: '', heroImage: ''
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (editing.id) {
-      setSlides(slides.map(s => s.id === editing.id ? editing : s));
-      showToast('Slide updated successfully!');
-    } else {
-      setSlides([...slides, { ...editing, id: Date.now() }]);
-      showToast('New slide added!');
+    try {
+      if (editing.id) {
+        await axios.put(`/api/slides/${editing.id}`, editing);
+        showToast('Slide updated successfully!');
+      } else {
+        await axios.post('/api/slides', editing);
+        showToast('New slide added!');
+      }
+      await refreshData();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      showToast('Error saving slide.');
     }
-    setIsModalOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this slide?')) {
-      setSlides(slides.filter(s => s.id !== id));
-      showToast('Slide deleted.');
+      try {
+        await axios.delete(`/api/slides/${id}`);
+        showToast('Slide deleted.');
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        showToast('Error deleting slide.');
+      }
     }
   };
 

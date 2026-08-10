@@ -27,6 +27,7 @@ model Product {
   rating      Float
   reviews     Int
   img         String
+  images      String?
   tag         String?
   badge       String?
   category    String

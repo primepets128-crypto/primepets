@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { useData } from '../../context/DataContext';
 import { Save, Layout, MessageSquare, Palette, Globe, Database, Trash2, AlertTriangle } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
@@ -6,8 +7,8 @@ import Toast from '../../components/Toast';
 import { handleImageUpload } from '../../utils/imageUpload';
 
 export default function AdminSettings() {
-  const { frontendSettings, setFrontendSettings } = useData();
-  const [formData, setFormData] = useState(frontendSettings);
+  const { frontendSettings, refreshData } = useData();
+  const [formData, setFormData] = useState(frontendSettings || {});
   const [activeTab, setActiveTab] = useState('general');
   const [isClearing, setIsClearing] = useState(false);
 
@@ -29,10 +30,15 @@ export default function AdminSettings() {
     }
   };
 
-  const handleSave = () => {
-    setFrontendSettings(formData);
-    // Use a custom event to trigger the toast
-    window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Settings saved successfully!' } }));
+  const handleSave = async () => {
+    try {
+      await axios.put('/api/settings', formData);
+      await refreshData();
+      window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Settings saved successfully!' } }));
+    } catch (err) {
+      console.error(err);
+      window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Error saving settings' } }));
+    }
   };
 
   const handleClearCache = () => {

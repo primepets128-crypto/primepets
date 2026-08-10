@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
 import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Percent } from 'lucide-react';
 
 export default function AdminDeals() {
-  const { deals, setDeals } = useData();
+  const { deals, refreshData } = useData();
   const { showToast } = useCart();
   const [editing, setEditing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,22 +17,34 @@ export default function AdminDeals() {
     title: '', sub: '', badge: '', tag: '', img: '', grad: 'from-[#d07e20] to-[#a65d14]', bg: '#FFF4ED', border: '#e6c8a8', save: ''
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (editing.id) {
-      setDeals(deals.map(d => d.id === editing.id ? editing : d));
-      showToast('Deal updated successfully!');
-    } else {
-      setDeals([...deals, { ...editing, id: Date.now() }]);
-      showToast('New deal added!');
+    try {
+      if (editing.id) {
+        await axios.put(`/api/deals/${editing.id}`, editing);
+        showToast('Deal updated successfully!');
+      } else {
+        await axios.post('/api/deals', editing);
+        showToast('New deal added!');
+      }
+      await refreshData();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      showToast('Error saving deal.');
     }
-    setIsModalOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this deal?')) {
-      setDeals(deals.filter(d => d.id !== id));
-      showToast('Deal deleted.');
+      try {
+        await axios.delete(`/api/deals/${id}`);
+        showToast('Deal deleted.');
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        showToast('Error deleting deal.');
+      }
     }
   };
 

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
+import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
 import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Tag } from 'lucide-react';
 
 export default function AdminCategories() {
-  const { categories, setCategories } = useData();
+  const { categories, refreshData } = useData();
   const { showToast } = useCart();
   const [editing, setEditing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,22 +17,34 @@ export default function AdminCategories() {
     label: '', emoji: '', img: '', bg: '#FFFFFF'
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
-    if (editing.id) {
-      setCategories(categories.map(c => c.id === editing.id ? editing : c));
-      showToast('Category updated successfully!');
-    } else {
-      setCategories([...categories, { ...editing, id: Date.now() }]);
-      showToast('New category added!');
+    try {
+      if (editing.id) {
+        await axios.put(`/api/categories/${editing.id}`, editing);
+        showToast('Category updated successfully!');
+      } else {
+        await axios.post('/api/categories', editing);
+        showToast('New category added!');
+      }
+      await refreshData();
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error(err);
+      showToast('Error saving category.');
     }
-    setIsModalOpen(false);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this category?')) {
-      setCategories(categories.filter(c => c.id !== id));
-      showToast('Category deleted.');
+      try {
+        await axios.delete(`/api/categories/${id}`);
+        showToast('Category deleted.');
+        await refreshData();
+      } catch (err) {
+        console.error(err);
+        showToast('Error deleting category.');
+      }
     }
   };
 
