@@ -30,7 +30,7 @@ app.use('/api/slides', require('./routes/slides'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/data', require('./routes/data'));
 
-if (require.main === module) {
+if (process.env.NODE_ENV !== 'production' && require.main === module) {
   app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
   });
