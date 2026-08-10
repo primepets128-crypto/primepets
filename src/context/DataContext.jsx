@@ -5,6 +5,7 @@ export const DataContext = createContext(null);
 
 export function DataProvider({ children }) {
   const [slides, setSlides] = useState([]);
+  const [banners, setBanners] = useState([]);
   const [categories, setCategories] = useState([]);
   const [deals, setDeals] = useState([]);
   const [products, setProducts] = useState([]);
@@ -37,6 +38,7 @@ export function DataProvider({ children }) {
     try {
       const res = await axios.get('/api/data');
       setSlides(res.data.slides || []);
+      setBanners(res.data.banners || []);
       setCategories(res.data.categories || []);
       setDeals(res.data.deals || []);
       setProducts(res.data.products || []);
@@ -59,6 +61,7 @@ export function DataProvider({ children }) {
   return (
     <DataContext.Provider value={{
       slides, setSlides,
+      banners, setBanners,
       categories, setCategories,
       deals, setDeals,
       products, setProducts,

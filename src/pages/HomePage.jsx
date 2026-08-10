@@ -330,20 +330,25 @@ function FeaturedProducts() {
 }
 
 /* ── PROMO BANNER ROW ── */
-function PromoBanners() {
+function PromoBanners({ banners = [] }) {
   const navigate = useNavigate();
+  
+  const defaultBanners = [
+    { gradient: 'from-[#d07e20] to-[#b36310]', title: 'New Arrivals', subtitle: 'Fresh stock every week', emoji: '🆕', cta: '/category' },
+    { gradient: 'from-[#5c3110] to-[#8b4513]', title: 'Prime Pets Rewards', subtitle: 'Earn & redeem points', emoji: '🎁', cta: '/account' },
+    { gradient: 'from-[#0F9B8E] to-[#007CF0]', title: 'Expert Advice', subtitle: 'Free vet consultations', emoji: '🩺', cta: '/hub' },
+  ];
+
+  const displayBanners = banners.length > 0 ? banners : defaultBanners;
+
   return (
     <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-10">
       {/* On mobile: horizontal scroll; on desktop: 3-col grid */}
       <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 md:pb-0">
-        {[
-          { grad: 'from-[#d07e20] to-[#b36310]', shadow: 'shadow-[0_10px_30px_rgba(208,126,32,0.3)]', title: 'New Arrivals', sub: 'Fresh stock every week', emoji: '🆕', cta: '/category' },
-          { grad: 'from-[#5c3110] to-[#8b4513]', shadow: 'shadow-[0_10px_30px_rgba(92,49,16,0.3)]', title: 'Prime Pets Rewards', sub: 'Earn & redeem points', emoji: '🎁', cta: '/account' },
-          { grad: 'from-[#0F9B8E] to-[#007CF0]', shadow: 'shadow-[0_10px_30px_rgba(15,155,142,0.3)]', title: 'Expert Advice', sub: 'Free vet consultations', emoji: '🩺', cta: '/hub' },
-        ].map((b, idx) => (
-          <ScrollReveal key={b.title} delay={idx * 100} className="h-full flex-shrink-0">
+        {displayBanners.map((b, idx) => (
+          <ScrollReveal key={b.id || b.title} delay={idx * 100} className="h-full flex-shrink-0">
           <button onClick={() => navigate(b.cta)}
-            className={`bg-gradient-to-r ${b.grad} rounded-3xl p-5 md:p-8 text-left relative overflow-hidden group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 ${b.shadow} interactive-card btn-interactive border border-white/20 h-full w-full snap-center min-w-[80vw] sm:min-w-[60vw] md:min-w-0`}>
+            className={`bg-gradient-to-r ${b.gradient || b.grad} rounded-3xl p-5 md:p-8 text-left relative overflow-hidden group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 interactive-card btn-interactive border border-white/20 h-full w-full snap-center min-w-[80vw] sm:min-w-[60vw] md:min-w-0`}>
             
             {/* Giant decorative background emoji */}
             <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 text-8xl md:text-[140px] opacity-10 group-hover:opacity-20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 pointer-events-none">{b.emoji}</div>
@@ -351,7 +356,7 @@ function PromoBanners() {
             <div className="relative z-10">
               <span className="text-4xl md:text-5xl drop-shadow-lg">{b.emoji}</span>
               <h3 className="text-white font-black text-xl md:text-2xl mt-4 drop-shadow-sm">{b.title}</h3>
-              <p className="text-white/90 text-sm md:text-base font-medium mt-1">{b.sub}</p>
+              <p className="text-white/90 text-sm md:text-base font-medium mt-1">{b.subtitle || b.sub}</p>
               
               <div className="inline-flex items-center gap-1.5 mt-5 bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full text-white text-xs md:text-sm font-bold border border-white/40 group-hover:bg-white group-hover:text-black transition-all shadow-lg">
                 Explore <ArrowRight size={14} />
@@ -525,6 +530,7 @@ function Footer() {
 
 /* ── HOME PAGE ── */
 export default function HomePage() {
+  const { slides, products, deals, categories, banners } = useData();
   const navigate = useNavigate();
   return (
     <div className="min-h-screen">
@@ -554,7 +560,7 @@ export default function HomePage() {
         <ScrollReveal delay={0}><HeroCarousel /></ScrollReveal>
         <ScrollReveal delay={100}><QuickCategories /></ScrollReveal>
         <ScrollReveal delay={100}><DealsSection /></ScrollReveal>
-        <ScrollReveal delay={100}><PromoBanners /></ScrollReveal>
+        <ScrollReveal delay={100}><PromoBanners banners={banners} /></ScrollReveal>
         <ScrollReveal delay={100}><FeaturedProducts /></ScrollReveal>
 
         {/* Rewards Banner (GenZ / Rich Live Background) */}

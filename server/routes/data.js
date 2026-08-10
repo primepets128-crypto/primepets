@@ -9,9 +9,11 @@ router.get('/', async (req, res) => {
     const deals = await prisma.deal.findMany();
     const products = await prisma.product.findMany();
     const settings = await prisma.frontendSetting.findFirst();
+    const banners = await prisma.banner.findMany();
 
     res.json({
       slides,
+      banners,
       categories,
       deals,
       products,

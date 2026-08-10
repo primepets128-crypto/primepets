@@ -80,3 +80,12 @@ model FrontendSetting {
   whatsappNumber    String
   logoBase64        String?
 }
+
+model Banner {
+  id       Int    @id @default(autoincrement())
+  title    String
+  subtitle String
+  emoji    String
+  gradient String
+  cta      String
+}
