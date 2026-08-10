@@ -87,11 +87,11 @@ export default function Header() {
         <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-3 flex items-center gap-4">
 
           {/* Logo */}
-          <button onClick={() => navigate('/')} className="flex-shrink-0 flex items-center gap-2.5">
-            <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center overflow-hidden shimmer-loop rounded-full">
-              <img src={settings.logoBase64 || "/logo.png"} alt="Logo" className="w-full h-full object-contain" />
+          <button onClick={() => navigate('/')} className="flex-shrink-0 flex items-center gap-3">
+            <div className="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center overflow-hidden shimmer-loop rounded-full border border-gray-100 shadow-sm p-1">
+              <img src={settings.logoBase64 || "/MA_logo.png"} alt="Logo" className="w-full h-full object-contain" />
             </div>
-            <div className="flex flex-col leading-none text-left">
+            <div className="flex flex-col leading-none text-left hidden sm:flex">
               <span className="text-[#d07e20] font-black text-base md:text-xl tracking-tight">{settings.storeName || 'Prime Pets'}</span>
               <span className="text-[8px] md:text-[10px] text-gray-400 font-medium tracking-widest uppercase">{settings.tagline || 'Premium Store'}</span>
             </div>

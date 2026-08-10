@@ -16,15 +16,12 @@ router.get('/', async (req, res) => {
 // POST new banner
 router.post('/', async (req, res) => {
   try {
-    const { title, subtitle, emoji, gradient, cta } = req.body;
+    const { mediaUrl, link } = req.body;
     
     const banner = await prisma.banner.create({
       data: {
-        title: title || '',
-        subtitle: subtitle || '',
-        emoji: emoji || '',
-        gradient: gradient || '',
-        cta: cta || ''
+        mediaUrl: mediaUrl || '',
+        link: link || ''
       }
     });
     
@@ -39,16 +36,13 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, subtitle, emoji, gradient, cta } = req.body;
+    const { mediaUrl, link } = req.body;
     
     const banner = await prisma.banner.update({
       where: { id: Number(id) },
       data: {
-        title: title || '',
-        subtitle: subtitle || '',
-        emoji: emoji || '',
-        gradient: gradient || '',
-        cta: cta || ''
+        mediaUrl: mediaUrl || '',
+        link: link || ''
       }
     });
     

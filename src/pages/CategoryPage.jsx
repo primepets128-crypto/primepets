@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import { useCart } from '../context/CartContext';
 import { useData } from '../context/DataContext';
 import ScrollReveal from '../components/ScrollReveal';
+import MediaDisplay from '../components/MediaDisplay';
 
 
 export default function CategoryPage() {
@@ -233,7 +234,7 @@ export default function CategoryPage() {
                   {viewMode === 'grid' ? (
                     <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer group h-full flex flex-col hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
                       <div className="relative bg-gray-50 overflow-hidden flex-shrink-0" style={{ height: 160 }}>
-                        <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                        <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         <div className="absolute top-2 left-2 bg-[#d07e20] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">{p.tag}</div>
                         <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm hover:scale-110 transition-transform">
                           <Heart size={13} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
@@ -269,7 +270,7 @@ export default function CategoryPage() {
                   // List view
                     <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer flex items-center gap-4 p-3 md:p-4 h-full hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
                       <div className="relative bg-gray-50 rounded-xl overflow-hidden flex-shrink-0" style={{ width: 90, height: 90 }}>
-                        <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                        <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover" />
                         <div className="absolute top-1 left-1 bg-[#d07e20] text-white text-[8px] font-black px-1 py-0.5 rounded">{p.tag}</div>
                       </div>
                       <div className="flex-1 min-w-0">

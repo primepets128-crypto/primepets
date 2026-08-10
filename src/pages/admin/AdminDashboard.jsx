@@ -5,6 +5,7 @@ import { Package, Tag, Image as ImageIcon, Percent, Plus, TrendingUp, Settings, 
 import { Link, useNavigate } from 'react-router-dom';
 import ScrollReveal from '../../components/ScrollReveal';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import axios from 'axios';
 
 // Mock data for the last 7 days of web analytics
 const analyticsData = [
@@ -18,15 +19,37 @@ const analyticsData = [
 ];
 
 export default function AdminDashboard() {
-  const { products, categories, slides, deals, activityLog } = useData();
-  const { usersDb } = useAuth();
+  const { activityLog } = useData();
   const navigate = useNavigate();
+  const [serverStats, setServerStats] = React.useState(null);
+
+  React.useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await axios.get('/api/stats');
+        setServerStats(response.data);
+      } catch (error) {
+        console.error("Failed to fetch server stats:", error);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  const formatBytes = (bytes) => {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
 
   const stats = [
-    { label: 'Total Products', value: products?.length || 0, icon: Package, path: '/admin/products', color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
-    { label: 'Total Leads/Users', value: usersDb?.length || 0, icon: Users, path: '/admin/customers', color: 'from-pink-500 to-rose-400', shadow: 'shadow-pink-500/20' },
-    { label: 'Active Deals', value: deals?.length || 0, icon: Percent, path: '/admin/deals', color: 'from-orange-500 to-red-400', shadow: 'shadow-orange-500/20' },
-    { label: 'Categories', value: categories?.length || 0, icon: Tag, path: '/admin/categories', color: 'from-green-500 to-emerald-400', shadow: 'shadow-green-500/20' },
+    { label: 'Total Products', value: serverStats?.database?.products || 0, icon: Package, path: '/admin/products', color: 'from-blue-500 to-cyan-400', shadow: 'shadow-blue-500/20' },
+    { label: 'Total Leads/Users', value: serverStats?.database?.users || 0, icon: Users, path: '/admin/customers', color: 'from-pink-500 to-rose-400', shadow: 'shadow-pink-500/20' },
+    { label: 'Active Deals', value: serverStats?.database?.deals || 0, icon: Percent, path: '/admin/deals', color: 'from-orange-500 to-red-400', shadow: 'shadow-orange-500/20' },
+    { label: 'Categories', value: serverStats?.database?.categories || 0, icon: Tag, path: '/admin/categories', color: 'from-green-500 to-emerald-400', shadow: 'shadow-green-500/20' },
+    { label: 'Media Storage', value: formatBytes(serverStats?.cloudinary?.storageUsage || 0), icon: ImageIcon, path: '/admin/settings', color: 'from-purple-500 to-indigo-400', shadow: 'shadow-purple-500/20' },
+    { label: 'Bandwidth (Month)', value: formatBytes(serverStats?.cloudinary?.bandwidthUsage || 0), icon: Activity, path: '/admin/settings', color: 'from-teal-500 to-emerald-400', shadow: 'shadow-teal-500/20' }
   ];
 
   const recentActivity = useMemo(() => {
@@ -58,7 +81,7 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <ScrollReveal delay={100}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {stats.map((stat, idx) => {
             const Icon = stat.icon;
             return (

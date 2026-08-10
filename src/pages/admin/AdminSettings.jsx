@@ -142,7 +142,7 @@ export default function AdminSettings() {
                       {(formData.logoBase64 || frontendSettings.logoBase64) ? (
                         <img src={formData.logoBase64 || frontendSettings.logoBase64} alt="Store Logo" className="w-full h-full object-contain" />
                       ) : (
-                        <img src="/logo.png" alt="Store Logo" className="w-full h-full object-contain" />
+                        <img src="/MA_logo.png" alt="Store Logo" className="w-full h-full object-contain" />
                       )}
                     </div>
                     <div>

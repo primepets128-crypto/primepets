@@ -9,6 +9,7 @@ import Header from '../components/Header';
 import { useData } from '../context/DataContext';
 import { useCart } from '../context/CartContext';
 import ScrollReveal from '../components/ScrollReveal';
+import MediaDisplay from '../components/MediaDisplay';
 
 /* ── HERO CAROUSEL ── */
 function HeroCarousel() {
@@ -35,68 +36,14 @@ function HeroCarousel() {
       className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-8"
     >
       <div
-        className={`relative overflow-hidden shadow-lg rounded-3xl ${!s.heroImage ? `bg-gradient-to-r ${s.gradient}` : 'bg-gray-900'}`}
-        style={{ minHeight: 220 }}
+        className="relative overflow-hidden shadow-lg rounded-3xl bg-gray-900 w-full aspect-[16/9] sm:aspect-[2/1] md:aspect-[3/1]"
         onMouseEnter={() => setAuto(false)}
         onMouseLeave={() => setAuto(true)}
       >
       {s.heroImage && (
-        <img src={s.heroImage} alt="Hero Background" className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay" />
+        <MediaDisplay src={s.heroImage} alt="Hero Background" className="absolute inset-0 w-full h-full object-cover" />
       )}
-      {/* Decorative blobs */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-12 -right-12 w-48 h-48 bg-white/10 rounded-full" />
-        <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-white/10 rounded-full" />
-        <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-white/5 rounded-full" />
-      </div>
-
-      {/* Content — responsive layout */}
-      <div className="carousel-slide relative max-w-[1600px] mx-auto px-4 md:px-10 flex items-center justify-between h-full py-5 md:py-10 gap-2 md:gap-4" key={cur}>
-
-        {/* Dog image — hidden on very small mobile, show on sm+ */}
-        <div className="hidden sm:block flex-shrink-0 relative w-[26%] md:w-[22%]">
-          <div className="absolute -bottom-4 inset-x-0 h-6 bg-black/10 rounded-full blur-lg" />
-          <img src={s.dog} alt="Dog" loading="eager"
-            className="w-full object-cover rounded-2xl shadow-2xl"
-            style={{ height: 'clamp(120px, 20vw, 340px)' }} />
-        </div>
-
-        {/* Center text — full width on mobile */}
-        <div className="flex-1 text-center z-10 px-1 sm:px-4 md:px-8">
-          <div className="inline-block bg-white/20 backdrop-blur-sm border border-white/30 rounded-full px-2.5 py-1 mb-1.5 md:mb-3">
-            <span className="text-white text-[9px] md:text-xs font-bold tracking-widest">{s.tag}</span>
-          </div>
-          <div className="bg-white/15 backdrop-blur-sm rounded-xl md:rounded-2xl px-3 py-2 md:py-5 border border-white/20">
-            <p className="text-white font-black text-xs md:text-xl lg:text-2xl leading-tight">{s.badge}</p>
-            <p className="text-yellow-200 font-black text-lg sm:text-2xl md:text-4xl lg:text-5xl leading-tight mt-0.5">{s.title}</p>
-            <p className="text-white text-[10px] sm:text-xs md:text-base font-medium mt-0.5 opacity-90 line-clamp-2">{s.subtitle}</p>
-          </div>
-          <div className="flex items-center justify-center gap-2 mt-3">
-            <button
-              onClick={() => navigate('/offers')}
-              className="bg-white text-[#d07e20] font-bold text-[11px] md:text-sm px-4 md:px-8 py-1.5 md:py-3 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200"
-            >
-              {s.cta} →
-            </button>
-            <button
-              onClick={() => navigate('/category')}
-              className="hidden sm:block bg-white/20 backdrop-blur-sm text-white font-semibold text-[11px] md:text-sm px-3 md:px-6 py-1.5 md:py-3 rounded-full border border-white/30 hover:bg-white/30 transition-all"
-            >
-              Browse All
-            </button>
-          </div>
-        </div>
-
-        {/* Cat image — hidden on very small mobile */}
-        <div className="hidden sm:block flex-shrink-0 relative w-[20%] md:w-[18%]">
-          <div className="absolute -bottom-4 inset-x-0 h-5 bg-black/10 rounded-full blur-lg" />
-          <img src={s.cat} alt="Cat" loading="eager"
-            className="w-full object-cover rounded-2xl shadow-2xl"
-            style={{ height: 'clamp(100px, 16vw, 300px)' }} />
-        </div>
-      </div>
-
-      {/* Arrows */}
+      
       {/* Arrows — smaller on mobile */}
       <button onClick={prev} className="absolute left-1.5 md:left-6 top-1/2 -translate-y-1/2 bg-white/80 backdrop-blur-sm rounded-full p-1.5 md:p-2.5 shadow-lg hover:bg-white hover:scale-110 transition-all z-20">
         <ChevronLeft size={16} className="text-gray-700" />
@@ -113,6 +60,7 @@ function HeroCarousel() {
         ))}
       </div>
       </div>
+
     </motion.div>
   );
 }
@@ -234,7 +182,7 @@ function DealsSection() {
                 className="product-card flex-shrink-0 rounded-2xl overflow-hidden cursor-pointer border interactive-card mx-2"
                 style={{ width: 176, backgroundColor: d.bg, borderColor: d.border, display: 'inline-block', whiteSpace: 'normal', verticalAlign: 'top' }}>
                 <div className="relative overflow-hidden" style={{ height: 140 }}>
-                  <img src={d.img} alt={d.sub} className="w-full h-full object-cover" />
+                  <MediaDisplay src={d.img} alt={d.sub} className="w-full h-full object-cover" />
                   <div className={`absolute inset-0 bg-gradient-to-t ${d.grad} opacity-30`} />
                   <span className="absolute top-2 left-2 bg-white/90 text-[10px] font-bold px-2 py-0.5 rounded-full">{d.badge}</span>
                   <span className={`absolute top-2 right-2 bg-gradient-to-r ${d.grad} text-white text-[9px] font-bold px-2 py-0.5 rounded-full`}>{d.tag}</span>
@@ -289,7 +237,7 @@ function FeaturedProducts() {
             <ScrollReveal key={p.id} delay={(idx % 4) * 100} className="h-full" animation="scale-up">
             <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all cursor-pointer group h-full flex flex-col">
               <div className="relative bg-gray-50 overflow-hidden" style={{ height: 'clamp(140px, 18vw, 220px)' }}>
-                <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                 <div className="absolute top-2 left-2 bg-[#d07e20] text-white text-[9px] md:text-[10px] font-black px-1.5 py-0.5 rounded-md">{p.tag}</div>
                 <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm hover:scale-110 transition-transform">
                   <Heart size={14} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
@@ -334,9 +282,9 @@ function PromoBanners({ banners = [] }) {
   const navigate = useNavigate();
   
   const defaultBanners = [
-    { gradient: 'from-[#d07e20] to-[#b36310]', title: 'New Arrivals', subtitle: 'Fresh stock every week', emoji: '🆕', cta: '/category' },
-    { gradient: 'from-[#5c3110] to-[#8b4513]', title: 'Prime Pets Rewards', subtitle: 'Earn & redeem points', emoji: '🎁', cta: '/account' },
-    { gradient: 'from-[#0F9B8E] to-[#007CF0]', title: 'Expert Advice', subtitle: 'Free vet consultations', emoji: '🩺', cta: '/hub' },
+    { id: 'b1', mediaUrl: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=600', link: '/category' },
+    { id: 'b2', mediaUrl: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=600', link: '/account' },
+    { id: 'b3', mediaUrl: 'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&q=80&w=600', link: '/hub' },
   ];
 
   const displayBanners = banners.length > 0 ? banners : defaultBanners;
@@ -347,18 +295,12 @@ function PromoBanners({ banners = [] }) {
       <div className="flex md:grid md:grid-cols-3 gap-4 md:gap-6 overflow-x-auto scrollbar-hide snap-x snap-mandatory pb-2 md:pb-0">
         {displayBanners.map((b, idx) => (
           <ScrollReveal key={b.id || b.title} delay={idx * 100} className="h-full flex-shrink-0">
-          <button onClick={() => navigate(b.cta)}
-            className={`bg-gradient-to-r ${b.gradient || b.grad} rounded-3xl p-5 md:p-8 text-left relative overflow-hidden group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 interactive-card btn-interactive border border-white/20 h-full w-full snap-center min-w-[80vw] sm:min-w-[60vw] md:min-w-0`}>
-            
-            {/* Giant decorative background emoji */}
-            <div className="absolute right-[-10%] top-1/2 -translate-y-1/2 text-8xl md:text-[140px] opacity-10 group-hover:opacity-20 group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 pointer-events-none">{b.emoji}</div>
-            
-            <div className="relative z-10">
-              <span className="text-4xl md:text-5xl drop-shadow-lg">{b.emoji}</span>
-              <h3 className="text-white font-black text-xl md:text-2xl mt-4 drop-shadow-sm">{b.title}</h3>
-              <p className="text-white/90 text-sm md:text-base font-medium mt-1">{b.subtitle || b.sub}</p>
-              
-              <div className="inline-flex items-center gap-1.5 mt-5 bg-white/20 backdrop-blur-md px-5 py-2.5 rounded-full text-white text-xs md:text-sm font-bold border border-white/40 group-hover:bg-white group-hover:text-black transition-all shadow-lg">
+          <button onClick={() => navigate(b.link || '/category')}
+            className={`bg-gray-100 rounded-3xl text-left relative overflow-hidden group hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 interactive-card btn-interactive border border-white/20 h-full w-full snap-center min-w-[80vw] sm:min-w-[60vw] md:min-w-0 aspect-[16/9] md:aspect-auto md:h-64`}>
+            <MediaDisplay src={b.mediaUrl} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute bottom-4 left-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-4 group-hover:translate-y-0">
+              <div className="inline-flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-5 py-2.5 rounded-full text-gray-900 text-xs md:text-sm font-bold border border-white/40 shadow-lg">
                 Explore <ArrowRight size={14} />
               </div>
             </div>

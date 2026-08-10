@@ -30,6 +30,8 @@ app.use('/api/slides', require('./routes/slides'));
 app.use('/api/banners', require('./routes/banners'));
 app.use('/api/settings', require('./routes/settings'));
 app.use('/api/data', require('./routes/data'));
+app.use('/api/upload', require('./routes/upload'));
+app.use('/api/stats', require('./routes/stats'));
 
 if (process.env.NODE_ENV !== 'production' && require.main === module) {
   app.listen(port, () => {

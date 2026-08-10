@@ -21,6 +21,22 @@ const verifyToken = async (req, res, next) => {
   }
 };
 
+router.post('/check', async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() }
+    });
+    res.json({ exists: !!user });
+  } catch (error) {
+    console.error('Error checking user:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 router.post('/me', verifyToken, async (req, res) => {
   try {
     // Fetch user from DB based on firebase UID

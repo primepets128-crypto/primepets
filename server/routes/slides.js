@@ -17,10 +17,11 @@ router.get('/', async (req, res) => {
 // POST new slide
 router.post('/', async (req, res) => {
   try {
-    const { gradient, tag, badge, title, subtitle, cta, dog, cat } = req.body;
+    const { gradient, tag, badge, title, subtitle, cta, dog, cat, heroImage } = req.body;
     
     const uploadedDog = await uploadToCloudinary(dog, 'prime_pets/slides');
     const uploadedCat = await uploadToCloudinary(cat, 'prime_pets/slides');
+    const uploadedHeroImage = await uploadToCloudinary(heroImage, 'prime_pets/slides');
 
     const slide = await prisma.slide.create({
       data: {
@@ -31,7 +32,8 @@ router.post('/', async (req, res) => {
         subtitle: subtitle || '',
         cta: cta || '',
         dog: uploadedDog || '',
-        cat: uploadedCat || ''
+        cat: uploadedCat || '',
+        heroImage: uploadedHeroImage || ''
       }
     });
     
@@ -46,10 +48,11 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { gradient, tag, badge, title, subtitle, cta, dog, cat } = req.body;
+    const { gradient, tag, badge, title, subtitle, cta, dog, cat, heroImage } = req.body;
     
     const uploadedDog = await uploadToCloudinary(dog, 'prime_pets/slides');
     const uploadedCat = await uploadToCloudinary(cat, 'prime_pets/slides');
+    const uploadedHeroImage = await uploadToCloudinary(heroImage, 'prime_pets/slides');
 
     const slide = await prisma.slide.update({
       where: { id: Number(id) },
@@ -61,7 +64,8 @@ router.put('/:id', async (req, res) => {
         subtitle: subtitle || '',
         cta: cta || '',
         dog: uploadedDog || '',
-        cat: uploadedCat || ''
+        cat: uploadedCat || '',
+        heroImage: uploadedHeroImage || ''
       }
     });
     

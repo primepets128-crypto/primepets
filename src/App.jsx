@@ -42,7 +42,8 @@ const ProtectedAdminRoute = ({ children }) => {
 
 export default function App() {
   const location = useLocation();
-  const [loaderFinished, setLoaderFinished] = useState(false);
+  const [initialSkip] = useState(() => sessionStorage.getItem('loaderFinished') === 'true');
+  const [loaderFinished, setLoaderFinished] = useState(initialSkip);
   const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
@@ -55,7 +56,13 @@ export default function App() {
         <DataProvider>
           <CartProvider>
             <div className="min-h-screen mesh-bg text-gray-800" style={{ fontFamily: "'Poppins', sans-serif" }}>
-              <PageLoader onFinish={() => setLoaderFinished(true)} />
+              <PageLoader 
+                skip={initialSkip}
+                onFinish={() => {
+                  sessionStorage.setItem('loaderFinished', 'true');
+                  setLoaderFinished(true);
+                }} 
+              />
               
               {loaderFinished && (
                 <>

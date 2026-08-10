@@ -88,10 +88,9 @@ export default function ChatBot() {
     if (step === 'ASK_CONTACT') {
       setCapturedContact(input);
       setLoading(true);
-      // Wait a tiny bit for UX
-      setTimeout(() => {
-        const exists = checkUserExists(input);
-        setLoading(false);
+      
+      try {
+        const exists = await checkUserExists(input);
         if (exists) {
           setAuthMode('login');
           setStep('VERIFY_AUTH');
@@ -101,7 +100,12 @@ export default function ChatBot() {
           setStep('VERIFY_AUTH');
           addMessage("Looks like you're new here. Please create a password to set up your account.", 'bot');
         }
-      }, 600);
+      } catch (err) {
+        console.error(err);
+        addMessage("Sorry, something went wrong. Please try again.", 'bot');
+      } finally {
+        setLoading(false);
+      }
       return;
     }
 
@@ -152,14 +156,14 @@ export default function ChatBot() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 20, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="absolute bottom-16 right-0 w-80 sm:w-96 bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col"
+              className="absolute bottom-16 right-0 w-[calc(100vw-3rem)] sm:w-96 bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100 flex flex-col"
               style={{ height: '500px', maxHeight: '80vh' }}
             >
               {/* Header */}
               <div className="bg-gradient-to-r from-[#d07e20] to-[#8a4e10] p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-inner overflow-hidden p-0.5 shimmer-loop">
-                    <img src={settings.logoBase64 || "/logo.png"} alt="Logo" className="w-full h-full object-contain rounded-full" />
+                  <div className="w-8 h-8 rounded-full border-2 border-white/20 bg-white/10 flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <img src={settings.logoBase64 || "/MA_logo.png"} alt="Logo" className="w-full h-full object-contain rounded-full" />
                   </div>
                   <div>
                     <h3 className="text-white font-bold leading-tight">{settings.storeName || 'Prime Pets'} Assistant</h3>

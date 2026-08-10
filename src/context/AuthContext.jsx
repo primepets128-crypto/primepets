@@ -59,12 +59,24 @@ export function AuthProvider({ children }) {
     await signOut(auth);
   };
 
+  const checkUserExists = async (email) => {
+    try {
+      const response = await axios.post('/api/auth/check', { email });
+      return response.data.exists;
+    } catch (error) {
+      console.error("Error checking if user exists:", error);
+      return false; // Safest default is to assume they don't exist and trigger register
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
       login, 
       register, 
-      logout, 
+      logout,
+      checkUserExists,
+      isAuthenticated: !!user,
       isAdmin: user?.role === 'admin' 
     }}>
       {!loading && children}

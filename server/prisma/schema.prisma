@@ -57,7 +57,7 @@ model Deal {
 }
 
 model Slide {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   gradient String
   tag      String
   badge    String
@@ -66,6 +66,7 @@ model Slide {
   cta      String
   dog      String
   cat      String
+  heroImage String?
 }
 
 model FrontendSetting {
@@ -82,10 +83,7 @@ model FrontendSetting {
 }
 
 model Banner {
-  id       Int    @id @default(autoincrement())
-  title    String
-  subtitle String
-  emoji    String
-  gradient String
-  cta      String
+  id       Int     @id @default(autoincrement())
+  mediaUrl String
+  link     String?
 }

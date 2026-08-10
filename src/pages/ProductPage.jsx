@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Star, Heart, ShoppingBag, ChevronRight, Share2, ShieldCheck, Truck, RotateCcw, Plus, Minus } from 'lucide-react';
 import Header from '../components/Header';
 import ScrollReveal from '../components/ScrollReveal';
+import MediaDisplay from '../components/MediaDisplay';
 import { useCart } from '../context/CartContext';
 import { useData } from '../context/DataContext';
 
@@ -71,7 +72,7 @@ export default function ProductPage() {
                       onClick={() => setActiveImage(idx)}
                       className={`w-16 h-16 md:w-20 md:h-20 rounded-xl overflow-hidden border-2 flex-shrink-0 transition-all ${activeImage === idx ? 'border-[#d07e20] opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`}
                     >
-                      <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover bg-gray-50" />
+                      <MediaDisplay src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover bg-gray-50" />
                     </button>
                   ))}
                 </div>
@@ -87,7 +88,7 @@ export default function ProductPage() {
                     onClick={() => toggleWishlist(product)}>
                     <Heart size={20} className={isWishlisted(product.id) ? "fill-red-500 text-red-500" : ""} />
                   </button>
-                  <img src={gallery[activeImage]} alt={product.name} className="w-full h-full object-contain p-8 mix-blend-multiply" />
+                  <MediaDisplay src={gallery[activeImage]} alt={product.name} className="w-full h-full object-contain p-8 mix-blend-multiply" />
                 </div>
               </div>
             </ScrollReveal>

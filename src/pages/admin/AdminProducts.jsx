@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
+import MediaDisplay from '../../components/MediaDisplay';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
 import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Package } from 'lucide-react';
@@ -106,7 +107,7 @@ export default function AdminProducts() {
                 <td className="p-4 pl-6 flex items-center gap-4">
                   <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden border border-gray-200/50">
                     {p.img ? (
-                      <img src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                      <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon size={20}/></div>
                     )}
@@ -173,7 +174,7 @@ export default function AdminProducts() {
                 <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 flex gap-6 items-center">
                   <div className="w-24 h-24 rounded-xl bg-white border shadow-sm flex items-center justify-center overflow-hidden shrink-0">
                     {editing.img ? (
-                      <img src={editing.img} alt="Preview" className="w-full h-full object-cover" />
+                      <MediaDisplay src={editing.img} alt="Preview" className="w-full h-full object-cover" />
                     ) : (
                       <ImageIcon size={32} className="text-gray-300" />
                     )}
@@ -185,7 +186,7 @@ export default function AdminProducts() {
                       <span className="text-sm text-gray-500 flex items-center">OR</span>
                       <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl border border-gray-200 flex items-center text-sm font-medium transition-colors text-gray-700">
                         Upload File
-                        <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        <input type="file" accept="image/*,video/*" className="hidden" onChange={async (e) => {
                             if (e.target.files && e.target.files[0]) {
                               try {
                                 const base64 = await handleImageUpload(e.target.files[0]);
@@ -227,7 +228,7 @@ export default function AdminProducts() {
                     </button>
                     <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl border border-gray-200 flex items-center text-sm font-medium transition-colors text-gray-700">
                       Upload
-                      <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                      <input type="file" accept="image/*,video/*" className="hidden" onChange={async (e) => {
                           if (e.target.files && e.target.files[0]) {
                             try {
                               const base64 = await handleImageUpload(e.target.files[0]);
@@ -244,7 +245,7 @@ export default function AdminProducts() {
                     <div className="flex flex-wrap gap-3 mt-3">
                       {editing.images.map((imgUrl, idx) => (
                         <div key={idx} className="relative w-16 h-16 rounded-xl border bg-white overflow-hidden group">
-                          <img src={imgUrl} className="w-full h-full object-cover" alt="Additional" />
+                          <MediaDisplay src={imgUrl} className="w-full h-full object-cover" alt="Additional" />
                           <button 
                             type="button" 
                             onClick={() => setEditing({ ...editing, images: editing.images.filter((_, i) => i !== idx) })}

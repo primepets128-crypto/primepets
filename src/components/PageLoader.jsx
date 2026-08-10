@@ -51,12 +51,14 @@ const quotes = [
   "Nutrition tailored for their joy."
 ];
 
-export default function PageLoader({ onFinish }) {
+export default function PageLoader({ onFinish, skip }) {
   const [isVisible, setIsVisible] = useState(true);
   const [started, setStarted] = useState(false);
   const [quoteIndex, setQuoteIndex] = useState(0);
   const { frontendSettings } = useData();
   const settings = frontendSettings || {};
+
+  if (skip) return null;
 
   useEffect(() => {
     if (!started) return;
@@ -94,25 +96,62 @@ export default function PageLoader({ onFinish }) {
     <AnimatePresence>
       {isVisible && !started && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
-          className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#1a0e05] to-[#5c3110] overflow-hidden"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 2, rotate: 5, filter: "blur(20px)", transition: { duration: 1.5, ease: [0.22, 1, 0.36, 1] } }}
+          className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#0a0502] via-[#1a0e05] to-[#2a1608] overflow-hidden"
           onClick={handleStart}
         >
-          <div className="absolute inset-0 opacity-20 z-0">
-            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d07e20] rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: '4s' }} />
-            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#a65d14] rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+          {/* Ambient Glows */}
+          <div className="absolute inset-0 opacity-30 z-0">
+            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#d07e20] rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: '6s' }} />
+            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#a65d14] rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
           </div>
+          
           <GoldenDust />
-          <div className="relative z-10">
+          
+          <div className="relative z-10 w-full max-w-md px-6">
             <motion.div
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              className="bg-gradient-to-r from-[#d07e20] to-[#ffb347] hover:from-[#ffb347] hover:to-[#d07e20] text-white font-black text-2xl sm:text-3xl md:text-5xl px-7 sm:px-10 py-5 sm:py-6 rounded-2xl sm:rounded-3xl shadow-[0_0_40px_rgba(208,126,32,0.8)] cursor-pointer tracking-wider text-center flex flex-col items-center gap-3 sm:gap-4 transition-all mx-4"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="bg-[#1a0e05]/60 backdrop-blur-3xl border border-[#d07e20]/20 rounded-[2.5rem] p-8 sm:p-12 shadow-[0_30px_80px_rgba(0,0,0,0.6)] flex flex-col items-center gap-8 text-center group transition-all hover:bg-[#1a0e05]/80 hover:border-[#d07e20]/40"
             >
-              <span>Let's care for pet</span>
-              <span className="text-sm font-medium opacity-80 uppercase tracking-widest bg-black/20 px-4 py-1.5 rounded-full">Tap to enter</span>
+              {/* Rich Logo Effect */}
+              <div className="relative mb-2 w-full flex justify-center">
+                <div className="absolute inset-0 bg-[#d07e20] opacity-30 blur-[80px] rounded-full group-hover:opacity-50 transition-opacity duration-700 scale-150" />
+                <div className="relative w-56 h-56 sm:w-72 sm:h-72 flex items-center justify-center bg-white rounded-full p-6 shadow-[0_0_40px_rgba(208,126,32,0.4)]">
+                  <img 
+                    src="/MA_logo.png" 
+                    alt="Logo" 
+                    className="w-full h-full object-contain relative z-10" 
+                  />
+                </div>
+              </div>
+
+              {/* Title */}
+              <div className="flex flex-col gap-3">
+                <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white to-[#ffdbb0] drop-shadow-sm">
+                  Let's care for pet
+                </h1>
+                <p className="text-xs text-[#d07e20] font-bold uppercase tracking-[0.3em]">
+                  {settings.storeName || 'Premium Pet Store'}
+                </p>
+              </div>
+
+              {/* Elegant Small Button */}
+              <motion.div 
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="mt-4"
+              >
+                <button className="relative px-4 py-1.5 bg-gradient-to-r from-[#d07e20]/20 to-[#ffb347]/20 border border-[#d07e20]/40 rounded-full text-[#ffdbb0] text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(208,126,32,0.2)] hover:shadow-[0_0_30px_rgba(208,126,32,0.5)] transition-all overflow-hidden flex items-center gap-2">
+                  <span className="relative z-10">Tap to enter</span>
+                  <svg className="w-3 h-3 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  </svg>
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#d07e20] to-[#ffb347] opacity-0 hover:opacity-20 transition-opacity" />
+                </button>
+              </motion.div>
             </motion.div>
           </div>
         </motion.div>
@@ -120,9 +159,10 @@ export default function PageLoader({ onFinish }) {
 
       {isVisible && started && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.8, ease: "easeInOut" } }}
+          initial={{ opacity: 0, scale: 0.5, filter: "blur(30px)", rotate: -10 }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)", rotate: 0 }}
+          transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
+          exit={{ opacity: 0, scale: 1.5, filter: "blur(15px)", transition: { duration: 1.2, ease: "easeInOut" } }}
           className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#1a0e05] to-[#5c3110] overflow-hidden"
           onClick={handleTap}
         >
@@ -154,10 +194,10 @@ export default function PageLoader({ onFinish }) {
                   ease: "easeInOut",
                   repeat: Infinity
                 }}
-                className="w-48 h-48 md:w-64 md:h-64 flex items-center justify-center drop-shadow-[0_0_15px_rgba(208,126,32,0.5)]"
+                className="w-64 h-64 md:w-96 md:h-96 flex items-center justify-center drop-shadow-[0_0_30px_rgba(208,126,32,0.5)]"
               >
-                <div className="relative w-full h-full flex items-center justify-center drop-shadow-2xl shimmer-loop rounded-full">
-                  <img src={settings.logoBase64 || "/logo.png"} alt="Logo" className="max-w-[90%] max-h-[90%] object-contain relative z-10 animate-pulse shimmer-loop" style={{ animationDuration: '3s' }} />
+                <div className="relative w-56 h-56 md:w-80 md:h-80 flex items-center justify-center p-6 bg-white rounded-full">
+                  <img src="/MA_logo.png" alt="Logo" className="w-full h-full object-contain relative z-10 animate-pulse shimmer-loop" style={{ animationDuration: '3s' }} />
                 </div>
               </motion.div>
             </motion.div>
@@ -167,7 +207,7 @@ export default function PageLoader({ onFinish }) {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#ffd8a8] to-[#d07e20] tracking-tight mb-2"
+              className="text-3xl md:text-5xl font-black uppercase tracking-[0.15em] text-transparent bg-clip-text bg-gradient-to-r from-[#ffd8a8] to-[#d07e20] mb-3 drop-shadow-sm"
             >
               {settings.storeName || 'Prime Pets'}
             </motion.h1>

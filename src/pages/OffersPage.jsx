@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { Clock, Tag, Star, ShoppingBag, Heart, Flame, Zap, Copy, Check, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
-import { useCart } from '../context/CartContext';
+import BottomNav from '../components/BottomNav';
 import ScrollReveal from '../components/ScrollReveal';
+import MediaDisplay from '../components/MediaDisplay';
+import { useCart } from '../context/CartContext';
 
 const COUPONS = [
   { id: 1, title: 'PAWDAY SALE', sub: 'Up to 60% Off Sitewide', expiry: '2 Days Left', grad: 'from-[#d07e20] to-[#a65d14]', emoji: '🐾', code: 'PAWDAY60' },
@@ -135,7 +137,7 @@ export default function OffersPage() {
                 <ScrollReveal key={p.id} delay={(idx % 6) * 100} className="flex-shrink-0 md:flex-shrink min-w-[148px] h-full">
                 <Link to={`/product/${p.id}`} className="block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl product-card cursor-pointer h-full flex flex-col hover:-translate-y-1 transition-all">
                   <div className="relative bg-gray-50 overflow-hidden flex-shrink-0" style={{ height: 130 }}>
-                    <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                    <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     <span className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md animate-pulse">{p.off}</span>
                     <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm">
                       <Heart size={12} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
@@ -181,7 +183,7 @@ export default function OffersPage() {
                 <ScrollReveal key={d.id} delay={(idx % 6) * 100} className="h-full">
                 <div className="rounded-2xl overflow-hidden cursor-pointer product-card border h-full flex flex-col" style={{ backgroundColor: d.bg, borderColor: d.border }}>
                   <div className="relative overflow-hidden flex-shrink-0" style={{ height: 120 }}>
-                    <img src={d.img} alt={d.label} className="w-full h-full object-cover" />
+                    <MediaDisplay src={d.img} alt={d.label} className="w-full h-full object-cover" />
                     <div className={`absolute inset-0 bg-gradient-to-t ${d.grad} opacity-40`} />
                     {d.flash && (
                       <div className="absolute top-2 left-2 flex items-center gap-1 bg-red-500 rounded-full px-2 py-0.5">
