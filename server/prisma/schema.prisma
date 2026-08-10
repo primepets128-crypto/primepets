@@ -1,0 +1,81 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  firebaseId String? @unique
+  email     String?  @unique
+  phone     String?  @unique
+  name      String
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  brand       String
+  price       Float
+  mrp         Float
+  rating      Float
+  reviews     Int
+  img         String
+  tag         String?
+  badge       String?
+  category    String
+  petType     String
+  description String?
+}
+
+model Category {
+  id    Int    @id @default(autoincrement())
+  label String
+  emoji String
+  img   String
+  bg    String
+}
+
+model Deal {
+  id     Int    @id @default(autoincrement())
+  title  String
+  sub    String
+  badge  String
+  tag    String
+  img    String
+  grad   String
+  bg     String
+  border String
+  save   String
+}
+
+model Slide {
+  id       Int    @id @default(autoincrement())
+  gradient String
+  tag      String
+  badge    String
+  title    String
+  subtitle String
+  cta      String
+  dog      String
+  cat      String
+}
+
+model FrontendSetting {
+  id                Int    @id @default(autoincrement())
+  storeName         String
+  tagline           String
+  logoChar          String
+  footerDescription String
+  facebookUrl       String
+  instagramUrl      String
+  youtubeUrl        String
+  whatsappNumber    String
+  logoBase64        String?
+}
