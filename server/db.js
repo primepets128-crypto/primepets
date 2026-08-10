@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const { createClient } = require('@libsql/client');
+const { createClient } = require('@libsql/client/web');
 const { PrismaLibSQL } = require('@prisma/adapter-libsql');
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '.env') });
