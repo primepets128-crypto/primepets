@@ -1,10 +1,12 @@
-const { initializeApp, getApps, cert } = require('firebase-admin/app');
-const { getAuth } = require('firebase-admin/auth');
+// Requires will be loaded lazily below
 require('dotenv').config();
 
 let adminAuth = null;
 
 try {
+  const { initializeApp, getApps, cert } = require('firebase-admin/app');
+  const { getAuth } = require('firebase-admin/auth');
+
   if (getApps().length === 0) {
     // Only initialize if we have the minimum required environment variables
     if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_PRIVATE_KEY) {
