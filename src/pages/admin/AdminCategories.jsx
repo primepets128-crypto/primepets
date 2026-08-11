@@ -4,7 +4,7 @@ import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
-import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Tag } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Tag, Loader2 } from 'lucide-react';
 
 export default function AdminCategories() {
   const { categories, refreshData } = useData();
@@ -12,6 +12,7 @@ export default function AdminCategories() {
   const [editing, setEditing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const defaultCategory = {
     label: '', emoji: '', img: '', bg: '#FFFFFF'
@@ -166,16 +167,19 @@ export default function AdminCategories() {
                       <div className="flex gap-2">
                         <input type="url" placeholder="Paste URL here..." value={editing.img || ''} onChange={e => setEditing({...editing, img: e.target.value})} className="flex-1 p-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm" />
                         <span className="text-sm text-gray-500 flex items-center">OR</span>
-                        <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl border border-gray-200 flex items-center text-sm font-medium transition-colors text-gray-700">
-                          Upload
-                          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+                        <label className={`cursor-pointer ${isUploading ? 'bg-gray-200 opacity-70' : 'bg-gray-100 hover:bg-gray-200'} px-4 py-2.5 rounded-xl border border-gray-200 flex items-center gap-2 text-sm font-medium transition-colors text-gray-700`}>
+                          {isUploading ? <><Loader2 className="animate-spin" size={16} /> Uploading...</> : 'Upload'}
+                          <input type="file" accept="image/*" className="hidden" disabled={isUploading} onChange={async (e) => {
                               if (e.target.files && e.target.files[0]) {
+                                setIsUploading(true);
                                 try {
                                   const base64 = await handleImageUpload(e.target.files[0]);
                                   setEditing({...editing, img: base64});
                                 } catch(err) {
                                   console.error("Upload failed", err);
                                   alert("Image upload failed");
+                                } finally {
+                                  setIsUploading(false);
                                 }
                               }
                           }} />

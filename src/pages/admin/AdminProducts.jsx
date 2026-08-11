@@ -5,7 +5,7 @@ import { handleImageUpload } from '../../utils/imageUpload';
 import MediaDisplay from '../../components/MediaDisplay';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
-import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Package } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Package, Loader2 } from 'lucide-react';
 
 export default function AdminProducts() {
   const { products, categories, refreshData } = useData();
@@ -14,6 +14,8 @@ export default function AdminProducts() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
+  const [isUploadingPrimary, setIsUploadingPrimary] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
 
   const defaultProduct = {
     name: '', brand: '', petType: 'Dogs', category: '', price: '', mrp: '', rating: 4.5, reviews: 0, img: '', images: [], tag: '', badge: ''
@@ -184,16 +186,19 @@ export default function AdminProducts() {
                     <div className="flex gap-2">
                       <input id="img" type="url" placeholder="Paste URL here..." value={editing.img || ''} onChange={e => setEditing({...editing, img: e.target.value})} className="flex-1 p-2.5 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm" />
                       <span className="text-sm text-gray-500 flex items-center">OR</span>
-                      <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl border border-gray-200 flex items-center text-sm font-medium transition-colors text-gray-700">
-                        Upload File
-                        <input type="file" accept="image/*,video/*" className="hidden" onChange={async (e) => {
+                      <label className={`cursor-pointer ${isUploadingPrimary ? 'bg-gray-200 opacity-70' : 'bg-gray-100 hover:bg-gray-200'} px-4 py-2.5 rounded-xl border border-gray-200 flex items-center gap-2 text-sm font-medium transition-colors text-gray-700`}>
+                        {isUploadingPrimary ? <><Loader2 className="animate-spin" size={16} /> Uploading...</> : 'Upload File'}
+                        <input type="file" accept="image/*,video/*" className="hidden" disabled={isUploadingPrimary} onChange={async (e) => {
                             if (e.target.files && e.target.files[0]) {
+                              setIsUploadingPrimary(true);
                               try {
                                 const base64 = await handleImageUpload(e.target.files[0]);
                                 setEditing({...editing, img: base64});
                               } catch(err) {
                                 console.error("Upload failed", err);
                                 alert("Image upload failed");
+                              } finally {
+                                setIsUploadingPrimary(false);
                               }
                             }
                         }} />
@@ -226,16 +231,19 @@ export default function AdminProducts() {
                     >
                       Add URL
                     </button>
-                    <label className="cursor-pointer bg-gray-100 hover:bg-gray-200 px-4 py-2.5 rounded-xl border border-gray-200 flex items-center text-sm font-medium transition-colors text-gray-700">
-                      Upload
-                      <input type="file" accept="image/*,video/*" className="hidden" onChange={async (e) => {
+                    <label className={`cursor-pointer ${isUploadingGallery ? 'bg-gray-200 opacity-70' : 'bg-gray-100 hover:bg-gray-200'} px-4 py-2.5 rounded-xl border border-gray-200 flex items-center gap-2 text-sm font-medium transition-colors text-gray-700`}>
+                      {isUploadingGallery ? <><Loader2 className="animate-spin" size={16} /> Uploading...</> : 'Upload'}
+                      <input type="file" accept="image/*,video/*" className="hidden" disabled={isUploadingGallery} onChange={async (e) => {
                           if (e.target.files && e.target.files[0]) {
+                            setIsUploadingGallery(true);
                             try {
                               const base64 = await handleImageUpload(e.target.files[0]);
                               setEditing({ ...editing, images: [...(editing.images || []), base64] });
                             } catch(err) {
                               console.error("Upload failed", err);
                               alert("Image upload failed");
+                            } finally {
+                              setIsUploadingGallery(false);
                             }
                           }
                       }} />

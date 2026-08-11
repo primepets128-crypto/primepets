@@ -5,7 +5,7 @@ import { handleImageUpload } from '../../utils/imageUpload';
 import MediaDisplay from '../../components/MediaDisplay';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
-import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, LayoutTemplate } from 'lucide-react';
+import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, LayoutTemplate, Loader2 } from 'lucide-react';
 
 export default function AdminSlides() {
   const { slides, banners, refreshData } = useData();
@@ -13,6 +13,7 @@ export default function AdminSlides() {
   const [editingSlide, setEditingSlide] = useState(null);
   const [isSlideModalOpen, setIsSlideModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const defaultSlide = {
     heroImage: ''
@@ -170,16 +171,19 @@ export default function AdminSlides() {
                          <div className="flex gap-2">
                            <input type="url" value={editingSlide.heroImage || ''} onChange={e => setEditingSlide({...editingSlide, heroImage: e.target.value})} className="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm" placeholder="Paste media URL here..." />
                            <span className="text-sm text-gray-500 flex items-center">OR</span>
-                           <label className="cursor-pointer bg-white hover:bg-gray-50 px-4 py-2.5 rounded-xl border border-gray-200 flex items-center text-sm font-medium transition-colors text-gray-700">
-                             Upload
-                             <input type="file" accept="image/*,video/*" className="hidden" onChange={async (e) => {
+                           <label className={`cursor-pointer ${isUploading ? 'bg-gray-100 opacity-70' : 'bg-white hover:bg-gray-50'} px-4 py-2.5 rounded-xl border border-gray-200 flex items-center gap-2 text-sm font-medium transition-colors text-gray-700`}>
+                             {isUploading ? <><Loader2 className="animate-spin" size={16} /> Uploading...</> : 'Upload'}
+                             <input type="file" accept="image/*,video/*" className="hidden" disabled={isUploading} onChange={async (e) => {
                                  if (e.target.files && e.target.files[0]) {
+                                   setIsUploading(true);
                                    try {
                                      const base64 = await handleImageUpload(e.target.files[0]);
                                      setEditingSlide({...editingSlide, heroImage: base64});
                                    } catch(err) {
                                      console.error("Upload failed", err);
                                      alert("Image upload failed");
+                                   } finally {
+                                     setIsUploading(false);
                                    }
                                  }
                              }} />

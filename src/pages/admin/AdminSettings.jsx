@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useData } from '../../context/DataContext';
-import { Save, Layout, MessageSquare, Globe, Database, Trash2, AlertTriangle, Phone, Mail, Music2, CreditCard } from 'lucide-react';
+import { Save, Layout, MessageSquare, Globe, Database, Trash2, AlertTriangle, Phone, Mail, Music2, CreditCard, Loader2 } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
 import Toast from '../../components/Toast';
 import { handleImageUpload } from '../../utils/imageUpload';
@@ -12,6 +12,7 @@ export default function AdminSettings() {
   const [formData, setFormData] = useState(frontendSettings || {});
   const [activeTab, setActiveTab] = useState('general');
   const [isClearing, setIsClearing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,12 +22,15 @@ export default function AdminSettings() {
   const handleLogoUpload = async (e) => {
     const file = e.target.files[0];
     if (file) {
+      setIsUploading(true);
       try {
         const base64 = await handleImageUpload(file);
         setFormData(prev => ({ ...prev, logoBase64: base64 }));
       } catch (err) {
         console.error(err);
         window.dispatchEvent(new CustomEvent('toast', { detail: { message: 'Image upload failed' } }));
+      } finally {
+        setIsUploading(false);
       }
     }
   };
@@ -142,16 +146,21 @@ export default function AdminSettings() {
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Store Logo (Custom Upload)</label>
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center overflow-hidden shadow-inner border border-gray-200">
+                    <div className="relative w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center overflow-hidden shadow-inner border border-gray-200">
                       {(formData.logoBase64 || frontendSettings?.logoBase64) ? (
-                        <img src={formData.logoBase64 || frontendSettings.logoBase64} alt="Store Logo" className="w-full h-full object-contain" />
+                        <img src={formData.logoBase64 || frontendSettings.logoBase64} alt="Store Logo" className={`w-full h-full object-contain ${isUploading ? 'opacity-30' : ''}`} />
                       ) : (
-                        <img src="/MA_logo.png" alt="Store Logo" className="w-full h-full object-contain" />
+                        <img src="/MA_logo.png" alt="Store Logo" className={`w-full h-full object-contain ${isUploading ? 'opacity-30' : ''}`} />
+                      )}
+                      {isUploading && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-white/20 backdrop-blur-[2px]">
+                          <Loader2 className="animate-spin text-orange-500" size={24} />
+                        </div>
                       )}
                     </div>
                     <div>
-                      <input type="file" accept="image/*" onChange={handleLogoUpload}
-                        className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-[#d07e20] hover:file:bg-orange-100 transition-all cursor-pointer" />
+                      <input type="file" accept="image/*" onChange={handleLogoUpload} disabled={isUploading}
+                        className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-[#d07e20] hover:file:bg-orange-100 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" />
                       <p className="text-xs text-gray-400 mt-1">Recommended size: 200x200px. Max size: 200KB.</p>
                     </div>
                   </div>

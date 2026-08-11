@@ -7,17 +7,22 @@ export default function ActivityTracker() {
   const { logActivity } = useData();
 
   useEffect(() => {
-    // Ignore admin routes so we don't clutter the log with admin actions
-    if (location.pathname.startsWith('/admin')) {
-      return;
-    }
-
     let pageName = 'Home';
-    if (location.pathname === '/category') pageName = 'Shop';
-    else if (location.pathname === '/offers') pageName = 'Offers';
-    else if (location.pathname === '/cart') pageName = 'Cart';
-    else if (location.pathname === '/account') pageName = 'Account';
-    else if (location.pathname === '/hub') pageName = 'Hub';
+    
+    if (location.pathname.startsWith('/admin')) {
+      const path = location.pathname.split('/')[2];
+      pageName = path ? `Admin ${path.charAt(0).toUpperCase() + path.slice(1)}` : 'Admin Dashboard';
+    } else if (location.pathname === '/category') {
+      pageName = 'Shop';
+    } else if (location.pathname === '/offers') {
+      pageName = 'Offers';
+    } else if (location.pathname === '/cart') {
+      pageName = 'Cart';
+    } else if (location.pathname === '/account') {
+      pageName = 'Account';
+    } else if (location.pathname === '/hub') {
+      pageName = 'Hub';
+    }
 
     logActivity('Page View', `Visited ${pageName}`);
   }, [location.pathname]);
