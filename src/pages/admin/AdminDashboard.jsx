@@ -12,7 +12,6 @@ export default function AdminDashboard() {
   const [serverStats, setServerStats] = useState(null);
   const [dateRange, setDateRange] = useState('7d');
   const [customStart, setCustomStart] = useState('');
-  const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [analyticsData, setAnalyticsData] = useState([]);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
