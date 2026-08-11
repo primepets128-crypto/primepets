@@ -67,8 +67,8 @@ export default function AdminDashboard() {
     { label: 'Total Leads/Users', value: serverStats?.database?.users || 0, icon: Users, path: '/admin/customers', color: 'from-pink-500 to-rose-400', shadow: 'shadow-pink-500/20' },
     { label: 'Active Deals', value: serverStats?.database?.deals || 0, icon: Percent, path: '/admin/deals', color: 'from-orange-500 to-red-400', shadow: 'shadow-orange-500/20' },
     { label: 'Categories', value: serverStats?.database?.categories || 0, icon: Tag, path: '/admin/categories', color: 'from-green-500 to-emerald-400', shadow: 'shadow-green-500/20' },
-    { label: 'Media Storage', value: formatBytes(serverStats?.cloudinary?.storageUsage || 0), icon: ImageIcon, path: '/admin/settings', color: 'from-purple-500 to-indigo-400', shadow: 'shadow-purple-500/20' },
-    { label: 'Bandwidth (Month)', value: formatBytes(serverStats?.cloudinary?.bandwidthUsage || 0), icon: Activity, path: '/admin/settings', color: 'from-teal-500 to-emerald-400', shadow: 'shadow-teal-500/20' }
+    { label: 'Media Storage', value: formatBytes(serverStats?.cloudinary?.storageUsage || 0), limit: ' / 25 GB', icon: ImageIcon, path: '/admin/settings', color: 'from-purple-500 to-indigo-400', shadow: 'shadow-purple-500/20' },
+    { label: 'Bandwidth (Month)', value: formatBytes(serverStats?.cloudinary?.bandwidthUsage || 0), limit: ' / 25 GB', icon: Activity, path: '/admin/settings', color: 'from-teal-500 to-emerald-400', shadow: 'shadow-teal-500/20' }
   ];
 
   return (
@@ -96,7 +96,7 @@ export default function AdminDashboard() {
 
       {/* Stats Grid */}
       <ScrollReveal delay={100}>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {stats.map((stat, idx) => {
             const Icon = stat.icon;
             return (
@@ -107,7 +107,10 @@ export default function AdminDashboard() {
                     <Icon size={24} />
                   </div>
                   <div>
-                    <p className="text-3xl font-black text-gray-800">{stat.value}</p>
+                    <p className="text-3xl font-black text-gray-800 flex items-baseline gap-1">
+                      {stat.value}
+                      {stat.limit && <span className="text-sm font-bold text-gray-400">{stat.limit}</span>}
+                    </p>
                     <p className="text-sm text-gray-500 font-semibold">{stat.label}</p>
                   </div>
                 </div>
