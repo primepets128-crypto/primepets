@@ -17,42 +17,43 @@ router.get('/', async (req, res) => {
 // PUT update settings
 router.put('/', async (req, res) => {
   try {
-    const { storeName, tagline, logoChar, footerDescription, facebookUrl, instagramUrl, youtubeUrl, whatsappNumber, logoBase64 } = req.body;
+    const {
+      storeName, tagline, logoChar, footerDescription,
+      facebookUrl, instagramUrl, youtubeUrl, whatsappNumber,
+      logoBase64, razorpayKeyId, whatsappOrderNumber,
+      siteAudioUrl, contactEmail, contactPhone
+    } = req.body;
     
     // Upload logo to Cloudinary if it's new (base64)
     const uploadedLogo = await uploadToCloudinary(logoBase64, 'prime_pets/settings');
 
     let settings = await prisma.frontendSetting.findFirst();
 
+    const data = {
+      storeName: storeName || '',
+      tagline: tagline || '',
+      logoChar: logoChar || '',
+      footerDescription: footerDescription || '',
+      facebookUrl: facebookUrl || '',
+      instagramUrl: instagramUrl || '',
+      youtubeUrl: youtubeUrl || '',
+      whatsappNumber: whatsappNumber || '',
+      razorpayKeyId: razorpayKeyId !== undefined ? razorpayKeyId : null,
+      whatsappOrderNumber: whatsappOrderNumber !== undefined ? whatsappOrderNumber : null,
+      siteAudioUrl: siteAudioUrl !== undefined ? siteAudioUrl : null,
+      contactEmail: contactEmail !== undefined ? contactEmail : null,
+      contactPhone: contactPhone !== undefined ? contactPhone : null,
+    };
+
     if (settings) {
-        settings = await prisma.frontendSetting.update({
-            where: { id: settings.id },
-            data: {
-                storeName: storeName || '',
-                tagline: tagline || '',
-                logoChar: logoChar || '',
-                footerDescription: footerDescription || '',
-                facebookUrl: facebookUrl || '',
-                instagramUrl: instagramUrl || '',
-                youtubeUrl: youtubeUrl || '',
-                whatsappNumber: whatsappNumber || '',
-                logoBase64: uploadedLogo || settings.logoBase64
-            }
-        });
+      data.logoBase64 = uploadedLogo || settings.logoBase64;
+      settings = await prisma.frontendSetting.update({
+        where: { id: settings.id },
+        data
+      });
     } else {
-        settings = await prisma.frontendSetting.create({
-            data: {
-                storeName: storeName || '',
-                tagline: tagline || '',
-                logoChar: logoChar || '',
-                footerDescription: footerDescription || '',
-                facebookUrl: facebookUrl || '',
-                instagramUrl: instagramUrl || '',
-                youtubeUrl: youtubeUrl || '',
-                whatsappNumber: whatsappNumber || '',
-                logoBase64: uploadedLogo || ''
-            }
-        });
+      data.logoBase64 = uploadedLogo || '';
+      settings = await prisma.frontendSetting.create({ data });
     }
     
     res.json(settings);

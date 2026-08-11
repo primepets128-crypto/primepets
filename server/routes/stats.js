@@ -12,12 +12,13 @@ cloudinary.config({
 
 router.get('/', async (req, res) => {
   try {
-    const [userCount, productCount, categoryCount, dealCount, activeBannersCount] = await Promise.all([
+    const [userCount, productCount, categoryCount, dealCount, bannerCount, orderCount] = await Promise.all([
       prisma.user.count(),
       prisma.product.count(),
       prisma.category.count(),
       prisma.deal.count(),
-      prisma.banner.count({ where: { active: true } })
+      prisma.banner.count(),
+      prisma.order.count()
     ]);
 
     let cloudinaryStats = null;
@@ -47,7 +48,8 @@ router.get('/', async (req, res) => {
         products: productCount,
         categories: categoryCount,
         deals: dealCount,
-        activeBanners: activeBannersCount
+        banners: bannerCount,
+        orders: orderCount
       },
       cloudinary: cloudinaryStats
     });

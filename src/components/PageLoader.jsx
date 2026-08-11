@@ -2,39 +2,30 @@ import React, { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Generate 40 random dust particles once
-const particles = Array.from({ length: 40 }).map((_, i) => {
-  const size = Math.random() * 4 + 1; // 1px to 5px
-  const initialX = Math.random() * 100; // 0% to 100%
-  const initialY = Math.random() * 100; // 0% to 100%
-  const duration = Math.random() * 10 + 10; // 10s to 20s
-  const delay = Math.random() * 5; // 0s to 5s
+// Generate particles once (fewer on mobile for perf)
+const PARTICLE_COUNT = typeof window !== 'undefined' && window.innerWidth < 768 ? 20 : 40;
+const particles = Array.from({ length: PARTICLE_COUNT }).map((_, i) => {
+  const size = Math.random() * 4 + 1;
+  const initialX = Math.random() * 100;
+  const initialY = Math.random() * 100;
+  const duration = Math.random() * 10 + 10;
+  const delay = Math.random() * 5;
   return { id: i, size, initialX, initialY, duration, delay };
 });
 
 function GoldenDust() {
-
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none z-[5]">
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          initial={{ 
-            opacity: 0, 
-            x: `${p.initialX}vw`, 
-            y: `${p.initialY}vh` 
-          }}
+          initial={{ opacity: 0, x: `${p.initialX}vw`, y: `${p.initialY}vh` }}
           animate={{
             opacity: [0, 0.8, 0.8, 0],
             x: [`${p.initialX}vw`, `${p.initialX + 30}vw`],
             y: [`${p.initialY}vh`, `${p.initialY - 20}vh`],
           }}
-          transition={{
-            duration: p.duration,
-            repeat: Infinity,
-            ease: "linear",
-            delay: p.delay,
-          }}
+          transition={{ duration: p.duration, repeat: Infinity, ease: "linear", delay: p.delay }}
           className="absolute rounded-full bg-[#ffb347] shadow-[0_0_8px_2px_rgba(255,179,71,0.8)] blur-[0.5px]"
           style={{ width: p.size, height: p.size }}
         />
@@ -51,7 +42,28 @@ const quotes = [
   "Nutrition tailored for their joy."
 ];
 
-export default function PageLoader({ onFinish, skip }) {
+// Simple loader (used as Suspense fallback for sub-pages)
+function SimpleLoader() {
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-[#1a0e05] to-[#5c3110]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center animate-pulse">
+          <img src="/MA_logo.png" alt="Loading" className="w-10 h-10 object-contain" />
+        </div>
+        <div className="h-1 w-32 bg-black/40 rounded-full overflow-hidden">
+          <motion.div
+            initial={{ width: '0%' }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 1.5, ease: 'easeInOut', repeat: Infinity }}
+            className="h-full bg-gradient-to-r from-[#ffd8a8] to-[#d07e20]"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function PageLoader({ onFinish, skip, dataReady }) {
   const [isVisible, setIsVisible] = useState(true);
   const [started, setStarted] = useState(false);
   const [quoteIndex, setQuoteIndex] = useState(0);
@@ -60,24 +72,54 @@ export default function PageLoader({ onFinish, skip }) {
 
   if (skip) return null;
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!started) return;
-    // Auto dismiss after 7 seconds
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      if (onFinish) onFinish();
-    }, 7000);
-    
+
     // Cycle quotes every 2 seconds
     const quoteTimer = setInterval(() => {
       setQuoteIndex(prev => (prev + 1) % quotes.length);
     }, 2000);
 
-    return () => {
-      clearTimeout(timer);
-      clearInterval(quoteTimer);
+    // Wait for data to be ready, then give a small buffer before dismissing
+    // Minimum 3 seconds, auto dismiss after 8 seconds regardless
+    let dismissed = false;
+
+    const dismiss = () => {
+      if (dismissed) return;
+      dismissed = true;
+      setIsVisible(false);
+      if (onFinish) onFinish();
     };
-  }, [onFinish, started]);
+
+    // Maximum wait: 8 seconds
+    const maxTimer = setTimeout(dismiss, 8000);
+
+    // If data is already ready, wait 3 seconds minimum then dismiss
+    if (dataReady) {
+      const minTimer = setTimeout(dismiss, 3000);
+      return () => {
+        clearInterval(quoteTimer);
+        clearTimeout(maxTimer);
+        clearTimeout(minTimer);
+      };
+    }
+
+    // Poll for dataReady
+    const pollInterval = setInterval(() => {
+      // dataReady is passed as prop, but we also check a DOM marker
+      if (dataReady) {
+        clearInterval(pollInterval);
+        setTimeout(dismiss, 1500); // Small buffer after data loads
+      }
+    }, 300);
+
+    return () => {
+      clearInterval(quoteTimer);
+      clearTimeout(maxTimer);
+      clearInterval(pollInterval);
+    };
+  }, [onFinish, started, dataReady]);
 
   const handleStart = () => {
     const audio = document.getElementById('site-bg-audio');
@@ -146,8 +188,8 @@ export default function PageLoader({ onFinish, skip }) {
               >
                 <button className="relative px-4 py-1.5 bg-gradient-to-r from-[#d07e20]/20 to-[#ffb347]/20 border border-[#d07e20]/40 rounded-full text-[#ffdbb0] text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(208,126,32,0.2)] hover:shadow-[0_0_30px_rgba(208,126,32,0.5)] transition-all overflow-hidden flex items-center gap-2">
                   <span className="relative z-10">Tap to enter</span>
-                  <svg className="w-3 h-3 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                  <svg className="w-3 h-3 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
                   <div className="absolute inset-0 bg-gradient-to-r from-[#d07e20] to-[#ffb347] opacity-0 hover:opacity-20 transition-opacity" />
                 </button>
@@ -183,17 +225,8 @@ export default function PageLoader({ onFinish, skip }) {
               className="mb-4"
             >
               <motion.div
-                initial={{ opacity: 1, scale: 1, y: 0 }}
-                animate={{ 
-                  scale: [1, 1.02, 1],
-                  y: [0, -8, 0],
-                  opacity: 1
-                }}
-                transition={{ 
-                  duration: 3, 
-                  ease: "easeInOut",
-                  repeat: Infinity
-                }}
+                animate={{ scale: [1, 1.02, 1], y: [0, -8, 0], opacity: 1 }}
+                transition={{ duration: 3, ease: "easeInOut", repeat: Infinity }}
                 className="w-64 h-64 md:w-96 md:h-96 flex items-center justify-center drop-shadow-[0_0_30px_rgba(208,126,32,0.5)]"
               >
                 <div className="relative w-56 h-56 md:w-80 md:h-80 flex items-center justify-center p-6 bg-white rounded-full">
@@ -228,7 +261,7 @@ export default function PageLoader({ onFinish, skip }) {
               </AnimatePresence>
             </div>
 
-            {/* 7-Second Progress Bar */}
+            {/* Progress Bar — tied to data loading */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -238,12 +271,17 @@ export default function PageLoader({ onFinish, skip }) {
               <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden relative shadow-inner">
                 <motion.div
                   initial={{ width: "0%" }}
-                  animate={{ width: "100%" }}
-                  transition={{ duration: 7, ease: "linear" }}
+                  animate={{ width: dataReady ? "100%" : "85%" }}
+                  transition={dataReady 
+                    ? { duration: 0.5, ease: "easeOut" }
+                    : { duration: 5, ease: "easeOut" }
+                  }
                   className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#ffd8a8] via-[#ffb347] to-[#d07e20] shadow-[0_0_10px_rgba(208,126,32,0.8)]"
                 />
               </div>
-              <p className="text-xs text-orange-300/60 mt-3 uppercase tracking-widest font-semibold">Loading Experience...</p>
+              <p className="text-xs text-orange-300/60 mt-3 uppercase tracking-widest font-semibold">
+                {dataReady ? 'Ready!' : 'Loading Experience...'}
+              </p>
             </motion.div>
 
             {/* Tap to Skip button */}

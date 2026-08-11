@@ -19,6 +19,7 @@ async function uploadAndCreate() {
     const res2 = await cloudinary.uploader.upload('C:\\Users\\HP\\.gemini\\antigravity\\brain\\77298526-46a3-41b2-9e90-610799d0e490\\scratch\\slide2.png', { folder: 'primepets/slides' });
 
     console.log("Creating slides in DB...");
+    await prisma.slide.deleteMany();
     await prisma.slide.create({
       data: {
         gradient: 'from-[#1a0e05] to-[#2a1608]',

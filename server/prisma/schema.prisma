@@ -70,20 +70,42 @@ model Slide {
 }
 
 model FrontendSetting {
-  id                Int    @id @default(autoincrement())
-  storeName         String
-  tagline           String
-  logoChar          String
-  footerDescription String
-  facebookUrl       String
-  instagramUrl      String
-  youtubeUrl        String
-  whatsappNumber    String
-  logoBase64        String?
+  id                  Int    @id @default(autoincrement())
+  storeName           String
+  tagline             String
+  logoChar            String
+  footerDescription   String
+  facebookUrl         String
+  instagramUrl        String
+  youtubeUrl          String
+  whatsappNumber      String
+  logoBase64          String?
+  razorpayKeyId       String?
+  whatsappOrderNumber String?
+  siteAudioUrl        String?
+  contactEmail        String?
+  contactPhone        String?
 }
 
 model Banner {
   id       Int     @id @default(autoincrement())
   mediaUrl String
   link     String?
+}
+
+model Order {
+  id            Int      @id @default(autoincrement())
+  customerName  String
+  customerPhone String
+  customerAddress String
+  items         String   // JSON string of cart items
+  total         Float
+  paymentMethod String   // "COD" | "ONLINE"
+  paymentStatus String   @default("PENDING") // PENDING | PAID | FAILED
+  status        String   @default("PENDING") // PENDING | CONFIRMED | SHIPPED | DELIVERED | CANCELLED
+  razorpayOrderId String?
+  razorpayPaymentId String?
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

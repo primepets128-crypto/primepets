@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useData } from '../../context/DataContext';
-import { Save, Layout, MessageSquare, Palette, Globe, Database, Trash2, AlertTriangle } from 'lucide-react';
+import { Save, Layout, MessageSquare, Globe, Database, Trash2, AlertTriangle, Phone, Mail, Music2, CreditCard } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
 import Toast from '../../components/Toast';
 import { handleImageUpload } from '../../utils/imageUpload';
+import { Link } from 'react-router-dom';
 
 export default function AdminSettings() {
   const { frontendSettings, refreshData } = useData();
@@ -44,7 +45,6 @@ export default function AdminSettings() {
   const handleClearCache = () => {
     if (window.confirm('Are you sure you want to clear all local data? This will reset all products, categories, deals, slides, and settings to their defaults. This action cannot be undone.')) {
       setIsClearing(true);
-      // Find all keys starting with prime-pets
       const keysToRemove = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
@@ -52,10 +52,7 @@ export default function AdminSettings() {
           keysToRemove.push(key);
         }
       }
-      // Remove them
       keysToRemove.forEach(key => localStorage.removeItem(key));
-      
-      // Reload the page to fetch initial states
       setTimeout(() => {
         window.location.reload();
       }, 1000);
@@ -66,6 +63,7 @@ export default function AdminSettings() {
     { id: 'general', label: 'General Info', icon: Layout },
     { id: 'footer', label: 'Footer & Text', icon: MessageSquare },
     { id: 'social', label: 'Social Links', icon: Globe },
+    { id: 'contact', label: 'Contact & WhatsApp', icon: Phone },
     { id: 'data', label: 'Data Management', icon: Database },
   ];
 
@@ -86,17 +84,33 @@ export default function AdminSettings() {
         </div>
       </ScrollReveal>
 
+      {/* Quick links to new sections */}
+      <ScrollReveal delay={50}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+          {[
+            { icon: '💳', label: 'Payment / Razorpay', path: '/admin/payment' },
+            { icon: '🎵', label: 'Site Music', path: '/admin/music' },
+            { icon: '🖼️', label: 'Category Images', path: '/admin/categories' },
+          ].map(item => (
+            <Link key={item.path} to={item.path}
+              className="flex items-center gap-2 bg-orange-50 hover:bg-orange-100 border border-orange-100 text-orange-700 font-semibold px-4 py-3 rounded-xl transition-colors text-sm">
+              <span>{item.icon}</span> {item.label} →
+            </Link>
+          ))}
+        </div>
+      </ScrollReveal>
+
       <ScrollReveal delay={100}>
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Tabs */}
-          <div className="flex border-b border-gray-100 px-2 pt-2">
+          <div className="flex flex-wrap border-b border-gray-100 px-2 pt-2 overflow-x-auto">
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-6 py-4 font-semibold text-sm transition-all relative ${
+                  className={`flex items-center gap-2 px-5 py-4 font-semibold text-sm transition-all relative whitespace-nowrap ${
                     activeTab === tab.id ? 'text-[#d07e20]' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                   }`}
                 >
@@ -115,58 +129,39 @@ export default function AdminSettings() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Store Name</label>
-                  <input 
-                    type="text" 
-                    name="storeName" 
-                    value={formData.storeName} 
-                    onChange={handleChange}
+                  <input type="text" name="storeName" value={formData.storeName || ''} onChange={handleChange}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
-                    placeholder="e.g. Prime Pets"
-                  />
+                    placeholder="e.g. Prime Pets" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Store Tagline / Subtitle</label>
-                  <input 
-                    type="text" 
-                    name="tagline" 
-                    value={formData.tagline} 
-                    onChange={handleChange}
+                  <input type="text" name="tagline" value={formData.tagline || ''} onChange={handleChange}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
-                    placeholder="e.g. Universe"
-                  />
+                    placeholder="e.g. Universe" />
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Store Logo (Custom Upload)</label>
                   <div className="flex items-center gap-4">
                     <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center overflow-hidden shadow-inner border border-gray-200">
-                      {(formData.logoBase64 || frontendSettings.logoBase64) ? (
+                      {(formData.logoBase64 || frontendSettings?.logoBase64) ? (
                         <img src={formData.logoBase64 || frontendSettings.logoBase64} alt="Store Logo" className="w-full h-full object-contain" />
                       ) : (
                         <img src="/MA_logo.png" alt="Store Logo" className="w-full h-full object-contain" />
                       )}
                     </div>
                     <div>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleLogoUpload}
-                        className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-[#d07e20] hover:file:bg-orange-100 transition-all cursor-pointer"
-                      />
+                      <input type="file" accept="image/*" onChange={handleLogoUpload}
+                        className="text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-orange-50 file:text-[#d07e20] hover:file:bg-orange-100 transition-all cursor-pointer" />
                       <p className="text-xs text-gray-400 mt-1">Recommended size: 200x200px. Max size: 200KB.</p>
                     </div>
                   </div>
                 </div>
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Logo Letter (1 Character)</label>
-                  <input 
-                    type="text" 
-                    name="logoChar" 
-                    value={formData.logoChar} 
-                    onChange={handleChange}
+                  <input type="text" name="logoChar" value={formData.logoChar || ''} onChange={handleChange}
                     maxLength={1}
                     className="w-20 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-black text-xl text-center"
-                    placeholder="P"
-                  />
+                    placeholder="P" />
                   <p className="text-xs text-gray-400 mt-2">This letter appears in the glowing icon on the header and footer.</p>
                 </div>
               </div>
@@ -176,14 +171,10 @@ export default function AdminSettings() {
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">Footer Description</label>
-                  <textarea 
-                    name="footerDescription" 
-                    value={formData.footerDescription} 
-                    onChange={handleChange}
+                  <textarea name="footerDescription" value={formData.footerDescription || ''} onChange={handleChange}
                     rows={4}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium resize-none"
-                    placeholder="Welcome to the ultimate pet universe..."
-                  />
+                    placeholder="Welcome to the ultimate pet universe..." />
                   <p className="text-xs text-gray-400 mt-2">Shown above the social media icons in the footer.</p>
                 </div>
               </div>
@@ -194,47 +185,69 @@ export default function AdminSettings() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 text-[#1877F2]">Facebook URL</label>
-                    <input 
-                      type="url" 
-                      name="facebookUrl" 
-                      value={formData.facebookUrl} 
-                      onChange={handleChange}
+                    <input type="url" name="facebookUrl" value={formData.facebookUrl || ''} onChange={handleChange}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#1877F2] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
-                      placeholder="https://facebook.com/..."
-                    />
+                      placeholder="https://facebook.com/..." />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 text-[#E1306C]">Instagram URL</label>
-                    <input 
-                      type="url" 
-                      name="instagramUrl" 
-                      value={formData.instagramUrl} 
-                      onChange={handleChange}
+                    <input type="url" name="instagramUrl" value={formData.instagramUrl || ''} onChange={handleChange}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#E1306C] focus:ring-2 focus:ring-pink-100 transition-all font-medium"
-                      placeholder="https://instagram.com/..."
-                    />
+                      placeholder="https://instagram.com/..." />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2 text-[#FF0000]">YouTube URL</label>
-                    <input 
-                      type="url" 
-                      name="youtubeUrl" 
-                      value={formData.youtubeUrl} 
-                      onChange={handleChange}
+                    <input type="url" name="youtubeUrl" value={formData.youtubeUrl || ''} onChange={handleChange}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#FF0000] focus:ring-2 focus:ring-red-100 transition-all font-medium"
-                      placeholder="https://youtube.com/..."
-                    />
+                      placeholder="https://youtube.com/..." />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2 text-[#25D366]">WhatsApp Number</label>
-                    <input 
-                      type="text" 
-                      name="whatsappNumber" 
-                      value={formData.whatsappNumber} 
-                      onChange={handleChange}
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 text-[#25D366]">WhatsApp Number (Social / Footer)</label>
+                    <input type="text" name="whatsappNumber" value={formData.whatsappNumber || ''} onChange={handleChange}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#25D366] focus:ring-2 focus:ring-green-100 transition-all font-medium"
-                      placeholder="+91..."
-                    />
+                      placeholder="+91..." />
+                    <p className="text-xs text-gray-400 mt-1">Appears in footer social links.</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'contact' && (
+              <div className="space-y-6">
+                <div className="bg-green-50 border border-green-100 rounded-2xl p-4 flex gap-3 items-start mb-4">
+                  <span className="text-2xl">📱</span>
+                  <div>
+                    <p className="font-bold text-green-800">Order WhatsApp Notifications</p>
+                    <p className="text-green-700 text-sm">When a customer places an order, a WhatsApp message will be sent to the order notification number below.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 text-[#25D366]">
+                      📦 Order Notifications WhatsApp Number
+                    </label>
+                    <input type="text" name="whatsappOrderNumber" value={formData.whatsappOrderNumber || ''} onChange={handleChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#25D366] focus:ring-2 focus:ring-green-100 transition-all font-medium"
+                      placeholder="+91 97634 05605" />
+                    <p className="text-xs text-gray-400 mt-1">This number receives order notifications. Include country code e.g. +919763405605</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      📞 Contact Phone Number
+                    </label>
+                    <input type="tel" name="contactPhone" value={formData.contactPhone || ''} onChange={handleChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
+                      placeholder="+91 99999 99999" />
+                    <p className="text-xs text-gray-400 mt-1">Shown in footer contact section.</p>
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      ✉️ Contact Email Address
+                    </label>
+                    <input type="email" name="contactEmail" value={formData.contactEmail || ''} onChange={handleChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
+                      placeholder="support@primepets.in" />
                   </div>
                 </div>
               </div>
@@ -250,12 +263,11 @@ export default function AdminSettings() {
                     <div>
                       <h3 className="text-lg font-bold text-red-900 mb-2">Clear Local Storage Cache</h3>
                       <p className="text-red-700 text-sm mb-4">
-                        This action will completely wipe all data stored in this browser for Prime Pets, 
-                        including any custom products, categories, deals, or slides you have created. 
-                        The application will be reset to its initial default state. Use this if you are 
+                        This action will completely wipe all data stored in this browser for Prime Pets,
+                        including any custom products, categories, deals, or slides you have created.
+                        The application will be reset to its initial default state. Use this if you are
                         experiencing "old cache" issues or want a fresh start.
                       </p>
-                      
                       <button
                         onClick={handleClearCache}
                         disabled={isClearing}
