@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Tag, Image, Percent,
-  Menu, X, Settings, Users, ShoppingBag, CreditCard, Music2
+  Menu, X, Settings, Users, ShoppingBag, CreditCard, Music2, Activity
 } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/admin', label: 'Dashboard', icon: LayoutDashboard },
+  { path: '/admin/live', label: 'Live Website', icon: Activity },
   { path: '/admin/products', label: 'Products', icon: Package },
   { path: '/admin/categories', label: 'Category Images', icon: Image },
   { path: '/admin/slides', label: 'Slides', icon: Image },

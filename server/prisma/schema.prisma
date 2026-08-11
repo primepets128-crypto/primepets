@@ -125,3 +125,15 @@ model ActivityLog {
   ip        String?
   userAgent String?
 }
+
+model Visitor {
+  id        String   @id @default(uuid())
+  visitorId String   @unique
+  fcmToken  String?
+  device    String?
+  browser   String?
+  os        String?
+  ip        String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

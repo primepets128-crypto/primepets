@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const adminAuth = require('../firebaseAdmin');
+const { adminAuth } = require('../firebaseAdmin');
 const prisma = require('../db');
 
 // Middleware to verify Firebase token

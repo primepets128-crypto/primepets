@@ -22,7 +22,8 @@
     "express": "^5.2.1",
     "firebase-admin": "^11.11.1",
     "multer": "^2.2.0",
-    "razorpay": "^2.9.8"
+    "razorpay": "^2.9.8",
+    "ua-parser-js": "^2.0.10"
   },
   "devDependencies": {
     "cross-env": "^10.1.0",

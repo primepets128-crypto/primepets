@@ -12,11 +12,10 @@ export default function AdminDashboard() {
   const [serverStats, setServerStats] = useState(null);
   const [dateRange, setDateRange] = useState('7d');
   const [customStart, setCustomStart] = useState('');
+  const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
   const [analyticsData, setAnalyticsData] = useState([]);
-  const [liveActivity, setLiveActivity] = useState([]);
   const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
-  const [isLiveLoading, setIsLiveLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -52,20 +51,9 @@ export default function AdminDashboard() {
   }, [dateRange, customStart, customEnd]);
 
   useEffect(() => {
-    const fetchLive = async () => {
-      try {
-        const response = await axios.get('/api/analytics/live');
-        setLiveActivity(response.data);
-      } catch (error) {
-        console.error("Failed to fetch live activity:", error);
-      } finally {
-        setIsLiveLoading(false);
-      }
-    };
-    fetchLive();
-    const interval = setInterval(fetchLive, 5000); // refresh every 5s for snappy live feeling
-    return () => clearInterval(interval);
-  }, []);
+    if (dateRange === 'custom' && (!customStart || !customEnd)) return;
+    fetchAnalytics();
+  }, [dateRange, customStart, customEnd]);
 
   const formatBytes = (bytes) => {
     if (bytes === 0) return '0 B';
@@ -211,58 +199,29 @@ export default function AdminDashboard() {
           </div>
         </ScrollReveal>
 
-        {/* Live Website Activity */}
+        {/* Link to Live Website Activity */}
         <ScrollReveal delay={200} className="lg:col-span-1">
-          <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm h-full flex flex-col relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-green-500 opacity-[0.03] rounded-full blur-2xl"></div>
+          <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 text-white shadow-lg flex flex-col items-center justify-center text-center h-full relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
             
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
-                <div className="relative flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
-                </div>
-                Live Website
-              </h3>
-              <span className="text-xs font-semibold text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-100">Auto-sync</span>
+            <div className="bg-white/20 p-4 rounded-full mb-4">
+              <Activity size={32} className="text-white" />
             </div>
+            <h3 className="text-xl font-bold mb-2">Live Real-time Visitors</h3>
+            <p className="text-green-100 text-sm mb-6 max-w-[250px]">
+              See who is currently on the site, what device they are using, and send them push notifications directly!
+            </p>
             
-            <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4 max-h-[350px]">
-              {isLiveLoading ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-3">
-                  <div className="relative">
-                     <Loader2 size={32} className="animate-spin text-green-500 relative z-10" />
-                     <div className="absolute inset-0 bg-green-500 blur-md opacity-30 rounded-full animate-pulse"></div>
-                  </div>
-                  <p className="text-sm font-medium animate-pulse">Connecting to live feed...</p>
-                </div>
-              ) : liveActivity.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
-                  <Clock size={32} className="opacity-20" />
-                  <p className="text-sm">Waiting for live activity...</p>
-                </div>
-              ) : (
-                liveActivity.map((log) => (
-                  <div key={log.id} className="flex gap-4 relative">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 z-10 shadow-sm ${log.type === 'visit' ? 'bg-blue-50 border border-blue-100 text-blue-500' : 'bg-orange-50 border border-orange-100 text-[#d07e20]'}`}>
-                      {log.type === 'visit' ? <Users size={16} /> : <Activity size={16} />}
-                    </div>
-                    {/* Connection Line */}
-                    <div className="absolute top-10 left-5 bottom-[-16px] w-px bg-gray-100 -z-0" />
-                    
-                    <div className="flex-1 pb-4">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm font-bold text-gray-800">{log.action}</p>
-                        <p className="text-[10px] text-gray-400 font-medium">
-                          {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                        </p>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-0.5">{log.details}</p>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+            <button 
+              onClick={() => navigate('/admin/live')}
+              className="bg-white text-green-600 font-bold px-6 py-3 rounded-xl hover:bg-green-50 transition-colors shadow-sm group-hover:scale-105 active:scale-95 flex items-center gap-2"
+            >
+              <div className="relative flex h-2 w-2 mr-1">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-600"></span>
+              </div>
+              Open Live Dashboard
+            </button>
           </div>
         </ScrollReveal>
       </div>

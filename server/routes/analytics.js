@@ -1,16 +1,49 @@
 const express = require('express');
 const router = express.Router();
 const prisma = require('../db');
+const UAParser = require('ua-parser-js');
+const { adminMessaging } = require('../firebaseAdmin');
 
 // POST /api/analytics/track
 // Track a page view or an interaction
 router.post('/track', async (req, res) => {
   try {
-    const { type, visitorId, page, action, details } = req.body;
+    const { type, visitorId, page, action, details, fcmToken } = req.body;
     
     // Basic IP and UserAgent capturing
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
     const userAgent = req.headers['user-agent'] || '';
+
+    // Parse UA
+    const parser = new UAParser(userAgent);
+    const result = parser.getResult();
+    
+    const browser = result.browser.name || 'Unknown Browser';
+    const os = result.os.name || 'Unknown OS';
+    let device = result.device.type ? result.device.type : 'Desktop';
+    if (result.device.vendor) device = `${result.device.vendor} ${result.device.model || device}`;
+
+    // Upsert visitor if we have visitorId
+    if (visitorId && visitorId !== 'anonymous') {
+      await prisma.visitor.upsert({
+        where: { visitorId },
+        update: {
+          ip: ip?.toString() || '',
+          browser,
+          os,
+          device,
+          ...(fcmToken ? { fcmToken } : {})
+        },
+        create: {
+          visitorId,
+          ip: ip?.toString() || '',
+          browser,
+          os,
+          device,
+          ...(fcmToken ? { fcmToken } : {})
+        }
+      }).catch(e => console.error("Error upserting visitor:", e.message));
+    }
 
     if (type === 'pageview') {
       await prisma.siteVisit.create({
@@ -38,7 +71,6 @@ router.post('/track', async (req, res) => {
 });
 
 // GET /api/analytics/stats
-// Get aggregated stats for the admin dashboard chart
 router.get('/stats', async (req, res) => {
   try {
     const { range } = req.query; // '7d', '1m', or 'custom'
@@ -48,8 +80,6 @@ router.get('/stats', async (req, res) => {
     if (range === '1m') {
       startDate.setDate(now.getDate() - 30);
     } else if (range === 'custom') {
-      // If custom is passed, we expect start and end dates. 
-      // For simplicity, if not provided we fallback to 7d.
       const { start, end } = req.query;
       if (start && end) {
         startDate = new Date(start);
@@ -58,11 +88,9 @@ router.get('/stats', async (req, res) => {
         startDate.setDate(now.getDate() - 7);
       }
     } else {
-      // Default to 7d
       startDate.setDate(now.getDate() - 7);
     }
 
-    // Fetch visits and activity within the range
     const visits = await prisma.siteVisit.findMany({
       where: {
         createdAt: {
@@ -80,23 +108,16 @@ router.get('/stats', async (req, res) => {
         }
       }
     });
-
-    // Aggregate by Day (e.g. "Mon", "Tue", or "YYYY-MM-DD")
-    // To make it look rich, we'll return an array of { name: 'Date', visits: 0, interactions: 0 }
     
-    // Create a map of dates from startDate to now
     const aggregated = {};
     for (let d = new Date(startDate); d <= now; d.setDate(d.getDate() + 1)) {
-      // For 1m or custom, using YYYY-MM-DD might be better, for 7d short day name is good
       let dateKey;
       if (range === '7d' || !range) {
-        dateKey = d.toLocaleDateString('en-US', { weekday: 'short' }); // Mon, Tue
+        dateKey = d.toLocaleDateString('en-US', { weekday: 'short' }); 
       } else {
-        dateKey = d.toISOString().split('T')[0]; // 2026-08-12
+        dateKey = d.toISOString().split('T')[0]; 
       }
       
-      // If doing 7d, keep it unique if week overlaps? Just doing a sequential push is safer.
-      // We will use YYYY-MM-DD internally to group, then map to a nice name.
       const exactDate = d.toISOString().split('T')[0];
       aggregated[exactDate] = { 
         name: dateKey, 
@@ -130,10 +151,8 @@ router.get('/stats', async (req, res) => {
 });
 
 // GET /api/analytics/live
-// Get recent real-time activity for the live website section
 router.get('/live', async (req, res) => {
   try {
-    // Get the last 20 interactions and page views, merge them and sort by timestamp desc
     const recentVisits = await prisma.siteVisit.findMany({
       orderBy: { createdAt: 'desc' },
       take: 20
@@ -144,30 +163,71 @@ router.get('/live', async (req, res) => {
       take: 20
     });
 
+    // Fetch visitor details for these visits
+    const visitorIds = [...new Set(recentVisits.map(v => v.visitorId))];
+    let visitorMap = {};
+    if (visitorIds.length > 0) {
+      const visitors = await prisma.visitor.findMany({
+        where: { visitorId: { in: visitorIds } }
+      });
+      visitors.forEach(v => visitorMap[v.visitorId] = v);
+    }
+
     const combined = [
       ...recentVisits.map(v => ({
         id: `v_${v.id}`,
         type: 'visit',
         action: 'Page View',
         details: `Visited ${v.page}`,
-        timestamp: v.createdAt
+        timestamp: v.createdAt,
+        visitor: visitorMap[v.visitorId] || null
       })),
       ...recentLogs.map(l => ({
         id: `l_${l.id}`,
         type: 'interaction',
         action: l.action,
         details: l.details,
-        timestamp: l.timestamp
+        timestamp: l.timestamp,
+        visitor: null
       }))
     ];
 
-    // Sort combined by timestamp desc
     combined.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-    res.json(combined.slice(0, 20));
+    res.json(combined.slice(0, 50));
   } catch (error) {
     console.error("Failed to fetch live analytics:", error);
     res.status(500).json({ error: "Failed to fetch live analytics" });
+  }
+});
+
+// POST /api/analytics/notify
+router.post('/notify', async (req, res) => {
+  try {
+    const { fcmToken, title, body, url } = req.body;
+    
+    if (!adminMessaging) {
+      return res.status(500).json({ error: "Push notifications are not configured." });
+    }
+
+    const message = {
+      notification: {
+        title: title || 'New Notification',
+        body: body || ''
+      },
+      webpush: {
+        fcmOptions: {
+          link: url || '/'
+        }
+      },
+      token: fcmToken
+    };
+
+    const response = await adminMessaging.send(message);
+    res.json({ success: true, response });
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({ error: "Failed to send notification" });
   }
 });
 
