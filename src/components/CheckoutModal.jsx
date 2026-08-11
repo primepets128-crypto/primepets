@@ -341,34 +341,34 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
                   We will deliver to this address. Fields marked * are required.
                 </p>
 
-                <Field label="Full Name *" icon={User} error={erro₹name}>
+                <Field label="Full Name *" icon={User} error={errors.name}>
                   <input
                     type="text"
                     value={form.name}
                     onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                     placeholder="e.g. Rahul Sharma"
-                    className={`w-full border ${erro₹name ? 'border-red-400' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
+                    className={`w-full border ${errors.name ? 'border-red-400' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
                   />
                 </Field>
 
-                <Field label="Phone Number *" icon={Phone} error={erro₹phone}>
+                <Field label="Phone Number *" icon={Phone} error={errors.phone}>
                   <input
                     type="tel"
                     maxLength={10}
                     value={form.phone}
                     onChange={e => setForm(f => ({ ...f, phone: e.target.value.replace(/\D/g, '') }))}
                     placeholder="10-digit mobile number"
-                    className={`w-full border ${erro₹phone ? 'border-red-400' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
+                    className={`w-full border ${errors.phone ? 'border-red-400' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
                   />
                 </Field>
 
-                <Field label="Delivery Address *" icon={MapPin} error={erro₹address}>
+                <Field label="Delivery Address *" icon={MapPin} error={errors.address}>
                   <textarea
                     rows={3}
                     value={form.address}
                     onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
                     placeholder="House / Flat No., Street, Area, Landmark"
-                    className={`w-full border ${erro₹address ? 'border-red-400' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition resize-none`}
+                    className={`w-full border ${errors.address ? 'border-red-400' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition resize-none`}
                   />
                 </Field>
 
