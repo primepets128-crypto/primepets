@@ -1,11 +1,26 @@
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '../../context/AuthContext';
+import React, { useState, useMemo, useEffect } from 'react';
+import axios from 'axios';
 import { Users, Search, Mail, Phone, Calendar, Shield } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
 
 export default function AdminCustomers() {
-  const { usersDb } = useAuth();
+  const [usersDb, setUsersDb] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const response = await axios.get('/api/customers');
+        setUsersDb(response.data);
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCustomers();
+  }, []);
   
   // Filter and sort users (newest first)
   const filteredUsers = useMemo(() => {
@@ -124,9 +139,9 @@ export default function AdminCustomers() {
                       </td>
                       <td className="px-6 py-4">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
-                          user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-green-100 text-green-700'
+                          user.role === 'admin' ? 'bg-purple-100 text-purple-700' : (user.role === 'lead' ? 'bg-orange-100 text-orange-700' : 'bg-green-100 text-green-700')
                         }`}>
-                          {user.role === 'admin' ? 'Admin' : 'Customer'}
+                          {user.role === 'admin' ? 'Admin' : (user.role === 'lead' ? 'Lead' : 'Customer')}
                         </span>
                       </td>
                       <td className="px-6 py-4 text-sm font-medium text-gray-500">
