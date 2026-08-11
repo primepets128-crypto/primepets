@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Activity, Clock, Users, Send, Monitor, Smartphone, Globe, CheckCircle2, Loader2, Info } from 'lucide-react';
+import { Activity, Clock, Users, User, Send, Monitor, Smartphone, Globe, CheckCircle2, Loader2, Info } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
 
 export default function AdminLive() {
