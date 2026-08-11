@@ -109,3 +109,19 @@ model Order {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model SiteVisit {
+  id        Int      @id @default(autoincrement())
+  visitorId String
+  page      String
+  createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  action    String
+  details   String
+  timestamp DateTime @default(now())
+  ip        String?
+  userAgent String?
+}

@@ -12,27 +12,32 @@ export function DataProvider({ children }) {
   const [frontendSettings, setFrontendSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [activityLog, setActivityLog] = useState(() => {
-    const saved = localStorage.getItem('prime-pets-activity-log');
-    return saved ? JSON.parse(saved) : [];
+  const [visitorId] = useState(() => {
+    let vid = localStorage.getItem('prime-pets-vid');
+    if (!vid) {
+      vid = 'vid_' + Math.random().toString(36).substr(2, 9);
+      localStorage.setItem('prime-pets-vid', vid);
+    }
+    return vid;
   });
 
-  const logActivity = (action, details = '') => {
-    const newEntry = {
-      id: Date.now().toString(),
-      action,
-      details,
-      timestamp: new Date().toISOString()
-    };
-    setActivityLog(prev => {
-      const updated = [newEntry, ...prev];
-      return updated.slice(0, 100);
-    });
-  };
+  // We no longer need to keep all activity in a local state for the frontend
+  // Admin will fetch it via the /api/analytics/live endpoint.
+  // But to not break the frontend that might use activityLog length, we can keep it empty or remove it.
+  const [activityLog, setActivityLog] = useState([]);
 
-  useEffect(() => {
-    localStorage.setItem('prime-pets-activity-log', JSON.stringify(activityLog));
-  }, [activityLog]);
+  const logActivity = (action, details = '') => {
+    // If it's a page view
+    const type = action === 'Page View' ? 'pageview' : 'interaction';
+    
+    axios.post('/api/analytics/track', {
+      type,
+      visitorId,
+      page: type === 'pageview' ? details.replace('Visited ', '') : '',
+      action,
+      details
+    }).catch(err => console.error("Failed to track:", err));
+  };
 
   const refreshData = async () => {
     try {

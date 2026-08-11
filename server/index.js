@@ -34,6 +34,7 @@ app.use('/api/upload', require('./routes/upload'));
 app.use('/api/stats', require('./routes/stats'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/payment', require('./routes/payment'));
+app.use('/api/analytics', require('./routes/analytics'));
 
 if (process.env.NODE_ENV !== 'production' && require.main === module) {
   app.listen(port, () => {
