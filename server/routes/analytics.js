@@ -33,6 +33,7 @@ router.post('/track', async (req, res) => {
           os,
           device,
           ...(fcmToken ? { fcmToken } : {})
+          // do NOT overwrite name and phone if already present
         },
         create: {
           visitorId,
@@ -174,22 +175,41 @@ router.get('/live', async (req, res) => {
     }
 
     const combined = [
-      ...recentVisits.map(v => ({
-        id: `v_${v.id}`,
-        type: 'visit',
-        action: 'Page View',
-        details: `Visited ${v.page}`,
-        timestamp: v.createdAt,
-        visitor: visitorMap[v.visitorId] || null
-      })),
-      ...recentLogs.map(l => ({
-        id: `l_${l.id}`,
-        type: 'interaction',
-        action: l.action,
-        details: l.details,
-        timestamp: l.timestamp,
-        visitor: null
-      }))
+      ...recentVisits.map(v => {
+        let name = "Anonymous";
+        if (visitorMap[v.visitorId]) {
+          const vis = visitorMap[v.visitorId];
+          if (vis.name) {
+            name = vis.name;
+          } else {
+            name = `Anonymous ${vis.visitorId.replace('vid_', '').substring(0,4)}`;
+          }
+        }
+        
+        return {
+          id: `v_${v.id}`,
+          type: 'visit',
+          action: 'Page View',
+          details: `Visited ${v.page}`,
+          timestamp: v.createdAt,
+          visitor: visitorMap[v.visitorId] || null,
+          displayName: name
+        };
+      }),
+      ...recentLogs.map(l => {
+        let name = "Anonymous";
+        // Attempt to find the visitor for logs if we eventually add visitorId to ActivityLog
+        // For now, it will be anonymous.
+        return {
+          id: `l_${l.id}`,
+          type: 'interaction',
+          action: l.action,
+          details: l.details,
+          timestamp: l.timestamp,
+          visitor: null,
+          displayName: name
+        };
+      })
     ];
 
     combined.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -228,6 +248,57 @@ router.post('/notify', async (req, res) => {
   } catch (error) {
     console.error("Error sending message:", error);
     res.status(500).json({ error: "Failed to send notification" });
+  }
+});
+
+// Retention & Billing Analytics
+router.get('/retention', async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({
+      where: { status: { not: 'CANCELLED' } },
+      orderBy: { createdAt: 'asc' }
+    });
+
+    const customers = {};
+    let totalRevenue = 0;
+    
+    for (const order of orders) {
+      // Group by phone or visitorId
+      const key = order.customerPhone || order.visitorId || order.customerName;
+      if (!customers[key]) {
+        customers[key] = {
+          phone: order.customerPhone,
+          name: order.customerName,
+          visitorId: order.visitorId,
+          orderCount: 0,
+          totalSpent: 0,
+          firstOrderDate: order.createdAt,
+          lastOrderDate: order.createdAt
+        };
+      }
+      customers[key].orderCount += 1;
+      customers[key].totalSpent += order.total;
+      customers[key].lastOrderDate = order.createdAt;
+      totalRevenue += order.total;
+    }
+
+    const customerList = Object.values(customers).sort((a, b) => b.totalSpent - a.totalSpent);
+    
+    const repeatCustomers = customerList.filter(c => c.orderCount > 1);
+    const retentionRate = customerList.length > 0 
+      ? ((repeatCustomers.length / customerList.length) * 100).toFixed(1) 
+      : 0;
+
+    res.json({
+      totalCustomers: customerList.length,
+      repeatCustomers: repeatCustomers.length,
+      retentionRate,
+      totalRevenue,
+      topCustomers: customerList.slice(0, 50)
+    });
+  } catch (error) {
+    console.error('Error fetching retention analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch retention analytics' });
   }
 });
 

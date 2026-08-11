@@ -190,6 +190,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
     try {
       const fullAddress = [form.address.trim(), form.city, form.pincode].filter(Boolean).join(', ');
       const res = await axios.post('/api/orders', {
+        visitorId:       visitorId || 'anonymous',
         customerName:    form.name.trim(),
         customerPhone:   form.phone.trim(),
         customerAddress: fullAddress,
@@ -257,12 +258,14 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
 
             const fullAddress = [form.address.trim(), form.city, form.pincode].filter(Boolean).join(', ');
             const saveRes = await axios.post('/api/orders', {
+              visitorId:         visitorId || 'anonymous',
               customerName:      form.name.trim(),
               customerPhone:     form.phone.trim(),
               customerAddress:   fullAddress,
               items:             JSON.stringify(cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))),
               total:             grandTotal(cartTotal),
               paymentMethod:     'ONLINE',
+              razorpayOrderId:   rpOrder.id,
               razorpayPaymentId: response.razorpay_payment_id,
             });
 

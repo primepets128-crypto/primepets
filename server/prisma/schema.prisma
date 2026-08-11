@@ -95,6 +95,7 @@ model Banner {
 
 model Order {
   id            Int      @id @default(autoincrement())
+  visitorId     String?
   customerName  String
   customerPhone String
   customerAddress String
@@ -127,13 +128,15 @@ model ActivityLog {
 }
 
 model Visitor {
-  id        String   @id @default(uuid())
-  visitorId String   @unique
-  fcmToken  String?
-  device    String?
-  browser   String?
-  os        String?
-  ip        String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String   @id @default(uuid())
+  visitorId     String   @unique
+  name          String?
+  phone         String?
+  fcmToken      String?
+  device        String?
+  browser       String?
+  os            String?
+  ip            String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

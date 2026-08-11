@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const {
-      customerName, customerPhone, customerAddress,
+      visitorId, customerName, customerPhone, customerAddress,
       items, total, paymentMethod, razorpayOrderId,
       razorpayPaymentId, notes
     } = req.body;
@@ -30,6 +30,7 @@ router.post('/', async (req, res) => {
 
     const order = await prisma.order.create({
       data: {
+        visitorId: visitorId && visitorId !== 'anonymous' ? visitorId : null,
         customerName,
         customerPhone,
         customerAddress,
@@ -43,6 +44,17 @@ router.post('/', async (req, res) => {
         notes: notes || null
       }
     });
+
+    // If visitorId is provided, update the visitor profile with their actual name & phone
+    if (visitorId && visitorId !== 'anonymous') {
+      await prisma.visitor.updateMany({
+        where: { visitorId },
+        data: {
+          name: customerName,
+          phone: customerPhone
+        }
+      }).catch(e => console.error("Error linking visitor to order:", e.message));
+    }
 
     res.status(201).json(order);
   } catch (error) {

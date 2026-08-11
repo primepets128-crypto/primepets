@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { path: '/admin/deals', label: 'Deals', icon: Percent },
   { path: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { path: '/admin/customers', label: 'Customers', icon: Users },
+  { path: '/admin/retention', label: 'Retention', icon: Activity },
   { path: '/admin/payment', label: 'Payment', icon: CreditCard },
   { path: '/admin/music', label: 'Music', icon: Music2 },
   { path: '/admin/settings', label: 'Settings', icon: Settings },

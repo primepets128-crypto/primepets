@@ -101,6 +101,15 @@ export default function AdminLive() {
                     <div className="flex-1">
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <User size={16} className="text-gray-400" />
+                            <span className="font-bold text-gray-800">{log.displayName}</span>
+                            {log.visitor?.phone && (
+                              <span className="text-sm text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full border border-gray-200">
+                                {log.visitor.phone}
+                              </span>
+                            )}
+                          </div>
                           <h3 className="font-bold text-gray-900 text-lg">{log.action}</h3>
                           <p className="text-gray-500 text-sm">{log.details}</p>
                         </div>
