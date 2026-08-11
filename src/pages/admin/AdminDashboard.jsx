@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
-import { Package, Tag, Image as ImageIcon, Percent, Plus, TrendingUp, Users, Activity, Clock, Calendar } from 'lucide-react';
+import { Package, Tag, Image as ImageIcon, Percent, Plus, TrendingUp, Users, Activity, Clock, Calendar, Loader2 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ScrollReveal from '../../components/ScrollReveal';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -15,6 +15,8 @@ export default function AdminDashboard() {
   const [customEnd, setCustomEnd] = useState('');
   const [analyticsData, setAnalyticsData] = useState([]);
   const [liveActivity, setLiveActivity] = useState([]);
+  const [isAnalyticsLoading, setIsAnalyticsLoading] = useState(true);
+  const [isLiveLoading, setIsLiveLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -29,6 +31,7 @@ export default function AdminDashboard() {
   }, []);
 
   const fetchAnalytics = async () => {
+    setIsAnalyticsLoading(true);
     try {
       let url = `/api/analytics/stats?range=${dateRange}`;
       if (dateRange === 'custom' && customStart && customEnd) {
@@ -38,6 +41,8 @@ export default function AdminDashboard() {
       setAnalyticsData(response.data);
     } catch (error) {
       console.error("Failed to fetch analytics:", error);
+    } finally {
+      setIsAnalyticsLoading(false);
     }
   };
 
@@ -53,6 +58,8 @@ export default function AdminDashboard() {
         setLiveActivity(response.data);
       } catch (error) {
         console.error("Failed to fetch live activity:", error);
+      } finally {
+        setIsLiveLoading(false);
       }
     };
     fetchLive();
@@ -166,7 +173,12 @@ export default function AdminDashboard() {
             </div>
 
             <div className="flex-1 w-full" style={{ minHeight: '300px' }}>
-              {analyticsData.length === 0 ? (
+              {isAnalyticsLoading ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-3">
+                  <Loader2 size={32} className="animate-spin text-blue-500" />
+                  <p className="text-sm font-medium animate-pulse">Loading analytics data...</p>
+                </div>
+              ) : analyticsData.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-gray-400">
                   <Activity size={32} className="opacity-20 mb-2" />
                   <p>No analytics data for this period</p>
@@ -216,7 +228,15 @@ export default function AdminDashboard() {
             </div>
             
             <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-4 max-h-[350px]">
-              {liveActivity.length === 0 ? (
+              {isLiveLoading ? (
+                <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-3">
+                  <div className="relative">
+                     <Loader2 size={32} className="animate-spin text-green-500 relative z-10" />
+                     <div className="absolute inset-0 bg-green-500 blur-md opacity-30 rounded-full animate-pulse"></div>
+                  </div>
+                  <p className="text-sm font-medium animate-pulse">Connecting to live feed...</p>
+                </div>
+              ) : liveActivity.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
                   <Clock size={32} className="opacity-20" />
                   <p className="text-sm">Waiting for live activity...</p>
