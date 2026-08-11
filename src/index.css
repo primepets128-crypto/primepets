@@ -327,3 +327,32 @@ body {
 }
 .badge-pulse { animation: badge-pulse 2.2s infinite; }
 
+/* 3D Moving Background for Dashboard Card */
+@keyframes bg-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.bg-moving-gradient {
+  background: linear-gradient(-45deg, #22c55e, #10b981, #059669, #047857, #14b8a6);
+  background-size: 400% 400%;
+  animation: bg-pan 12s ease infinite;
+}
+
+@keyframes float-blob {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  33% { transform: translateY(-20px) scale(1.1) rotate(10deg); }
+  66% { transform: translateY(15px) scale(0.9) rotate(-10deg); }
+}
+.animate-float-blob {
+  animation: float-blob 8s ease-in-out infinite;
+}
+
+@keyframes float-blob-reverse {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  33% { transform: translateY(20px) scale(0.9) rotate(-10deg); }
+  66% { transform: translateY(-15px) scale(1.1) rotate(10deg); }
+}
+.animate-float-blob-reverse {
+  animation: float-blob-reverse 10s ease-in-out infinite;
+}

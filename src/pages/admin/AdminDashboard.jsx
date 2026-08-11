@@ -200,20 +200,23 @@ export default function AdminDashboard() {
 
         {/* Link to Live Website Activity */}
         <ScrollReveal delay={200} className="lg:col-span-1">
-          <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl p-8 text-white shadow-lg flex flex-col items-center justify-center text-center h-full relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+          <div className="bg-moving-gradient rounded-3xl p-8 text-white shadow-lg flex flex-col items-center justify-center text-center h-full relative overflow-hidden group">
+            {/* Floating 3D Blobs */}
+            <div className="absolute top-[-10%] right-[-10%] w-32 h-32 bg-white/20 rounded-full blur-xl animate-float-blob mix-blend-overlay"></div>
+            <div className="absolute bottom-[-10%] left-[-10%] w-40 h-40 bg-teal-200/20 rounded-full blur-2xl animate-float-blob-reverse mix-blend-overlay"></div>
+            <div className="absolute top-[30%] left-[10%] w-20 h-20 bg-green-200/20 rounded-full blur-lg animate-float-blob mix-blend-overlay" style={{animationDelay: '2s'}}></div>
             
-            <div className="bg-white/20 p-4 rounded-full mb-4">
-              <Activity size={32} className="text-white" />
+            <div className="bg-white/20 p-4 rounded-full mb-4 relative z-10 backdrop-blur-sm border border-white/10 shadow-[0_8px_32px_0_rgba(31,38,135,0.37)]">
+              <Activity size={32} className="text-white drop-shadow-md" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Live Real-time Visitors</h3>
-            <p className="text-green-100 text-sm mb-6 max-w-[250px]">
+            <h3 className="text-xl font-bold mb-2 relative z-10 drop-shadow-md">Live Real-time Visitors</h3>
+            <p className="text-green-50 text-sm mb-6 max-w-[250px] relative z-10 font-medium">
               See who is currently on the site, what device they are using, and send them push notifications directly!
             </p>
             
             <button 
               onClick={() => navigate('/admin/live')}
-              className="bg-white text-green-600 font-bold px-6 py-3 rounded-xl hover:bg-green-50 transition-colors shadow-sm group-hover:scale-105 active:scale-95 flex items-center gap-2"
+              className="relative z-10 bg-white text-green-600 font-bold px-6 py-3 rounded-xl hover:bg-green-50 transition-colors shadow-sm group-hover:scale-105 active:scale-95 flex items-center gap-2"
             >
               <div className="relative flex h-2 w-2 mr-1">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75"></span>
