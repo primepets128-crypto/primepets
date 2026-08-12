@@ -12,6 +12,7 @@ import BottomNav from './components/BottomNav';
 import PageLoader from './components/PageLoader';
 import ErrorBoundary from './components/ErrorBoundary';
 import ChatBot from './components/ChatBot';
+import TopBar from './components/TopBar';
 import ActivityTracker from './components/ActivityTracker';
 import { useData } from './context/DataContext';
 
@@ -129,6 +130,7 @@ function AppInner() {
             </Suspense>
           </AnimatePresence>
           
+          <TopBar />
           <CartDrawer />
           {/* Global floating bottom nav — only visible on mobile */}
           <BottomNav />

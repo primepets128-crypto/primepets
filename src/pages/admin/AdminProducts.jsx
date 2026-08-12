@@ -3,15 +3,17 @@ import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
 import MediaDisplay from '../../components/MediaDisplay';
+import { TableRowSkeleton } from '../../components/Skeleton';
 import { useData } from '../../context/DataContext';
 import { useCart } from '../../context/CartContext';
 import { Plus, Edit2, Trash2, X, Search, Image as ImageIcon, Package, Loader2 } from 'lucide-react';
 
 export default function AdminProducts() {
-  const { products, categories, refreshData } = useData();
+  const { products, categories, refreshData, loading } = useData();
   const { showToast } = useCart();
   const [editing, setEditing] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [newImageUrl, setNewImageUrl] = useState('');
   const [isUploadingPrimary, setIsUploadingPrimary] = useState(false);
@@ -25,6 +27,7 @@ export default function AdminProducts() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const payload = { ...editing, price: Number(editing.price), mrp: Number(editing.mrp) };
       if (editing.id) {
@@ -39,11 +42,14 @@ export default function AdminProducts() {
     } catch (err) {
       console.error(err);
       showToast('Error saving product.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id) => {
     if (confirm('Are you sure you want to delete this product?')) {
+      setIsSubmitting(true);
       try {
         await axios.delete(`/api/products/${id}`);
         showToast('Product deleted.');
@@ -51,6 +57,8 @@ export default function AdminProducts() {
       } catch (err) {
         console.error(err);
         showToast('Error deleting product.');
+      } finally {
+        setIsSubmitting(false);
       }
     }
   };
@@ -104,55 +112,67 @@ export default function AdminProducts() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
-            {filteredProducts.map(p => (
-              <tr key={p.id} className="hover:bg-orange-50/30 transition-colors group">
-                <td className="p-4 pl-6 flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden border border-gray-200/50">
-                    {p.img ? (
-                      <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon size={20}/></div>
-                    )}
-                  </div>
-                  <div>
-                    <span className="font-bold text-gray-800 block">{p.name}</span>
-                    {p.tag && <span className="text-xs text-orange-500 font-medium">{p.tag}</span>}
-                  </div>
-                </td>
-                <td className="p-4 text-gray-600 font-medium">{p.brand || '-'}</td>
-                <td className="p-4">
-                  <span className="text-gray-800 font-bold block">₹{p.price}</span>
-                  {p.mrp && <span className="text-xs text-gray-400 line-through">₹{p.mrp}</span>}
-                </td>
-                <td className="p-4">
-                  {p.badge ? (
-                    <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-lg text-xs font-bold">{p.badge}</span>
-                  ) : (
-                    <span className="text-gray-400 text-xs">-</span>
-                  )}
-                </td>
-                <td className="p-4 pr-6">
-                  <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button title="Edit Product" data-testid={`edit-btn-${p.id}`} onClick={() => { setEditing(p); setIsModalOpen(true); }} className="p-2 text-blue-500 hover:bg-blue-100 rounded-xl transition-colors">
-                      <Edit2 size={18} />
-                    </button>
-                    <button title="Delete Product" data-testid={`del-btn-${p.id}`} onClick={() => handleDelete(p.id)} className="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {filteredProducts.length === 0 && (
-              <tr>
-                <td colSpan="5" className="p-12 text-center">
-                  <div className="inline-flex flex-col items-center justify-center text-gray-400">
-                    <Package size={48} className="mb-4 text-gray-300" />
-                    <p className="text-lg font-medium text-gray-500">No products found</p>
-                    <p className="text-sm">Try adjusting your search or add a new product.</p>
-                  </div>
-                </td>
-              </tr>
+            {loading && products.length === 0 ? (
+              <>
+                <TableRowSkeleton />
+                <TableRowSkeleton />
+                <TableRowSkeleton />
+                <TableRowSkeleton />
+                <TableRowSkeleton />
+              </>
+            ) : (
+              <>
+                {filteredProducts.map(p => (
+                  <tr key={p.id} className="hover:bg-orange-50/30 transition-colors group">
+                    <td className="p-4 pl-6 flex items-center gap-4">
+                      <div className="w-14 h-14 rounded-xl bg-gray-100 overflow-hidden border border-gray-200/50">
+                        {p.img ? (
+                          <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400"><ImageIcon size={20}/></div>
+                        )}
+                      </div>
+                      <div>
+                        <span className="font-bold text-gray-800 block">{p.name}</span>
+                        {p.tag && <span className="text-xs text-orange-500 font-medium">{p.tag}</span>}
+                      </div>
+                    </td>
+                    <td className="p-4 text-gray-600 font-medium">{p.brand || '-'}</td>
+                    <td className="p-4">
+                      <span className="text-gray-800 font-bold block">₹{p.price}</span>
+                      {p.mrp && <span className="text-xs text-gray-400 line-through">₹{p.mrp}</span>}
+                    </td>
+                    <td className="p-4">
+                      {p.badge ? (
+                        <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-lg text-xs font-bold">{p.badge}</span>
+                      ) : (
+                        <span className="text-gray-400 text-xs">-</span>
+                      )}
+                    </td>
+                    <td className="p-4 pr-6">
+                      <div className="flex items-center justify-end gap-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button title="Edit Product" data-testid={`edit-btn-${p.id}`} onClick={() => { setEditing(p); setIsModalOpen(true); }} className="p-2 text-blue-500 hover:bg-blue-100 rounded-xl transition-colors">
+                          <Edit2 size={18} />
+                        </button>
+                        <button title="Delete Product" data-testid={`del-btn-${p.id}`} onClick={() => handleDelete(p.id)} className="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors">
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+                {filteredProducts.length === 0 && (
+                  <tr>
+                    <td colSpan="5" className="p-12 text-center">
+                      <div className="inline-flex flex-col items-center justify-center text-gray-400">
+                        <Package size={48} className="mb-4 text-gray-300" />
+                        <p className="text-lg font-medium text-gray-500">No products found</p>
+                        <p className="text-sm">Try adjusting your search or add a new product.</p>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </>
             )}
           </tbody>
         </table>
@@ -330,8 +350,8 @@ export default function AdminProducts() {
             </div>
             <div className="p-6 border-t bg-gray-50/50 flex justify-end gap-3">
               <button type="button" onClick={() => setIsModalOpen(false)} className="px-6 py-2.5 border border-gray-200 bg-white rounded-xl hover:bg-gray-50 font-bold text-gray-600 transition-colors">Cancel</button>
-              <button type="submit" className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5">
-                {editing.id ? 'Save Changes' : 'Create Product'}
+              <button type="submit" disabled={isSubmitting} className="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shadow-lg shadow-orange-500/20 transition-all hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-70 disabled:hover:translate-y-0">
+                {isSubmitting ? <><Loader2 className="animate-spin" size={16} /> Saving...</> : editing.id ? 'Save Changes' : 'Create Product'}
               </button>
             </div>
           </form>

@@ -227,6 +227,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
 
   const [payMethod, setPayMethod] = useState('COD');
   const [loading, setLoading]     = useState(false);
+  const [orderStep, setOrderStep] = useState(null); // null | 'saving' | 'confirmed' | 'whatsapp'
   const [toast, setToast]         = useState(null);
   const [confirmedOrder, setConfirmedOrder] = useState(null);
 
@@ -263,6 +264,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
 
   async function placeCOD() {
     setLoading(true);
+    setOrderStep('saving');
     try {
       const fullAddress = [form.address.trim(), form.city, form.pincode].filter(Boolean).join(', ');
       const res = await axios.post('/api/orders', {
@@ -274,8 +276,12 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
         total:           grandTotal(cartTotal),
         paymentMethod:   'COD',
       });
+      setOrderStep('confirmed');
+      await new Promise(r => setTimeout(r, 700));
       const orderId = res.data?.orderId || res.data?.order?.id || res.data?.id || `ORD${Date.now()}`;
       setConfirmedOrder({ orderId, paymentMethod: 'COD' });
+      setOrderStep('whatsapp');
+      await new Promise(r => setTimeout(r, 500));
       goTo(2);
       onOrderSuccess && onOrderSuccess(orderId);
       const phone   = (frontendSettings?.whatsappOrderNumber || '919763405605').replace(/\D/g, '');
@@ -285,6 +291,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
       showToast(err?.response?.data?.message || 'Failed to place order. Please try again.');
     } finally {
       setLoading(false);
+      setOrderStep(null);
     }
   }
 
@@ -541,7 +548,31 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
                   className="w-full bg-gradient-to-r from-[#d07e20] to-[#a65d14] text-white font-bold text-sm py-3.5 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-100 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:scale-100 disabled:cursor-not-allowed"
                 >
                   {loading ? (
-                    <><Loader2 size={16} className="animate-spin" /> Processing…</>
+                    <div className="flex flex-col items-center gap-2 py-1">
+                      <div className="flex items-center gap-3">
+                        {[
+                          { key: 'saving',    icon: '📦', label: 'Saving order...' },
+                          { key: 'confirmed', icon: '✅', label: 'Order confirmed!' },
+                          { key: 'whatsapp',  icon: '💬', label: 'Opening WhatsApp...' },
+                        ].map((s) => (
+                          <div
+                            key={s.key}
+                            className={`flex items-center gap-1.5 text-xs font-bold transition-all duration-300 ${
+                              orderStep === s.key
+                                ? 'opacity-100 scale-105 text-white'
+                                : orderStep === 'confirmed' && s.key === 'saving'
+                                ? 'opacity-60 text-white/70'
+                                : orderStep === 'whatsapp' && (s.key === 'saving' || s.key === 'confirmed')
+                                ? 'opacity-60 text-white/70'
+                                : 'opacity-30 text-white/40'
+                            }`}
+                          >
+                            <span className="text-base">{s.icon}</span>
+                            <span className="hidden sm:inline">{s.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   ) : (
                     <><Package size={16} /> Place Order — ₹{grandTotal(cartTotal)}</>
                   )}

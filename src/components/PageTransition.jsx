@@ -4,28 +4,22 @@ import React from 'react';
 const transitionVariants = {
   initial: {
     opacity: 0,
-    y: '50vh',
-    scale: 0.9,
-    filter: 'blur(10px)'
+    y: 16,
   },
   animate: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    filter: 'blur(0px)',
     transition: {
-      duration: 0.6,
-      ease: [0.22, 1, 0.36, 1], // Custom dramatic ease out
+      duration: 0.25,
+      ease: [0.22, 1, 0.36, 1],
     }
   },
   exit: {
     opacity: 0,
-    scale: 0.95,
-    y: '-10vh',
-    filter: 'blur(10px)',
+    y: -8,
     transition: {
-      duration: 0.4,
-      ease: [0.22, 1, 0.36, 1],
+      duration: 0.15,
+      ease: 'easeIn',
     }
   }
 };
@@ -37,7 +31,7 @@ export default function PageTransition({ children }) {
       initial="initial"
       animate="animate"
       exit="exit"
-      className="w-full min-h-screen origin-top"
+      className="w-full min-h-screen"
     >
       {children}
     </motion.div>

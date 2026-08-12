@@ -7,6 +7,7 @@ import { useCart } from '../context/CartContext';
 import { useData } from '../context/DataContext';
 import ScrollReveal from '../components/ScrollReveal';
 import MediaDisplay from '../components/MediaDisplay';
+import { ProductCardSkeleton } from '../components/Skeleton';
 
 
 export default function CategoryPage() {
@@ -34,7 +35,7 @@ export default function CategoryPage() {
     }
   }, [location.state]);
   const { addToCart, toggleWishlist, isInCart, isWishlisted } = useCart();
-  const { categories: ALL_CATEGORIES, products: PRODUCTS } = useData();
+  const { categories: ALL_CATEGORIES, products: PRODUCTS, loading } = useData();
   const PET_TABS = ['All', 'Dogs', 'Cats', 'Small Pets', 'Birds'];
 
   const BRANDS = ['All', ...new Set(PRODUCTS.map(p => p.brand).filter(Boolean))];
@@ -226,81 +227,95 @@ export default function CategoryPage() {
               </div>
 
               {/* Product grid: 2-col mobile → 3-col md → 4-col lg */}
-              <div className={viewMode === 'grid'
-                ? 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'
-                : 'flex flex-col gap-3'}>
-                {filteredProducts.map((p, idx) => (
-                  <ScrollReveal key={p.id} delay={(idx % 8) * 100} className="h-full">
-                  {viewMode === 'grid' ? (
-                    <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer group h-full flex flex-col hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
-                      <div className="relative bg-gray-50 overflow-hidden flex-shrink-0" style={{ height: 160 }}>
-                        <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        <div className="absolute top-2 left-2 bg-[#d07e20] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">{p.tag}</div>
-                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm hover:scale-110 transition-transform">
-                          <Heart size={13} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
-                        </button>
-                        <div className="absolute bottom-2 left-2 bg-white/90 rounded-full px-2 py-0.5">
-                          <span className="text-[9px] font-bold text-gray-700">{p.badge}</span>
-                        </div>
-                      </div>
-                      <div className="p-3 flex flex-col flex-1">
-                        <p className="text-[10px] text-[#d07e20] font-semibold uppercase">{p.brand}</p>
-                        <p className="text-gray-800 text-xs font-bold leading-tight mt-0.5 line-clamp-2">{p.name}</p>
-                        <div className="flex items-center gap-1 mt-1">
-                          <div className="flex items-center bg-green-600 rounded px-1 py-0.5 gap-0.5">
-                            <Star size={8} className="text-white fill-white" />
-                            <span className="text-white text-[9px] font-bold">{p.rating}</span>
+              {loading && PRODUCTS.length === 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <ProductCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : filteredProducts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-20 text-center">
+                  <p className="text-5xl mb-4">🐾</p>
+                  <p className="text-gray-500 font-semibold">No products found</p>
+                  <p className="text-gray-400 text-sm mt-1">Try adjusting your filters</p>
+                </div>
+              ) : (
+                <div className={viewMode === 'grid'
+                  ? 'grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4'
+                  : 'flex flex-col gap-3'}>
+                  {filteredProducts.map((p, idx) => (
+                    <ScrollReveal key={p.id} delay={(idx % 8) * 100} className="h-full">
+                    {viewMode === 'grid' ? (
+                      <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer group h-full flex flex-col hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
+                        <div className="relative bg-gray-50 overflow-hidden flex-shrink-0" style={{ height: 160 }}>
+                          <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                          <div className="absolute top-2 left-2 bg-[#d07e20] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">{p.tag}</div>
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm hover:scale-110 transition-transform">
+                            <Heart size={13} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
+                          </button>
+                          <div className="absolute bottom-2 left-2 bg-white/90 rounded-full px-2 py-0.5">
+                            <span className="text-[9px] font-bold text-gray-700">{p.badge}</span>
                           </div>
-                          <span className="text-gray-400 text-[9px]">({p.reviews.toLocaleString()})</span>
                         </div>
-                        <div className="flex items-center gap-1.5 mt-1.5">
-                          <span className="text-gray-900 font-black text-sm">₹{p.price}</span>
-                          <span className="text-gray-400 text-[10px] line-through">₹{p.mrp}</span>
+                        <div className="p-3 flex flex-col flex-1">
+                          <p className="text-[10px] text-[#d07e20] font-semibold uppercase">{p.brand}</p>
+                          <p className="text-gray-800 text-xs font-bold leading-tight mt-0.5 line-clamp-2">{p.name}</p>
+                          <div className="flex items-center gap-1 mt-1">
+                            <div className="flex items-center bg-green-600 rounded px-1 py-0.5 gap-0.5">
+                              <Star size={8} className="text-white fill-white" />
+                              <span className="text-white text-[9px] font-bold">{p.rating}</span>
+                            </div>
+                            <span className="text-gray-400 text-[9px]">({p.reviews.toLocaleString()})</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-1.5">
+                            <span className="text-gray-900 font-black text-sm">₹{p.price}</span>
+                            <span className="text-gray-400 text-[10px] line-through">₹{p.mrp}</span>
+                          </div>
+                          <div className="mt-auto pt-2">
+                            <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(p); }}
+                              className={`w-full text-[11px] font-bold py-1.5 rounded-xl flex items-center justify-center gap-1 transition-all ${isInCart(p.id) ? 'bg-green-600 text-white shadow-green-600/20' : 'bg-[#d07e20] text-white hover:bg-[#E06900] shadow-orange-500/20 hover:shadow-orange-500/40'}`}>
+                              <ShoppingBag size={11} />
+                              {isInCart(p.id) ? 'Added ✓' : 'Add to Cart'}
+                            </button>
+                          </div>
                         </div>
-                        <div className="mt-auto pt-2">
+                      </Link>
+                    ) : (
+                    // List view
+                      <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer flex items-center gap-4 p-3 md:p-4 h-full hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
+                        <div className="relative bg-gray-50 rounded-xl overflow-hidden flex-shrink-0" style={{ width: 90, height: 90 }}>
+                          <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover" />
+                          <div className="absolute top-1 left-1 bg-[#d07e20] text-white text-[8px] font-black px-1 py-0.5 rounded">{p.tag}</div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[10px] text-[#d07e20] font-semibold uppercase">{p.brand}</p>
+                          <p className="text-gray-800 text-sm font-bold leading-tight line-clamp-1">{p.name}</p>
+                          <p className="text-gray-400 text-[10px] mt-0.5">{p.badge}</p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <span className="text-gray-900 font-black text-base">₹{p.price}</span>
+                            <span className="text-gray-400 text-xs line-through">₹{p.mrp}</span>
+                            <div className="flex items-center bg-green-600 rounded px-1.5 py-0.5 gap-0.5 ml-1">
+                              <Star size={9} className="text-white fill-white" />
+                              <span className="text-white text-[10px] font-bold">{p.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2 flex-shrink-0">
+                          <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="bg-white border border-gray-200 rounded-xl p-2 hover:border-red-200 transition-colors">
+                            <Heart size={15} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
+                          </button>
                           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(p); }}
-                            className={`w-full text-[11px] font-bold py-1.5 rounded-xl flex items-center justify-center gap-1 transition-all ${isInCart(p.id) ? 'bg-green-600 text-white shadow-green-600/20' : 'bg-[#d07e20] text-white hover:bg-[#E06900] shadow-orange-500/20 hover:shadow-orange-500/40'}`}>
-                            <ShoppingBag size={11} />
-                            {isInCart(p.id) ? 'Added ✓' : 'Add to Cart'}
+                            className={`text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 transition-all ${isInCart(p.id) ? 'bg-green-600 text-white' : 'bg-[#d07e20] text-white'}`}>
+                            <ShoppingBag size={12} />
+                            {isInCart(p.id) ? '✓' : 'Add'}
                           </button>
                         </div>
-                      </div>
-                    </Link>
-                  ) : (
-                  // List view
-                    <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer flex items-center gap-4 p-3 md:p-4 h-full hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
-                      <div className="relative bg-gray-50 rounded-xl overflow-hidden flex-shrink-0" style={{ width: 90, height: 90 }}>
-                        <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover" />
-                        <div className="absolute top-1 left-1 bg-[#d07e20] text-white text-[8px] font-black px-1 py-0.5 rounded">{p.tag}</div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[10px] text-[#d07e20] font-semibold uppercase">{p.brand}</p>
-                        <p className="text-gray-800 text-sm font-bold leading-tight line-clamp-1">{p.name}</p>
-                        <p className="text-gray-400 text-[10px] mt-0.5">{p.badge}</p>
-                        <div className="flex items-center gap-2 mt-1.5">
-                          <span className="text-gray-900 font-black text-base">₹{p.price}</span>
-                          <span className="text-gray-400 text-xs line-through">₹{p.mrp}</span>
-                          <div className="flex items-center bg-green-600 rounded px-1.5 py-0.5 gap-0.5 ml-1">
-                            <Star size={9} className="text-white fill-white" />
-                            <span className="text-white text-[10px] font-bold">{p.rating}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex flex-col gap-2 flex-shrink-0">
-                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="bg-white border border-gray-200 rounded-xl p-2 hover:border-red-200 transition-colors">
-                          <Heart size={15} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
-                        </button>
-                        <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); addToCart(p); }}
-                          className={`text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 transition-all ${isInCart(p.id) ? 'bg-green-600 text-white' : 'bg-[#d07e20] text-white'}`}>
-                          <ShoppingBag size={12} />
-                          {isInCart(p.id) ? '✓' : 'Add'}
-                        </button>
-                      </div>
-                    </Link>
-                  )}
-                  </ScrollReveal>
-                ))}
-              </div>
+                      </Link>
+                    )}
+                    </ScrollReveal>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>

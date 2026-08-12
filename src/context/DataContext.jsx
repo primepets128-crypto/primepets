@@ -74,6 +74,7 @@ export function DataProvider({ children }) {
   };
 
   const refreshData = async () => {
+    setLoading(true);
     try {
       const res = await axios.get('/api/data');
       setSlides(res.data.slides || []);
@@ -84,11 +85,13 @@ export function DataProvider({ children }) {
       setFrontendSettings(res.data.frontendSettings || null);
     } catch (error) {
       console.error("Failed to fetch initial data:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshData().finally(() => setLoading(false));
+    refreshData();
   }, []);
 
   useEffect(() => {

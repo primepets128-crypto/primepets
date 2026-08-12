@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   Package, ChevronDown, ChevronUp, Trash2, MessageCircle,
   ShoppingBag, Clock, CheckCircle, TrendingUp, RefreshCw,
-  IndianRupee, Phone, User, Hash, Filter,
+  IndianRupee, Phone, User, Hash, Filter, Loader2,
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import ScrollReveal from '../../components/ScrollReveal';
@@ -142,6 +142,7 @@ export default function AdminOrders() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [expandedRow, setExpandedRow]   = useState(null);
   const [updatingId, setUpdatingId]     = useState(null);
+  const [deletingId, setDeletingId]     = useState(null);
 
   /* ── Fetch ── */
   const fetchOrders = useCallback(async () => {
@@ -179,13 +180,14 @@ export default function AdminOrders() {
   /* ── Delete ── */
   const handleDelete = async (orderId) => {
     if (!window.confirm('Are you sure you want to delete this order? This cannot be undone.')) return;
+    setDeletingId(orderId);
     try {
       await axios.delete(`/api/orders/${orderId}`);
-      setOrders(prev => prev.filter(o => o.id !== orderId));
-      showToast('🗑️ Order deleted.');
+      fetchOrders();
     } catch (err) {
       console.error('Delete failed:', err);
-      showToast('❌ Failed to delete order.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -434,9 +436,10 @@ export default function AdminOrders() {
                                 <button
                                   title="Delete order"
                                   onClick={() => handleDelete(order.id)}
-                                  className="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors"
+                                  disabled={deletingId === order.id}
+                                  className="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                  <Trash2 size={17} />
+                                  {deletingId === order.id ? <Loader2 size={17} className="animate-spin" /> : <Trash2 size={17} />}
                                 </button>
                               </div>
                             </td>
