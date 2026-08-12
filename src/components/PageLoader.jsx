@@ -65,7 +65,7 @@ function SimpleLoader() {
 
 export default function PageLoader({ onFinish, skip, dataReady }) {
   const [isVisible, setIsVisible] = useState(true);
-  const [started, setStarted] = useState(false);
+  const [started, setStarted] = useState(true);
   const [quoteIndex, setQuoteIndex] = useState(0);
   const { frontendSettings } = useData();
   const settings = frontendSettings || {};
@@ -88,13 +88,13 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
       if (onFinish) onFinish();
     };
 
-    // Maximum wait: 8 seconds
-    const maxTimer = setTimeout(dismiss, 8000);
+    // Maximum wait: 3 seconds (very fast fallback)
+    const maxTimer = setTimeout(dismiss, 3000);
 
-    // If data is already ready, wait 1.5 seconds minimum then dismiss
+    // If data is already ready, wait 0ms minimum then dismiss
     let minTimer;
     if (dataReady) {
-      minTimer = setTimeout(dismiss, 1500);
+      minTimer = setTimeout(dismiss, 0);
     }
 
     return () => {
@@ -104,14 +104,6 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
     };
   }, [started, dataReady, onFinish]);
 
-  const handleStart = () => {
-    const audio = document.getElementById('site-bg-audio');
-    if (audio) {
-      audio.play().catch(e => console.error("Audio playback failed:", e));
-    }
-    setStarted(true);
-  };
-
   const handleTap = () => {
     setIsVisible(false);
     if (onFinish) onFinish();
@@ -119,70 +111,6 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
 
   return (
     <AnimatePresence>
-      {isVisible && !started && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 2, rotate: 5, filter: "blur(20px)", transition: { duration: 1.5, ease: [0.22, 1, 0.36, 1] } }}
-          className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#0a0502] via-[#1a0e05] to-[#2a1608] overflow-hidden"
-          onClick={handleStart}
-          onTouchStart={handleStart}
-        >
-          {/* Ambient Glows */}
-          <div className="absolute inset-0 opacity-30 z-0">
-            <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-[#d07e20] rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: '6s' }} />
-            <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-[#a65d14] rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDuration: '7s', animationDelay: '1s' }} />
-          </div>
-          
-          <GoldenDust />
-          
-          <div className="relative z-10 w-full max-w-md px-6">
-            <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="bg-[#1a0e05]/60 backdrop-blur-3xl border border-[#d07e20]/20 rounded-[2.5rem] p-8 sm:p-12 shadow-[0_30px_80px_rgba(0,0,0,0.6)] flex flex-col items-center gap-8 text-center group transition-all hover:bg-[#1a0e05]/80 hover:border-[#d07e20]/40"
-            >
-              {/* Rich Logo Effect */}
-              <div className="relative mb-2 w-full flex justify-center">
-                <div className="absolute inset-0 bg-[#d07e20] opacity-30 blur-[80px] rounded-full group-hover:opacity-50 transition-opacity duration-700 scale-150" />
-                <div className="relative w-56 h-56 sm:w-72 sm:h-72 flex items-center justify-center bg-white rounded-full p-6 shadow-[0_0_40px_rgba(208,126,32,0.4)]">
-                  <img 
-                    src="/MA_logo.png" 
-                    alt="Logo" 
-                    className="w-full h-full object-contain relative z-10" 
-                  />
-                </div>
-              </div>
-
-              {/* Title */}
-              <div className="flex flex-col gap-3">
-                <h1 className="text-3xl sm:text-4xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-b from-white to-[#ffdbb0] drop-shadow-sm">
-                  Let's care for pet
-                </h1>
-                <p className="text-xs text-[#d07e20] font-bold uppercase tracking-[0.3em]">
-                  {settings.storeName || 'Premium Pet Store'}
-                </p>
-              </div>
-
-              {/* Elegant Small Button */}
-              <motion.div 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="mt-4"
-              >
-                <button className="relative px-4 py-1.5 bg-gradient-to-r from-[#d07e20]/20 to-[#ffb347]/20 border border-[#d07e20]/40 rounded-full text-[#ffdbb0] text-[10px] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(208,126,32,0.2)] hover:shadow-[0_0_30px_rgba(208,126,32,0.5)] transition-all overflow-hidden flex items-center gap-2">
-                  <span className="relative z-10">Tap to enter</span>
-                  <svg className="w-3 h-3 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#d07e20] to-[#ffb347] opacity-0 hover:opacity-20 transition-opacity" />
-                </button>
-              </motion.div>
-            </motion.div>
-          </div>
-        </motion.div>
-      )}
-
       {isVisible && started && (
         <motion.div
           initial={{ opacity: 0, scale: 0.5, filter: "blur(30px)", rotate: -10 }}

@@ -135,10 +135,19 @@ export default function ProductPage() {
                     onClick={() => {
                       for(let i=0; i<quantity; i++) addToCart(product);
                     }}
-                    className="flex-1 bg-[#d07e20] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#b96c1a] hover:shadow-lg hover:shadow-orange-500/30 transition-all flex items-center justify-center gap-2"
+                    className="flex-1 bg-white border-2 border-[#d07e20] text-[#d07e20] py-4 rounded-xl font-bold text-lg hover:bg-orange-50 transition-all flex items-center justify-center gap-2"
                   >
                     <ShoppingBag size={20} />
                     Add to Cart
+                  </button>
+                  <button 
+                    onClick={() => {
+                      for(let i=0; i<quantity; i++) addToCart(product);
+                      window.alert("Proceeding to checkout...");
+                    }}
+                    className="flex-1 bg-[#d07e20] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#b96c1a] hover:shadow-lg hover:shadow-orange-500/30 transition-all flex items-center justify-center gap-2"
+                  >
+                    Buy Now
                   </button>
                 </div>
 
@@ -286,25 +295,38 @@ export default function ProductPage() {
 
       {/* Sticky Mobile ATC Bar — floats above the glass nav pill */}
       <div
-        className="md:hidden fixed left-4 right-4 z-[70] bg-white/95 backdrop-blur-md border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.14)] flex items-center gap-3 px-4 py-3 rounded-2xl"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)' }}
+        className="md:hidden fixed left-4 right-4 z-[70] bg-white/95 backdrop-blur-md border border-gray-200 shadow-[0_4px_24px_rgba(0,0,0,0.14)] flex flex-col gap-3 px-4 py-3 rounded-2xl"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}
       >
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-500 truncate">{product.name}</p>
-          <p className="font-black text-gray-900 text-lg leading-tight">₹{product.price} <span className="text-xs text-gray-400 line-through font-normal">₹{product.mrp}</span></p>
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-w-0 pr-2">
+            <p className="text-xs text-gray-500 truncate">{product.name}</p>
+            <p className="font-black text-gray-900 text-lg leading-tight">₹{product.price} <span className="text-xs text-gray-400 line-through font-normal">₹{product.mrp}</span></p>
+          </div>
+          <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden flex-shrink-0 h-10">
+            <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-2 text-gray-500 active:bg-gray-100 transition-colors"><Minus size={14}/></button>
+            <span className="w-8 text-center font-bold text-gray-800 text-sm">{quantity}</span>
+            <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-2 text-gray-500 active:bg-gray-100 transition-colors"><Plus size={14}/></button>
+          </div>
         </div>
-        <div className="flex items-center border border-gray-200 rounded-xl overflow-hidden flex-shrink-0">
-          <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="px-3 py-2 text-gray-500 active:bg-gray-100 transition-colors"><Minus size={14}/></button>
-          <span className="w-8 text-center font-bold text-gray-800 text-sm">{quantity}</span>
-          <button onClick={() => setQuantity(quantity + 1)} className="px-3 py-2 text-gray-500 active:bg-gray-100 transition-colors"><Plus size={14}/></button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => { for(let i=0; i<quantity; i++) addToCart(product); }}
+            className="flex-1 bg-white text-[#d07e20] border border-[#d07e20] py-2.5 rounded-xl font-bold text-sm active:bg-orange-50 transition-all flex items-center justify-center gap-1.5"
+          >
+            <ShoppingBag size={16} />
+            Add to Cart
+          </button>
+          <button
+            onClick={() => { 
+              for(let i=0; i<quantity; i++) addToCart(product);
+              window.alert("Proceeding to checkout...");
+            }}
+            className="flex-1 bg-[#d07e20] text-white py-2.5 rounded-xl font-bold text-sm hover:bg-[#b96c1a] active:scale-95 transition-all flex items-center justify-center gap-1.5"
+          >
+            Buy Now
+          </button>
         </div>
-        <button
-          onClick={() => { for(let i=0; i<quantity; i++) addToCart(product); }}
-          className="flex-shrink-0 bg-[#d07e20] text-white px-5 py-3 rounded-xl font-bold text-sm hover:bg-[#b96c1a] active:scale-95 transition-all flex items-center gap-1.5"
-        >
-          <ShoppingBag size={16} />
-          Add to Cart
-        </button>
       </div>
     </div>
   );

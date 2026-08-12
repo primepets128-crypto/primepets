@@ -57,6 +57,7 @@ body {
 /* Smooth hover cards */
 .product-card {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  will-change: transform, box-shadow;
 }
 .product-card:hover {
   transform: translateY(-4px);
@@ -132,8 +133,15 @@ body {
   z-index: 0;
   opacity: 0.6;
   border-radius: 50%;
-  animation: blob-float 15s infinite alternate ease-in-out;
   pointer-events: none;
+  transform: translateZ(0);
+}
+
+@media (min-width: 768px) {
+  .mesh-bg::before,
+  .mesh-bg::after {
+    animation: blob-float 15s infinite alternate ease-in-out;
+  }
 }
 
 .mesh-bg::before {
@@ -294,6 +302,7 @@ body {
   animation: marquee 30s linear infinite;
   display: inline-flex;
   min-width: max-content;
+  will-change: transform;
 }
 .animate-marquee:hover {
   animation-play-state: paused;

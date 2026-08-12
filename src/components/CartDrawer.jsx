@@ -30,12 +30,12 @@ export default function CartDrawer() {
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[60]"
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[90]"
             onClick={() => setCartOpen(false)}
           />
 
           {/* Drawer */}
-          <div className="fixed top-0 right-0 h-full w-full max-w-sm md:max-w-md bg-white z-[70] flex flex-col shadow-2xl"
+          <div className="fixed top-0 right-0 h-full w-full max-w-sm md:max-w-md bg-white z-[100] flex flex-col shadow-2xl"
             style={{ animation: 'slideInRight 0.3s ease' }}>
 
             {/* Header */}

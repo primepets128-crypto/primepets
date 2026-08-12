@@ -36,12 +36,12 @@ function HeroCarousel() {
       className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-8"
     >
       <div
-        className="relative overflow-hidden shadow-lg rounded-3xl bg-gray-900 w-full aspect-[16/9] sm:aspect-[2/1] md:aspect-[3/1]"
+        className="relative overflow-hidden shadow-lg rounded-3xl w-full"
         onMouseEnter={() => setAuto(false)}
         onMouseLeave={() => setAuto(true)}
       >
       {s.heroImage && (
-        <MediaDisplay src={s.heroImage} alt="Hero Background" className="absolute inset-0 w-full h-full object-cover" />
+        <MediaDisplay src={s.heroImage} alt="Hero Background" className="w-full h-auto object-contain" />
       )}
       
       {/* Arrows — smaller on mobile */}
