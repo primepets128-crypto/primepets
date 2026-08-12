@@ -45,7 +45,7 @@ const quotes = [
 // Simple loader (used as Suspense fallback for sub-pages)
 function SimpleLoader() {
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-gradient-to-br from-[#1a0e05] to-[#5c3110]">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center bg-gradient-to-br from-[#1a0e05] to-[#5c3110]">
       <div className="flex flex-col items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center animate-pulse">
           <img src="/MA_logo.png" alt="Loading" className="w-10 h-10 object-contain" />
@@ -117,7 +117,7 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
           animate={{ opacity: 1, scale: 1, filter: "blur(0px)", rotate: 0 }}
           transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
           exit={{ opacity: 0, scale: 1.5, filter: "blur(15px)", transition: { duration: 1.2, ease: "easeInOut" } }}
-          className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#1a0e05] to-[#5c3110] overflow-hidden"
+          className="fixed inset-0 z-[500] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#1a0e05] to-[#5c3110] overflow-hidden"
           onClick={handleTap}
         >
           {/* Animated background elements */}

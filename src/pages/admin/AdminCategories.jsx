@@ -141,7 +141,7 @@ export default function AdminCategories() {
       </div>
 
       {isModalOpen && createPortal(
-        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+        <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[300] flex items-center justify-center p-4 animate-fade-in">
           <form id="categoryForm" onSubmit={handleSave} className="bg-white rounded-3xl w-full max-w-md max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
             <div className="p-6 border-b flex justify-between items-center bg-gray-50/50">
               <h3 className="text-xl font-bold text-gray-800">{editing.id ? 'Edit Category' : 'Add New Category'}</h3>

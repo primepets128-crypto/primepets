@@ -165,7 +165,7 @@ export default function CartDrawer() {
 
                 {/* CTA */}
                 <button
-                  onClick={() => setCheckoutOpen(true)}
+                  onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}
                   className="w-full bg-gradient-to-r from-[#d07e20] to-[#a65d14] text-white font-bold text-sm py-3.5 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
                   Proceed to Checkout <ArrowRight size={16} />
                 </button>

@@ -148,7 +148,7 @@ export default function ChatBot() {
 
   return (
     <>
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-24 md:bottom-6 right-6 z-[110]">
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -242,7 +242,7 @@ export default function ChatBot() {
         {/* WhatsApp Button */}
         {!isOpen && (
           <a
-            href={`https://wa.me/${settings.whatsappNumber?.replace(/\D/g, '') || ''}`}
+            href="https://wa.me/919763405605?text=Hi%2C%20I%20visited%20your%20site%20Primepets"
             target="_blank"
             rel="noopener noreferrer"
             className="absolute bottom-[72px] right-1 w-12 h-12 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-[0_0_15px_rgba(37,211,102,0.4)] transition-all transform hover:scale-105 active:scale-95"
