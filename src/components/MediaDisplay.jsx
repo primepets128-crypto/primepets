@@ -4,7 +4,7 @@ import React from 'react';
  * Universal media component to render an image or a video 
  * based on the file extension or the URL contents.
  */
-export default function MediaDisplay({ src, alt = "Media", className = "", ...props }) {
+export default function MediaDisplay({ src, alt = "Media", className = "", loading = "lazy", ...props }) {
   if (!src) return null;
   
   // Check if it's a video based on common extensions or Cloudinary video indicators
@@ -24,5 +24,5 @@ export default function MediaDisplay({ src, alt = "Media", className = "", ...pr
     );
   }
 
-  return <img src={src} alt={alt} className={className} {...props} />;
+  return <img src={src} alt={alt} className={className} loading={loading} {...props} />;
 }

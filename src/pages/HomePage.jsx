@@ -41,7 +41,7 @@ function HeroCarousel() {
         onMouseLeave={() => setAuto(true)}
       >
       {s.heroImage && (
-        <MediaDisplay src={s.heroImage} alt="Hero Background" className="w-full h-auto object-contain" />
+        <MediaDisplay src={s.heroImage} alt="Hero Background" className="w-full h-auto object-contain" loading="eager" />
       )}
       
       {/* Arrows — smaller on mobile */}
@@ -71,8 +71,8 @@ function QuickCategories() {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
 
-  // Duplicate 40 times for a virtually infinite native scroll that doesn't break iOS momentum
-  const infiniteCategories = Array(40).fill(categories).flat();
+  // Duplicate 6 times for a virtually infinite native scroll that doesn't break iOS momentum
+  const infiniteCategories = Array(6).fill(categories).flat();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -98,9 +98,9 @@ function QuickCategories() {
           <div className="universe-stars" />
           <div className="universe-stars-2" />
 
-          {/* Live floating glowing orbs */}
-          <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#d07e20]/20 rounded-full blur-[100px] mix-blend-screen" style={{ animation: 'blob-float 12s infinite alternate ease-in-out' }} />
-          <div className="absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-orange-600/15 rounded-full blur-[120px] mix-blend-screen" style={{ animation: 'blob-float 18s infinite alternate-reverse ease-in-out' }} />
+          {/* Live floating glowing orbs - hidden on mobile for better performance */}
+          <div className="hidden md:block absolute top-[-20%] left-[-10%] w-[500px] h-[500px] bg-[#d07e20]/20 rounded-full blur-[100px] mix-blend-screen" style={{ animation: 'blob-float 12s infinite alternate ease-in-out' }} />
+          <div className="hidden md:block absolute bottom-[-20%] right-[-10%] w-[600px] h-[600px] bg-orange-600/15 rounded-full blur-[120px] mix-blend-screen" style={{ animation: 'blob-float 18s infinite alternate-reverse ease-in-out' }} />
           
           {/* Subtle tech lines */}
           <div className="absolute top-0 right-1/4 w-px h-full bg-gradient-to-b from-transparent via-[#d07e20]/20 to-transparent" />
@@ -233,7 +233,7 @@ function FeaturedProducts() {
 
         {/* 2-col mobile → 3-col md → 4-col lg */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
-          {products.map((p, idx) => (
+          {products.slice(0, 8).map((p, idx) => (
             <ScrollReveal key={p.id} delay={(idx % 4) * 100} className="h-full" animation="scale-up">
             <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all cursor-pointer group h-full flex flex-col">
               <div className="relative bg-gray-50 overflow-hidden" style={{ height: 'clamp(140px, 18vw, 220px)' }}>
@@ -476,8 +476,8 @@ export default function HomePage() {
         <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-12 mt-8">
           <div className="relative rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/10 bg-[#0a0510]">
             
-            {/* Live animated background elements */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Live animated background elements - hidden on mobile for performance */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none hidden md:block">
               <div className="absolute top-[-30%] left-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-purple-600/30 rounded-full blur-[100px] mix-blend-screen" style={{ animation: 'blob-float 15s infinite alternate ease-in-out' }} />
               <div className="absolute bottom-[-30%] right-[-10%] w-[300px] md:w-[600px] h-[300px] md:h-[600px] bg-[#d07e20]/30 rounded-full blur-[120px] mix-blend-screen" style={{ animation: 'blob-float 12s infinite alternate-reverse ease-in-out' }} />
               <div className="absolute top-[20%] left-[40%] w-[200px] md:w-[400px] h-[200px] md:h-[400px] bg-blue-600/20 rounded-full blur-[90px] mix-blend-screen" style={{ animation: 'blob-float 18s infinite alternate ease-in-out' }} />
