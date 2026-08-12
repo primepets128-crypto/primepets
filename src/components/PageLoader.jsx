@@ -72,7 +72,6 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
 
   if (skip) return null;
 
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (!started) return;
 
@@ -81,10 +80,7 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
       setQuoteIndex(prev => (prev + 1) % quotes.length);
     }, 2000);
 
-    // Wait for data to be ready, then give a small buffer before dismissing
-    // Minimum 3 seconds, auto dismiss after 8 seconds regardless
     let dismissed = false;
-
     const dismiss = () => {
       if (dismissed) return;
       dismissed = true;
@@ -95,31 +91,18 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
     // Maximum wait: 8 seconds
     const maxTimer = setTimeout(dismiss, 8000);
 
-    // If data is already ready, wait 3 seconds minimum then dismiss
+    // If data is already ready, wait 1.5 seconds minimum then dismiss
+    let minTimer;
     if (dataReady) {
-      const minTimer = setTimeout(dismiss, 3000);
-      return () => {
-        clearInterval(quoteTimer);
-        clearTimeout(maxTimer);
-        clearTimeout(minTimer);
-      };
+      minTimer = setTimeout(dismiss, 1500);
     }
-
-    // Poll for dataReady
-    const pollInterval = setInterval(() => {
-      // dataReady is passed as prop, but we also check a DOM marker
-      if (dataReady) {
-        clearInterval(pollInterval);
-        setTimeout(dismiss, 1500); // Small buffer after data loads
-      }
-    }, 300);
 
     return () => {
       clearInterval(quoteTimer);
       clearTimeout(maxTimer);
-      clearInterval(pollInterval);
+      if (minTimer) clearTimeout(minTimer);
     };
-  }, [onFinish, started, dataReady]);
+  }, [started, dataReady, onFinish]);
 
   const handleStart = () => {
     const audio = document.getElementById('site-bg-audio');
@@ -143,6 +126,7 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
           exit={{ opacity: 0, scale: 2, rotate: 5, filter: "blur(20px)", transition: { duration: 1.5, ease: [0.22, 1, 0.36, 1] } }}
           className="fixed inset-0 z-[100] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#0a0502] via-[#1a0e05] to-[#2a1608] overflow-hidden"
           onClick={handleStart}
+          onTouchStart={handleStart}
         >
           {/* Ambient Glows */}
           <div className="absolute inset-0 opacity-30 z-0">
