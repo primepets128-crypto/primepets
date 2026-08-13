@@ -72,8 +72,6 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
   const { frontendSettings } = useData();
   const settings = frontendSettings || {};
 
-  if (skip) return null;
-
   useEffect(() => {
     if (!started) return;
 
@@ -114,6 +112,8 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
     setIsVisible(false);
     if (onFinish) onFinish();
   };
+
+  if (skip) return null;
 
   return (
     <AnimatePresence>
