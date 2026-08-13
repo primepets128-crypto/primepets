@@ -4,16 +4,19 @@ const prisma = require('../db');
 
 router.get('/', async (req, res) => {
   try {
-    const slides = await prisma.slide.findMany();
-    const categories = await prisma.category.findMany();
-    const deals = await prisma.deal.findMany();
-    const products = await prisma.product.findMany();
+    const [slides, categories, deals, products, settings, banners] = await Promise.all([
+      prisma.slide.findMany(),
+      prisma.category.findMany(),
+      prisma.deal.findMany(),
+      prisma.product.findMany(),
+      prisma.frontendSetting.findFirst(),
+      prisma.banner.findMany()
+    ]);
+
     const parsedProducts = products.map(p => ({
       ...p,
       images: p.images ? JSON.parse(p.images) : []
     }));
-    const settings = await prisma.frontendSetting.findFirst();
-    const banners = await prisma.banner.findMany();
 
     res.json({
       slides,
