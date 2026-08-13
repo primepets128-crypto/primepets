@@ -50,14 +50,22 @@ const ProtectedAdminRoute = ({ children }) => {
 // Inner app that has access to DataContext
 function AppInner() {
   const location = useLocation();
-  const [initialSkip] = useState(() => sessionStorage.getItem('loaderFinished') === 'true');
-  const [loaderFinished, setLoaderFinished] = useState(initialSkip);
+  const [loaderFinished, setLoaderFinished] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef(null);
-  const { frontendSettings, loading } = useData();
+  const { frontendSettings, products, loading } = useData();
+
+  const isDataEmpty = (products || []).length === 0 && loading;
+  const shouldShowLoader = !loaderFinished || isDataEmpty;
 
   useEffect(() => {
-    window.scrollTo(0, 0);
+    // Scroll to top on route change after a short delay to accommodate page transitions and lazy layouts
+    const timer = setTimeout(() => {
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTo(0, 0);
+      document.body.scrollTo(0, 0);
+    }, 100);
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   // Update audio source when settings change
@@ -88,10 +96,9 @@ function AppInner() {
   return (
     <div className="min-h-screen mesh-bg text-gray-800" style={{ fontFamily: "'Poppins', sans-serif" }}>
       <PageLoader 
-        skip={initialSkip}
+        skip={!shouldShowLoader}
         dataReady={!loading}
         onFinish={() => {
-          sessionStorage.setItem('loaderFinished', 'true');
           setLoaderFinished(true);
         }} 
       />
