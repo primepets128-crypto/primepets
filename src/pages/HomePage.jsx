@@ -33,15 +33,15 @@ function HeroCarousel() {
       initial={{ opacity: 0, y: 40, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-      className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-8"
+      className="relative z-10 max-w-[1920px] mx-auto w-full px-4 md:px-6 mb-8"
     >
       <div
-        className="relative overflow-hidden shadow-lg rounded-3xl w-full"
+        className="relative overflow-hidden shadow-lg rounded-3xl w-full aspect-[16/9] md:aspect-[1920/640]"
         onMouseEnter={() => setAuto(false)}
         onMouseLeave={() => setAuto(true)}
       >
       {s.heroImage && (
-        <MediaDisplay src={s.heroImage} alt="Hero Background" className="w-full h-auto object-contain" loading="eager" />
+        <MediaDisplay src={s.heroImage} alt="Hero Background" className="w-full h-full object-cover" loading="eager" />
       )}
       
       {/* Arrows — smaller on mobile */}
