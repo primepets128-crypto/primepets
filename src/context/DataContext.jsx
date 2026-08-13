@@ -1,7 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { getMessaging, getToken } from 'firebase/messaging';
-import { auth } from '../firebase'; // get auth and the initialized app
 
 export const DataContext = createContext(null);
 
@@ -39,15 +37,14 @@ export function DataProvider({ children }) {
       try {
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
+          // Lazy-import Firebase messaging only when permission is granted
+          const { getMessaging, getToken } = await import('firebase/messaging');
           const messaging = getMessaging();
-          // We need to pass the VAPID key in a real prod app if configured, but for now we try without it if Firebase auto-provisions or if they set one.
-          // In Vite, we'd inject it via env. Let's just try getToken.
           const token = await getToken(messaging, { 
             vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY || undefined 
           });
           if (token) {
             setFcmToken(token);
-            // Optionally, resend a log activity just to update the token immediately
             axios.post('/api/analytics/track', { type: 'interaction', visitorId, action: 'Push Enabled', fcmToken: token }).catch(console.error);
           }
         }

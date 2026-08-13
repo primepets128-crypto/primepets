@@ -4,7 +4,7 @@ import { AnimatePresence } from 'framer-motion';
 import { Volume2, VolumeX } from 'lucide-react';
 import PageTransition from './components/PageTransition';
 import { CartProvider } from './context/CartContext';
-import { DataProvider } from './context/DataContext';
+import { DataProvider, useData } from './context/DataContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import CartDrawer from './components/CartDrawer';
 import Toast from './components/Toast';
@@ -14,7 +14,6 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ChatBot from './components/ChatBot';
 import TopBar from './components/TopBar';
 import ActivityTracker from './components/ActivityTracker';
-import { useData } from './context/DataContext';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -95,6 +94,7 @@ function AppInner() {
 
   return (
     <div className="min-h-screen mesh-bg text-gray-800" style={{ fontFamily: "'Poppins', sans-serif" }}>
+      {/* PageLoader renders first — outside AuthProvider — so it appears instantly */}
       <PageLoader 
         skip={!shouldShowLoader}
         dataReady={!loading}
@@ -109,7 +109,7 @@ function AppInner() {
           <AnimatePresence mode="wait">
             <Suspense fallback={<PageLoader skip={false} />}>
               <Routes location={location} key={location.pathname}>
-                {/* Storefront Routes */}
+                {/* Storefront Routes — no auth required */}
                 <Route path="/"         element={<PageTransition><HomePage /></PageTransition>} />
                 <Route path="/category" element={<PageTransition><CategoryPage /></PageTransition>} />
                 <Route path="/offers"   element={<PageTransition><OffersPage /></PageTransition>} />

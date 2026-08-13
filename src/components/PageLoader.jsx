@@ -48,7 +48,10 @@ function SimpleLoader() {
     <div className="fixed inset-0 z-[500] flex items-center justify-center bg-gradient-to-br from-[#1a0e05] to-[#5c3110]">
       <div className="flex flex-col items-center gap-4">
         <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center animate-pulse">
-          <img src="/MA_logo.png" alt="Loading" className="w-10 h-10 object-contain" />
+          <picture>
+            <source srcSet="/MA_logo.webp" type="image/webp" />
+            <img src="/MA_logo.png" alt="Loading" className="w-10 h-10 object-contain" />
+          </picture>
         </div>
         <div className="h-1 w-32 bg-black/40 rounded-full overflow-hidden">
           <motion.div
@@ -148,7 +151,10 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
                 className="w-64 h-64 md:w-96 md:h-96 flex items-center justify-center drop-shadow-[0_0_30px_rgba(208,126,32,0.5)]"
               >
                 <div className="relative w-56 h-56 md:w-80 md:h-80 flex items-center justify-center p-6 bg-white rounded-full">
-                  <img src="/MA_logo.png" alt="Logo" className="w-full h-full object-contain relative z-10 animate-pulse shimmer-loop" style={{ animationDuration: '3s' }} />
+                  <picture>
+                    <source srcSet="/MA_logo.webp" type="image/webp" />
+                    <img src="/MA_logo.png" alt="Logo" className="w-full h-full object-contain relative z-10 animate-pulse shimmer-loop" style={{ animationDuration: '3s' }} />
+                  </picture>
                 </div>
               </motion.div>
             </motion.div>
