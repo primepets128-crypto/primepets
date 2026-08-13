@@ -88,8 +88,8 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
       if (onFinish) onFinish();
     };
 
-    // Maximum wait: 3 seconds (very fast fallback)
-    const maxTimer = setTimeout(dismiss, 3000);
+    // Maximum wait: 1 second fallback
+    const maxTimer = setTimeout(dismiss, 1000);
 
     // If data is already ready, wait 0ms minimum then dismiss
     let minTimer;
@@ -113,10 +113,10 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
     <AnimatePresence>
       {isVisible && started && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.5, filter: "blur(30px)", rotate: -10 }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)", rotate: 0 }}
-          transition={{ duration: 1.8, ease: [0.22, 1, 0.36, 1], delay: 0.1 }}
-          exit={{ opacity: 0, scale: 1.5, filter: "blur(15px)", transition: { duration: 1.2, ease: "easeInOut" } }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeInOut" } }}
           className="fixed inset-0 z-[500] flex items-center justify-center cursor-pointer bg-gradient-to-br from-[#1a0e05] to-[#5c3110] overflow-hidden"
           onClick={handleTap}
         >

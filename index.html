@@ -27,7 +27,82 @@
     </noscript>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Instant Initial Page Loader (Raw HTML & CSS) -->
+      <style>
+        #initial-loader {
+          position: fixed;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #1a0e05 0%, #3d1f0a 50%, #5c3110 100%);
+          z-index: 99999;
+          font-family: sans-serif;
+          margin: 0;
+          padding: 0;
+        }
+        .loader-logo-container {
+          position: relative;
+          width: 130px;
+          height: 130px;
+          background: white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 0 30px rgba(208, 126, 32, 0.4);
+          animation: loader-pulse 2s infinite ease-in-out;
+          margin-bottom: 20px;
+        }
+        .loader-logo-container img {
+          width: 80px;
+          height: 80px;
+          object-fit: contain;
+        }
+        .loader-title {
+          font-size: 22px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.15em;
+          color: #ffd8a8;
+          margin-bottom: 20px;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .loader-bar-container {
+          width: 140px;
+          height: 4px;
+          background: rgba(0,0,0,0.4);
+          border-radius: 999px;
+          overflow: hidden;
+        }
+        .loader-bar-fill {
+          height: 100%;
+          width: 30%;
+          background: linear-gradient(90deg, #ffd8a8, #d07e20);
+          border-radius: 999px;
+          animation: loader-progress 1.4s infinite ease-in-out;
+        }
+        @keyframes loader-pulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 0 30px rgba(208, 126, 32, 0.4); }
+          50% { transform: scale(1.03); box-shadow: 0 0 45px rgba(208, 126, 32, 0.6); }
+        }
+        @keyframes loader-progress {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(350%); }
+        }
+      </style>
+      <div id="initial-loader">
+        <div class="loader-logo-container">
+          <img src="/MA_logo.png" alt="Logo" />
+        </div>
+        <div class="loader-title">Prime Pets</div>
+        <div class="loader-bar-container">
+          <div class="loader-bar-fill"></div>
+        </div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
