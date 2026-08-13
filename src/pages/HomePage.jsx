@@ -36,7 +36,7 @@ function HeroCarousel() {
       className="relative z-10 max-w-[1920px] mx-auto w-full px-4 md:px-6 mb-8"
     >
       <div
-        className="relative overflow-hidden shadow-lg rounded-3xl w-full aspect-[16/9] md:aspect-[1920/640]"
+        className="relative overflow-hidden shadow-lg rounded-3xl w-full aspect-[1920/640]"
         onMouseEnter={() => setAuto(false)}
         onMouseLeave={() => setAuto(true)}
       >
