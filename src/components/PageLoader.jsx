@@ -67,6 +67,8 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
   const [isVisible, setIsVisible] = useState(true);
   const [started, setStarted] = useState(true);
   const [quoteIndex, setQuoteIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [isReady, setIsReady] = useState(false);
   const { frontendSettings } = useData();
   const settings = frontendSettings || {};
 
@@ -75,36 +77,40 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
   useEffect(() => {
     if (!started) return;
 
-    // Cycle quotes every 2 seconds
+    // Cycle quotes every 2.5 seconds
     const quoteTimer = setInterval(() => {
       setQuoteIndex(prev => (prev + 1) % quotes.length);
-    }, 2000);
+    }, 2500);
 
-    let dismissed = false;
-    const dismiss = () => {
-      if (dismissed) return;
-      dismissed = true;
-      setIsVisible(false);
-      if (onFinish) onFinish();
-    };
-
-    // Maximum wait: 1 second fallback
-    const maxTimer = setTimeout(dismiss, 1000);
-
-    // If data is already ready, wait 0ms minimum then dismiss
-    let minTimer;
-    if (dataReady) {
-      minTimer = setTimeout(dismiss, 0);
-    }
+    // Smooth incremental progress
+    const progressTimer = setInterval(() => {
+      setProgress(prev => {
+        if (dataReady) {
+          if (prev >= 100) {
+            clearInterval(progressTimer);
+            setIsReady(true);
+            return 100;
+          }
+          return Math.min(100, prev + 15);
+        } else {
+          if (prev >= 85) return 85;
+          return prev + 5;
+        }
+      });
+    }, 80);
 
     return () => {
       clearInterval(quoteTimer);
-      clearTimeout(maxTimer);
-      if (minTimer) clearTimeout(minTimer);
+      clearInterval(progressTimer);
     };
-  }, [started, dataReady, onFinish]);
+  }, [started, dataReady]);
 
   const handleTap = () => {
+    // Circumvent mobile browser audio autoplay policy
+    const audio = document.getElementById('site-bg-audio');
+    if (audio) {
+      audio.play().catch(err => console.log('Audio autoplay blocked:', err));
+    }
     setIsVisible(false);
     if (onFinish) onFinish();
   };
@@ -173,49 +179,60 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
               </AnimatePresence>
             </div>
 
-            {/* Progress Bar — tied to data loading */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 0.5 }}
-              className="w-48 md:w-64 mb-10"
-            >
-              <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden relative shadow-inner">
-                <motion.div
-                  initial={{ width: "0%" }}
-                  animate={{ width: dataReady ? "100%" : "85%" }}
-                  transition={dataReady 
-                    ? { duration: 0.5, ease: "easeOut" }
-                    : { duration: 5, ease: "easeOut" }
-                  }
-                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#ffd8a8] via-[#ffb347] to-[#d07e20] shadow-[0_0_10px_rgba(208,126,32,0.8)]"
-                />
-              </div>
-              <p className="text-xs text-orange-300/60 mt-3 uppercase tracking-widest font-semibold">
-                {dataReady ? 'Ready!' : 'Loading Experience...'}
-              </p>
-            </motion.div>
-
-            {/* Tap to Skip button */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 1.2, duration: 0.5 }}
-            >
-              <div className="relative group">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#d07e20] to-[#ffb347] rounded-full blur opacity-30 group-hover:opacity-80 transition duration-1000 group-hover:duration-200"></div>
-                <button 
-                  className="relative px-6 py-2 bg-[#5c3110]/80 backdrop-blur-sm border border-[#d07e20]/20 hover:border-[#d07e20]/50 rounded-full text-orange-200/80 hover:text-white font-bold tracking-wide uppercase text-xs shadow-xl flex items-center gap-2 transition-colors"
+            {/* Interactive Control: Progress Bar or Enter Button */}
+            <div className="h-28 flex flex-col items-center justify-center mb-8">
+              {isReady ? (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ 
+                    opacity: 1, 
+                    scale: [1, 1.04, 1],
+                  }}
+                  transition={{
+                    opacity: { duration: 0.3 },
+                    scale: { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
+                  }}
+                  className="px-8 py-3.5 bg-gradient-to-r from-[#ffd8a8] via-[#ffb347] to-[#d07e20] text-[#1a0e05] rounded-full font-black tracking-[0.2em] text-xs md:text-sm shadow-[0_0_35px_rgba(208,126,32,0.6)] border border-[#ffd8a8]/50 hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleTap();
                   }}
                 >
-                  Skip
-                  <span>⏩</span>
+                  🐾 TAP TO ENTER 🐾
+                </motion.button>
+              ) : (
+                <div className="w-48 md:w-64 flex flex-col items-center">
+                  <div className="h-1.5 w-full bg-black/40 rounded-full overflow-hidden relative shadow-inner">
+                    <div 
+                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#ffd8a8] via-[#ffb347] to-[#d07e20] shadow-[0_0_10px_rgba(208,126,32,0.8)] transition-all duration-100"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                  <p className="text-[10px] md:text-xs text-orange-300/60 mt-3 uppercase tracking-widest font-semibold">
+                    Loading Experience... {progress}%
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Skip Button (always visible during loading so users aren't forced to wait) */}
+            {!isReady && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.7 }}
+                className="relative group mt-2"
+              >
+                <button 
+                  className="px-5 py-1.5 bg-[#5c3110]/50 backdrop-blur-sm border border-[#d07e20]/20 rounded-full text-orange-200/60 hover:text-white font-bold tracking-wide uppercase text-[10px] shadow-md transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleTap();
+                  }}
+                >
+                  Skip ⏩
                 </button>
-              </div>
-            </motion.div>
+              </motion.div>
+            )}
           </div>
         </motion.div>
       )}
