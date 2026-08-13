@@ -1,0 +1,33 @@
+# Prime Pets
+
+> Prime Pets is an online pet store offering premium pet food, accessories, grooming products, and toys for dogs, cats, and other pets.
+
+## About
+
+Prime Pets provides a curated selection of high-quality pet products, competitive pricing, and a seamless shopping experience. We serve pet owners who want the best for their animals.
+
+## Pages
+
+- [Home](https://primepets.vercel.app/) - Main storefront with featured products, deals, and categories
+- [Shop](https://primepets.vercel.app/shop) - Browse all products
+- [Offers](https://primepets.vercel.app/offers) - Current deals and discounts
+- [Categories](https://primepets.vercel.app/category) - Browse by pet category
+- [Hub](https://primepets.vercel.app/hub) - Pet care tips and resources
+- [Account](https://primepets.vercel.app/account) - Customer account management
+
+## Products
+
+Prime Pets stocks products across these categories:
+- Pet food and nutrition
+- Grooming and hygiene
+- Toys and enrichment
+- Accessories and gear
+- Health and wellness
+
+## Contact
+
+For orders and inquiries, contact us via WhatsApp through the website chat.
+
+## Sitemap
+
+https://primepets.vercel.app/sitemap.xml

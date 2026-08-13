@@ -257,6 +257,7 @@ export default function ChatBot() {
         {/* Toggle Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Close chat' : 'Open chat assistant'}
           className="w-14 h-14 bg-[#d07e20] text-white rounded-full flex items-center justify-center shadow-2xl hover:shadow-[0_0_20px_rgba(208,126,32,0.4)] transition-all transform hover:scale-105 active:scale-95 relative z-10"
         >
           {isOpen ? <X size={24} /> : <MessageSquare size={24} />}

@@ -26,36 +26,31 @@ export function DataProvider({ children }) {
 
   const [activityLog, setActivityLog] = useState([]);
 
-  // Request Notification Permission
-  useEffect(() => {
-    const requestPermission = async () => {
-      if (hasRequestedPermission.current) return;
-      hasRequestedPermission.current = true;
-      
-      if (!('Notification' in window)) return;
-      
-      try {
-        const permission = await Notification.requestPermission();
-        if (permission === 'granted') {
-          // Lazy-import Firebase messaging only when permission is granted
-          const { getMessaging, getToken } = await import('firebase/messaging');
-          const messaging = getMessaging();
-          const token = await getToken(messaging, { 
-            vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY || undefined 
-          });
-          if (token) {
-            setFcmToken(token);
-            axios.post('/api/analytics/track', { type: 'interaction', visitorId, action: 'Push Enabled', fcmToken: token }).catch(console.error);
-          }
+  // Push notification permission — only called on explicit user gesture, never automatically
+  const requestPushPermission = async () => {
+    if (hasRequestedPermission.current) return;
+    hasRequestedPermission.current = true;
+
+    if (!('Notification' in window)) return;
+
+    try {
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        // Lazy-import Firebase messaging only when permission is granted
+        const { getMessaging, getToken } = await import('firebase/messaging');
+        const messaging = getMessaging();
+        const token = await getToken(messaging, {
+          vapidKey: import.meta.env.VITE_FIREBASE_VAPID_KEY || undefined
+        });
+        if (token) {
+          setFcmToken(token);
+          axios.post('/api/analytics/track', { type: 'interaction', visitorId, action: 'Push Enabled', fcmToken: token }).catch(console.error);
         }
-      } catch (error) {
-        console.error("Failed to get push token:", error);
       }
-    };
-    
-    // Slight delay so it doesn't block immediate rendering
-    setTimeout(requestPermission, 2000);
-  }, [visitorId]);
+    } catch (error) {
+      console.error('Failed to get push token:', error);
+    }
+  };
 
   const logActivity = (action, details = '') => {
     const type = action === 'Page View' ? 'pageview' : 'interaction';
@@ -107,7 +102,8 @@ export function DataProvider({ children }) {
       frontendSettings, setFrontendSettings,
       activityLog, logActivity,
       loading,
-      refreshData
+      refreshData,
+      requestPushPermission,
     }}>
       {children}
     </DataContext.Provider>
