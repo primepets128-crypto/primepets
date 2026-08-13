@@ -153,7 +153,7 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
                 <div className="relative w-56 h-56 md:w-80 md:h-80 flex items-center justify-center p-6 bg-white rounded-full">
                   <picture>
                     <source srcSet="/MA_logo.webp" type="image/webp" />
-                    <img src="/MA_logo.png" alt="Logo" className="w-full h-full object-contain relative z-10 animate-pulse shimmer-loop" style={{ animationDuration: '3s' }} />
+                    <img src="/MA_logo.png" alt="Logo" fetchpriority="high" className="w-full h-full object-contain relative z-10 animate-pulse shimmer-loop" style={{ animationDuration: '3s' }} />
                   </picture>
                 </div>
               </motion.div>

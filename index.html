@@ -22,10 +22,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <!-- Preload the LCP logo image -->
-    <link rel="preload" href="/MA_logo.webp" as="image" type="image/webp" />
+    <!-- Preload the LCP logo image with high fetch priority -->
+    <link rel="preload" href="/MA_logo.webp" as="image" type="image/webp" fetchpriority="high" />
     <!-- Preconnect to Firebase so auth/iframe loads faster -->
-    <link rel="preconnect" href="https://www.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://primepets-75a7f.firebaseapp.com" />
     <noscript>
       <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -102,7 +101,7 @@
         <div class="loader-logo-container">
           <picture>
             <source srcset="/MA_logo.webp" type="image/webp" />
-            <img src="/MA_logo.png" alt="Logo" />
+            <img src="/MA_logo.png" alt="Logo" fetchpriority="high" />
           </picture>
         </div>
         <div class="loader-title">Prime Pets</div>
