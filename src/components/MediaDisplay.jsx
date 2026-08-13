@@ -5,7 +5,7 @@ import React from 'react';
  * based on the file extension or the URL contents.
  */
 function getUnsplashProps(src) {
-  if (!src || !src.includes('images.unsplash.com')) return {};
+  if (typeof src !== 'string' || !src.includes('images.unsplash.com')) return {};
 
   try {
     const [baseUrl, query] = src.split('?');

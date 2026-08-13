@@ -38,7 +38,7 @@ export default function CategoryPage() {
   const { categories: ALL_CATEGORIES, products: PRODUCTS, loading } = useData();
   const PET_TABS = ['All', 'Dogs', 'Cats', 'Small Pets', 'Birds'];
 
-  const BRANDS = ['All', ...new Set(PRODUCTS.map(p => p.brand).filter(Boolean))];
+  const BRANDS = ['All', ...new Set((PRODUCTS || []).map(p => p.brand).filter(Boolean))];
 
   // Filtering
   let filteredProducts = [...PRODUCTS];

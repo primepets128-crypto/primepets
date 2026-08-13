@@ -72,7 +72,7 @@ function QuickCategories() {
   const scrollRef = useRef(null);
 
   // Duplicate 6 times for a virtually infinite native scroll that doesn't break iOS momentum
-  const infiniteCategories = Array(6).fill(categories).flat();
+  const infiniteCategories = Array(6).fill(categories || []).flat();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -233,7 +233,7 @@ function FeaturedProducts() {
 
         {/* 2-col mobile → 3-col md → 4-col lg */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-5">
-          {products.slice(0, 8).map((p, idx) => (
+          {(products || []).slice(0, 8).map((p, idx) => (
             <ScrollReveal key={p.id} delay={(idx % 4) * 100} className="h-full" animation="scale-up">
             <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all cursor-pointer group h-full flex flex-col">
               <div className="relative bg-gray-50 overflow-hidden" style={{ height: 'clamp(140px, 18vw, 220px)' }}>

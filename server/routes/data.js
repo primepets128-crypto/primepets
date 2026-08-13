@@ -8,6 +8,10 @@ router.get('/', async (req, res) => {
     const categories = await prisma.category.findMany();
     const deals = await prisma.deal.findMany();
     const products = await prisma.product.findMany();
+    const parsedProducts = products.map(p => ({
+      ...p,
+      images: p.images ? JSON.parse(p.images) : []
+    }));
     const settings = await prisma.frontendSetting.findFirst();
     const banners = await prisma.banner.findMany();
 
@@ -16,7 +20,7 @@ router.get('/', async (req, res) => {
       banners,
       categories,
       deals,
-      products,
+      products: parsedProducts,
       frontendSettings: settings
     });
   } catch (error) {
