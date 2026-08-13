@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import axios from 'axios';
 import { handleImageUpload } from '../../utils/imageUpload';
@@ -18,6 +18,13 @@ export default function AdminProducts() {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [isUploadingPrimary, setIsUploadingPrimary] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [isCustomBrand, setIsCustomBrand] = useState(false);
+
+  useEffect(() => {
+    if (!isModalOpen) {
+      setIsCustomBrand(false);
+    }
+  }, [isModalOpen]);
 
   const defaultProduct = {
     name: '', brand: '', petType: 'Dogs', category: '', price: '', mrp: '', rating: 4.5, reviews: 0, img: '', images: [], tag: '', badge: ''
@@ -295,10 +302,49 @@ export default function AdminProducts() {
                   
                   <div>
                     <label htmlFor="brand" className="block text-sm font-bold text-gray-700 mb-1">Brand <span className="text-red-500">*</span></label>
-                    <input id="brand" list="brand-list" required type="text" placeholder="Select or type brand" value={editing.brand || ''} onChange={e => setEditing({...editing, brand: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm" />
-                    <datalist id="brand-list">
-                      {uniqueBrands.map(b => <option key={b} value={b} />)}
-                    </datalist>
+                    {!isCustomBrand ? (
+                      <select
+                        id="brand"
+                        required
+                        value={editing.brand || ''}
+                        onChange={e => {
+                          if (e.target.value === '__NEW__') {
+                            setIsCustomBrand(true);
+                            setEditing({ ...editing, brand: '' });
+                          } else {
+                            setEditing({ ...editing, brand: e.target.value });
+                          }
+                        }}
+                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm"
+                      >
+                        <option value="" disabled>Select brand</option>
+                        {uniqueBrands.map(b => (
+                          <option key={b} value={b}>{b}</option>
+                        ))}
+                        <option value="__NEW__" className="text-orange-600 font-bold">+ Add New Brand...</option>
+                      </select>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          required
+                          type="text"
+                          placeholder="Type new brand name..."
+                          value={editing.brand || ''}
+                          onChange={e => setEditing({ ...editing, brand: e.target.value })}
+                          className="flex-1 p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsCustomBrand(false);
+                            setEditing({ ...editing, brand: uniqueBrands[0] || '' });
+                          }}
+                          className="px-3 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl text-xs font-bold transition-all border border-gray-200 whitespace-nowrap"
+                        >
+                          Select List
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   <div>
