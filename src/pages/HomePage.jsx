@@ -33,7 +33,7 @@ function HeroCarousel() {
       initial={{ opacity: 0, y: 40, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-      className="relative z-10 max-w-[1920px] mx-auto w-full px-4 md:px-6 mb-8"
+      className="relative z-10 max-w-[1920px] mx-auto w-full px-4 md:px-6 mb-6 md:mb-10"
     >
       <div
         className="relative overflow-hidden shadow-lg rounded-3xl w-full aspect-[1920/640]"
@@ -89,7 +89,7 @@ function QuickCategories() {
   };
 
   return (
-    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-8">
+    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-6 md:mb-10">
       <div className="relative overflow-hidden rounded-3xl p-6 md:p-8 border border-[#d07e20]/50 shadow-[0_0_40px_rgba(208,126,32,0.15)] universe-bg">
         
         {/* Sleek dark background elements */}
@@ -123,7 +123,7 @@ function QuickCategories() {
         </div>
 
         {/* Swipable horizontal list of cards */}
-        <div className="relative z-10 mask-edges pb-2 md:pb-4 mt-6 md:mt-8">
+        <div className="relative z-10 mask-edges pb-2 md:pb-4 mt-2">
           
           {/* Left Scroll Button */}
           <button onClick={() => scroll('left')} 
@@ -161,7 +161,7 @@ function DealsSection() {
   const { deals } = useData();
   const navigate = useNavigate();
   return (
-    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-8">
+    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-6 md:mb-10">
       <div className="glass-panel rounded-3xl p-4 md:p-6">
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <div>
@@ -210,7 +210,7 @@ function FeaturedProducts() {
   const { addToCart, toggleWishlist, isInCart, isWishlisted } = useCart();
 
   return (
-    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-8">
+    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-6 md:mb-10">
       <div className="glass-panel rounded-3xl p-4 md:p-6">
         <ScrollReveal animation="fade-left">
         <div className="flex items-center justify-between mb-4 md:mb-6">
@@ -281,7 +281,7 @@ function FeaturedProducts() {
 /* ── TRUST BAR ── */
 function TrustBar() {
   return (
-    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-12 mt-8">
+    <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-6 md:mb-10">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {[
           { icon: Truck, label: 'Free Delivery', sub: 'On orders above ₹499', color: '#d07e20' },
@@ -473,7 +473,7 @@ export default function HomePage() {
 
         {/* Rewards Banner (GenZ / Rich Live Background) */}
         <ScrollReveal delay={100}>
-        <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-12 mt-8">
+        <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-6 md:mb-10">
           <div className="relative rounded-3xl md:rounded-[2.5rem] p-6 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.4)] border border-white/10 bg-[#0a0510]">
             
             {/* Live animated background elements - hidden on mobile for performance */}
