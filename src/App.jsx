@@ -23,6 +23,10 @@ const OffersPage = lazy(() => import('./pages/OffersPage'));
 const HubPage = lazy(() => import('./pages/HubPage'));
 const AccountPage = lazy(() => import('./pages/AccountPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
+const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
+const TermsOfUsePage = lazy(() => import('./pages/TermsOfUsePage'));
+const ReturnPolicyPage = lazy(() => import('./pages/ReturnPolicyPage'));
+const SitemapPage = lazy(() => import('./pages/SitemapPage'));
 
 // Lazy load Admin pages
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'));
@@ -116,7 +120,11 @@ function AppInner() {
                 <Route path="/hub"      element={<PageTransition><HubPage /></PageTransition>} />
                 <Route path="/account"  element={<PageTransition><AccountPage /></PageTransition>} />
                 <Route path="/login"    element={<PageTransition><LoginPage /></PageTransition>} />
-                <Route path="/product/:id" element={<PageTransition><ProductPage /></PageTransition>} />
+                <Route path="/product/:id"      element={<PageTransition><ProductPage /></PageTransition>} />
+                <Route path="/privacy-policy"   element={<PageTransition><PrivacyPolicyPage /></PageTransition>} />
+                <Route path="/terms-of-use"     element={<PageTransition><TermsOfUsePage /></PageTransition>} />
+                <Route path="/return-policy"    element={<PageTransition><ReturnPolicyPage /></PageTransition>} />
+                <Route path="/sitemap"          element={<PageTransition><SitemapPage /></PageTransition>} />
                 
                 {/* Admin Routes */}
                 <Route path="/admin" element={<PageTransition><ProtectedAdminRoute><AdminLayout /></ProtectedAdminRoute></PageTransition>}>

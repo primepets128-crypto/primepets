@@ -426,8 +426,13 @@ function Footer() {
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-orange-200/50 text-xs font-medium tracking-wide">© 2026 {settings.storeName} {settings.tagline}. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            {['Privacy Policy', 'Terms of Use', 'Return Policy', 'Sitemap'].map(l => (
-              <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); window.alert("Feature coming soon!"); }} key={l} className="text-orange-200/50 text-xs hover:text-[#d07e20] transition-colors">{l}</button>
+            {[
+              { label: 'Privacy Policy', path: '/privacy-policy' },
+              { label: 'Terms of Use',   path: '/terms-of-use' },
+              { label: 'Return Policy',  path: '/return-policy' },
+              { label: 'Sitemap',        path: '/sitemap' },
+            ].map(l => (
+              <button key={l.label} onClick={() => navigate(l.path)} className="text-orange-200/50 text-xs hover:text-[#d07e20] transition-colors">{l.label}</button>
             ))}
           </div>
         </div>

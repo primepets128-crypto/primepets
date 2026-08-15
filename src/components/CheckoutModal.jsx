@@ -296,20 +296,39 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
   }
 
   async function placeOnline() {
-    const keyId = frontendSettings?.razorpayKeyId;
-    if (!keyId) { showToast('Razorpay not configured. Please use COD.'); return; }
     setLoading(true);
     try {
+      // Step 1 — create Razorpay order on backend
       const orderRes = await axios.post('/api/payment/create-order', { amount: grandTotal(cartTotal) * 100 });
-      const rpOrder  = orderRes.data;
-      const loaded   = await loadRazorpayScript();
-      if (!loaded) { showToast('Could not load Razorpay. Check your internet connection.'); setLoading(false); return; }
+      const rpOrder  = orderRes.data; // { id, amount, currency, key_id }
+
+      // Use key from DB settings first, fall back to the one the server returns
+      const keyId = frontendSettings?.razorpayKeyId || rpOrder.key_id;
+      if (!keyId) {
+        showToast('Razorpay is not configured. Please use COD or contact support.');
+        setLoading(false);
+        return;
+      }
+
+      // Step 2 — load checkout.js
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        showToast('Could not load Razorpay. Please check your internet connection.');
+        setLoading(false);
+        return;
+      }
+
+      // Step 3 — open Razorpay modal
       const options = {
-        key: keyId, amount: rpOrder.amount, currency: rpOrder.currency || 'INR',
-        name: frontendSettings?.storeName || 'Prime Pets',
-        description: 'Pet Supplies Order', order_id: rpOrder.id,
+        key:         keyId,
+        amount:      rpOrder.amount,
+        currency:    rpOrder.currency || 'INR',
+        name:        frontendSettings?.storeName || 'Prime Pets',
+        description: 'Pet Supplies Order',
+        order_id:    rpOrder.id,
         prefill: { name: form.name.trim(), contact: form.phone.trim() },
-        theme: { color: '#d07e20' },
+        theme:  { color: '#d07e20' },
+        // Step 4 — on payment success: verify signature, then save order
         handler: async (response) => {
           try {
             await axios.post('/api/payment/verify', {
@@ -319,25 +338,36 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
             });
             const fullAddress = [form.address.trim(), form.city, form.pincode].filter(Boolean).join(', ');
             const saveRes = await axios.post('/api/orders', {
-              visitorId: 'anonymous', customerName: form.name.trim(),
-              customerPhone: form.phone.trim(), customerAddress: fullAddress,
-              items: JSON.stringify(cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))),
-              total: grandTotal(cartTotal), paymentMethod: 'ONLINE',
-              razorpayOrderId: rpOrder.id, razorpayPaymentId: response.razorpay_payment_id,
+              visitorId:         'anonymous',
+              customerName:      form.name.trim(),
+              customerPhone:     form.phone.trim(),
+              customerAddress:   fullAddress,
+              items:             JSON.stringify(cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))),
+              total:             grandTotal(cartTotal),
+              paymentMethod:     'ONLINE',
+              razorpayOrderId:   rpOrder.id,
+              razorpayPaymentId: response.razorpay_payment_id,
             });
-            const orderId = saveRes.data?.orderId || saveRes.data?.order?.id || saveRes.data?.id || `ORD${Date.now()}`;
+            const orderId = saveRes.data?.id || saveRes.data?.orderId || saveRes.data?.order?.id || `ORD${Date.now()}`;
             setConfirmedOrder({ orderId, paymentMethod: 'Online' });
             goTo(2);
             onOrderSuccess && onOrderSuccess(orderId);
           } catch (verifyErr) {
-            showToast('Payment done but order save failed. Please contact support.');
-          } finally { setLoading(false); }
+            showToast('Payment done but order save failed. Please screenshot and contact support.');
+          } finally {
+            setLoading(false);
+          }
         },
-        modal: { ondismiss: () => setLoading(false) },
+        modal: {
+          ondismiss: () => {
+            setLoading(false);
+            showToast('Payment cancelled. You can try again anytime.', 'error');
+          },
+        },
       };
       new window.Razorpay(options).open();
     } catch (err) {
-      showToast(err?.response?.data?.message || 'Could not initiate payment. Please try again.');
+      showToast(err?.response?.data?.error || err?.response?.data?.message || 'Could not initiate payment. Please try again.');
       setLoading(false);
     }
   }
