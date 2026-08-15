@@ -317,13 +317,13 @@ function Footer() {
   const settings = frontendSettings || {};
 
   return (
-    <footer className="hidden md:block relative bg-[#0a0502] text-white mt-12 overflow-hidden border-t border-white/5">
+    <footer className="relative bg-[#0a0502] text-white mt-12 overflow-hidden border-t border-white/5 pb-20 md:pb-0">
       {/* Background glow */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-[#d07e20]/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-[#5c3110]/20 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 py-16">
-        <div className="grid grid-cols-4 gap-10 mb-12">
+      <div className="relative z-10 max-w-[1600px] mx-auto px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div>
             <div className="flex items-center gap-3 mb-6 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
@@ -423,9 +423,9 @@ function Footer() {
           </div>
         </div>
         
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4 text-center md:text-left">
           <p className="text-orange-200/50 text-xs font-medium tracking-wide">© 2026 {settings.storeName} {settings.tagline}. All rights reserved.</p>
-          <div className="flex items-center gap-6">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-6 gap-y-3">
             {[
               { label: 'Privacy Policy', path: '/privacy-policy' },
               { label: 'Terms of Use',   path: '/terms-of-use' },
