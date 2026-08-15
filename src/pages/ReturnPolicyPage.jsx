@@ -139,6 +139,20 @@ export default function ReturnPolicyPage() {
             </ul>
           </div>
 
+          {/* Non-Return & Non-Refund Terms */}
+          <div className="bg-red-50/50 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-red-100 shadow-sm mb-6">
+            <h2 className="font-black text-lg text-red-800 mb-4">Non-Return & Non-Refund Terms</h2>
+            <div className="text-red-900/80 text-sm leading-relaxed space-y-3">
+              <p>Please note that under the following circumstances, we strictly do not offer returns or refunds:</p>
+              <ul className="list-none space-y-2 ml-2">
+                <li>• <strong>Change of Mind:</strong> We do not offer returns or refunds if you simply change your mind after the order has been shipped, or if your pet refuses to eat/use the product.</li>
+                <li>• <strong>Allergic Reactions:</strong> We cannot accept returns of food or treats due to pet allergic reactions. Please check the ingredients carefully before purchasing.</li>
+                <li>• <strong>Damage by Pet:</strong> Toys, beds, leashes, and accessories damaged, scratched, or chewed by your pet after delivery are strictly non-refundable.</li>
+                <li>• <strong>Clearance & Sale Items:</strong> Items purchased during clearance sales, flash sales, or as part of promotional offers are considered final sale.</li>
+              </ul>
+            </div>
+          </div>
+
           {/* How to return — step-by-step */}
           <div className="bg-white/70 backdrop-blur-md rounded-2xl p-6 md:p-8 border border-white/80 shadow-sm mb-6">
             <h2 className="font-black text-lg text-[#0a0502] mb-6">How to Initiate a Return</h2>
