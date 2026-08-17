@@ -14,8 +14,8 @@ export default function AdminShipping() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [status, setStatus] = useState(null); // 'success' | 'error' | null
-  const [statusMessage, setStatusMessage] = useState('');
+  const [connectionStatus, setConnectionStatus] = useState('disconnected'); // 'connected' | 'failed' | 'disconnected'
+  const [saveMessage, setSaveMessage] = useState(null); // { text: '', type: 'success' | 'error' }
 
   useEffect(() => {
     fetchSettings();
@@ -40,6 +40,9 @@ export default function AdminShipping() {
           apiKey: data.apiKey || '',
           isActive: data.isActive
         });
+        if (data.apiKey) {
+           // We could auto-test here, but for now we leave it disconnected until they test it.
+        }
       }
     } catch (error) {
       console.error('Error fetching shipping settings:', error);
@@ -51,24 +54,20 @@ export default function AdminShipping() {
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setStatus(null);
+    setSaveMessage(null);
     try {
       const token = await getAuthToken();
       await axios.put('/api/shipping/dtdc', settings, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setStatus('success');
-      setStatusMessage('Settings saved successfully!');
+      setSaveMessage({ text: 'Settings saved successfully!', type: 'success' });
       
-      // Clear status after 3s
       setTimeout(() => {
-        setStatus(null);
-        setStatusMessage('');
+        setSaveMessage(null);
       }, 3000);
     } catch (error) {
       console.error('Error saving shipping settings:', error);
-      setStatus('error');
-      setStatusMessage('Failed to save settings');
+      setSaveMessage({ text: 'Failed to save settings', type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -76,7 +75,8 @@ export default function AdminShipping() {
 
   const testConnection = async () => {
     setTesting(true);
-    setStatus(null);
+    setSaveMessage(null);
+    setConnectionStatus('disconnected');
     try {
       const token = await getAuthToken();
       const { data } = await axios.post('/api/shipping/dtdc/test', 
@@ -84,16 +84,16 @@ export default function AdminShipping() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       if (data.success) {
-        setStatus('success');
-        setStatusMessage(data.message || 'Connection successful!');
+        setConnectionStatus('connected');
+        setSaveMessage({ text: data.message || 'Connection successful!', type: 'success' });
       } else {
-        setStatus('error');
-        setStatusMessage(data.message || 'Connection failed.');
+        setConnectionStatus('failed');
+        setSaveMessage({ text: data.message || 'Connection failed.', type: 'error' });
       }
     } catch (error) {
       console.error('Error testing connection:', error);
-      setStatus('error');
-      setStatusMessage(error.response?.data?.message || 'Connection failed. Please check credentials.');
+      setConnectionStatus('failed');
+      setSaveMessage({ text: error.response?.data?.message || 'Connection failed. Please check credentials.', type: 'error' });
     } finally {
       setTesting(false);
     }
@@ -133,20 +133,20 @@ export default function AdminShipping() {
             </div>
             
             {/* Live Indicator */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${status === 'success' ? 'bg-green-50 text-green-600 border border-green-200' : status === 'error' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
+            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${connectionStatus === 'connected' ? 'bg-green-50 text-green-600 border border-green-200' : connectionStatus === 'failed' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
               <span className="relative flex h-2.5 w-2.5">
-                {status === 'success' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
-                <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${status === 'success' ? 'bg-green-500' : status === 'error' ? 'bg-red-500' : 'bg-gray-400'}`}></span>
+                {connectionStatus === 'connected' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
+                <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${connectionStatus === 'connected' ? 'bg-green-500' : connectionStatus === 'failed' ? 'bg-red-500' : 'bg-gray-400'}`}></span>
               </span>
-              {status === 'success' ? 'Connected' : status === 'error' ? 'Failed' : 'Disconnected'}
+              {connectionStatus === 'connected' ? 'Connected' : connectionStatus === 'failed' ? 'Failed' : 'Disconnected'}
             </div>
           </div>
 
           <form onSubmit={handleSave} className="p-6 space-y-6">
-            {statusMessage && (
-              <div className={`p-4 rounded-xl flex items-start gap-3 ${status === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
-                {status === 'success' ? <CheckCircle2 size={20} className="shrink-0 text-green-600" /> : <AlertCircle size={20} className="shrink-0 text-red-600" />}
-                <p className="text-sm font-medium">{statusMessage}</p>
+            {saveMessage && (
+              <div className={`p-4 rounded-xl flex items-start gap-3 ${saveMessage.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
+                {saveMessage.type === 'success' ? <CheckCircle2 size={20} className="shrink-0 text-green-600" /> : <AlertCircle size={20} className="shrink-0 text-red-600" />}
+                <p className="text-sm font-medium">{saveMessage.text}</p>
               </div>
             )}
 
