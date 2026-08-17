@@ -61,7 +61,10 @@ export default function AdminShipping() {
       setStatusMessage('Settings saved successfully!');
       
       // Clear status after 3s
-      setTimeout(() => setStatus(null), 3000);
+      setTimeout(() => {
+        setStatus(null);
+        setStatusMessage('');
+      }, 3000);
     } catch (error) {
       console.error('Error saving shipping settings:', error);
       setStatus('error');
