@@ -287,29 +287,29 @@ export default function AdminOrders() {
               <p className="font-medium">Loading orders…</p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[960px]">
+            <div className="overflow-x-auto overflow-y-visible">
+              <table className="w-full text-left border-collapse text-sm">
                 <thead>
                   <tr className="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider border-b border-gray-100">
-                    <th className="px-4 py-4 font-semibold pl-6 w-10"></th>
-                    <th className="px-4 py-4 font-semibold">
-                      <div className="flex items-center gap-1"><Hash size={12} /> Order ID</div>
+                    <th className="px-2 py-3 font-semibold pl-4 w-8"></th>
+                    <th className="px-2 py-3 font-semibold">
+                      <div className="flex items-center gap-1"><Hash size={12} /> ID</div>
                     </th>
-                    <th className="px-4 py-4 font-semibold">Date</th>
-                    <th className="px-4 py-4 font-semibold">
+                    <th className="px-2 py-3 font-semibold">Date</th>
+                    <th className="px-2 py-3 font-semibold">
                       <div className="flex items-center gap-1"><User size={12} /> Customer</div>
                     </th>
-                    <th className="px-4 py-4 font-semibold">
+                    <th className="px-2 py-3 font-semibold">
                       <div className="flex items-center gap-1"><Phone size={12} /> Phone</div>
                     </th>
-                    <th className="px-4 py-4 font-semibold text-center">Items</th>
-                    <th className="px-4 py-4 font-semibold">
+                    <th className="px-2 py-3 font-semibold text-center">Items</th>
+                    <th className="px-2 py-3 font-semibold">
                       <div className="flex items-center gap-1"><IndianRupee size={12} /> Total</div>
                     </th>
-                    <th className="px-4 py-4 font-semibold">Payment</th>
-                    <th className="px-4 py-4 font-semibold">Pay Status</th>
-                    <th className="px-4 py-4 font-semibold">Order Status</th>
-                    <th className="px-4 py-4 font-semibold text-right pr-6">Actions</th>
+                    <th className="px-2 py-3 font-semibold">Pay</th>
+                    <th className="px-2 py-3 font-semibold">Status</th>
+                    <th className="px-2 py-3 font-semibold">Order</th>
+                    <th className="px-2 py-3 font-semibold text-right pr-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -346,7 +346,7 @@ export default function AdminOrders() {
                           <tr className={`hover:bg-orange-50/20 transition-colors group ${isExpanded ? 'bg-orange-50/10' : ''}`}>
 
                             {/* Expand toggle */}
-                            <td className="px-4 py-4 pl-6">
+                            <td className="px-2 py-3 pl-4">
                               <button
                                 onClick={() => toggleExpand(order.id)}
                                 title={isExpanded ? 'Collapse' : 'Show items'}
@@ -357,59 +357,59 @@ export default function AdminOrders() {
                             </td>
 
                             {/* Order ID */}
-                            <td className="px-4 py-4">
-                              <span className="font-mono font-bold text-gray-700 text-sm">#{shortId}</span>
+                            <td className="px-2 py-3">
+                              <span className="font-mono font-bold text-gray-700 text-xs">#{shortId}</span>
                             </td>
 
                             {/* Date */}
-                            <td className="px-4 py-4 text-gray-500 text-sm whitespace-nowrap">
+                            <td className="px-2 py-3 text-gray-500 text-xs">
                               {formatDate(order.createdAt || order.date)}
                             </td>
 
                             {/* Customer */}
-                            <td className="px-4 py-4">
-                              <span className="font-semibold text-gray-800 text-sm">{customerName}</span>
+                            <td className="px-2 py-3">
+                              <span className="font-semibold text-gray-800 text-xs">{customerName}</span>
                             </td>
 
                             {/* Phone */}
-                            <td className="px-4 py-4 text-gray-600 text-sm font-medium">
+                            <td className="px-2 py-3 text-gray-600 text-xs font-medium">
                               {phone}
                             </td>
 
                             {/* Items count */}
-                            <td className="px-4 py-4 text-center">
-                              <span className="bg-orange-50 text-orange-600 font-bold text-xs px-2.5 py-1 rounded-full border border-orange-100">
+                            <td className="px-2 py-3 text-center">
+                              <span className="bg-orange-50 text-orange-600 font-bold text-xs px-2 py-1 rounded-full border border-orange-100">
                                 {itemCount}
                               </span>
                             </td>
 
                             {/* Total */}
-                            <td className="px-4 py-4 font-bold text-gray-800">
+                            <td className="px-2 py-3 font-bold text-gray-800 text-xs">
                               ₹{Number(orderTotal).toLocaleString('en-IN')}
                             </td>
 
                             {/* Payment Method */}
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-3">
                               {payMethod === 'COD' ? (
-                                <span className="bg-gray-100 text-gray-600 px-2.5 py-0.5 rounded-full text-xs font-bold">COD</span>
+                                <span className="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs font-bold">COD</span>
                               ) : (
-                                <span className="bg-indigo-50 text-indigo-600 px-2.5 py-0.5 rounded-full text-xs font-bold">{payMethod}</span>
+                                <span className="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full text-xs font-bold">{payMethod}</span>
                               )}
                             </td>
 
                             {/* Payment Status */}
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-3">
                               <PaymentBadge status={payStatus} />
                             </td>
 
                             {/* Order Status dropdown */}
-                            <td className="px-4 py-4">
+                            <td className="px-2 py-3">
                               <div className="relative inline-block">
                                 <select
                                   value={ordStatus}
                                   disabled={updatingId === order.id}
                                   onChange={e => handleStatusChange(order.id, e.target.value)}
-                                  className={`appearance-none pl-3 pr-7 py-1.5 rounded-xl border text-xs font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all disabled:opacity-60 disabled:cursor-wait border-transparent ${ORDER_STATUS_STYLES[ordStatus] || 'bg-gray-100 text-gray-600'}`}
+                                  className={`appearance-none pl-2 pr-6 py-1 rounded-lg border text-xs font-bold cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all disabled:opacity-60 disabled:cursor-wait border-transparent ${ORDER_STATUSES.includes(ordStatus) ? ORDER_STATUS_STYLES[ordStatus] : 'bg-gray-100 text-gray-600'}`}
                                 >
                                   {ORDER_STATUSES.map(s => (
                                     <option key={s} value={s}>{s}</option>
@@ -420,26 +420,26 @@ export default function AdminOrders() {
                             </td>
 
                             {/* Actions */}
-                            <td className="px-4 py-4 pr-6">
-                              <div className="flex items-center justify-end gap-2">
+                            <td className="px-2 py-3 pr-4">
+                              <div className="flex items-center justify-end gap-1">
                                 {/* WhatsApp */}
                                 <a
                                   href={buildWhatsAppUrl({ ...order, customerName, phone, status: ordStatus })}
                                   target="_blank"
                                   rel="noopener noreferrer"
                                   title="Send WhatsApp message"
-                                  className="p-2 text-green-600 hover:bg-green-100 rounded-xl transition-colors"
+                                  className="p-1.5 text-green-600 hover:bg-green-100 rounded-lg transition-colors"
                                 >
-                                  <MessageCircle size={17} />
+                                  <MessageCircle size={16} />
                                 </a>
                                 {/* Delete */}
                                 <button
                                   title="Delete order"
                                   onClick={() => handleDelete(order.id)}
                                   disabled={deletingId === order.id}
-                                  className="p-2 text-red-500 hover:bg-red-100 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="p-1.5 text-red-500 hover:bg-red-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                  {deletingId === order.id ? <Loader2 size={17} className="animate-spin" /> : <Trash2 size={17} />}
+                                  {deletingId === order.id ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
                                 </button>
                               </div>
                             </td>
