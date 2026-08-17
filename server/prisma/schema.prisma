@@ -140,3 +140,13 @@ model Visitor {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model ShippingSetting {
+  id           Int      @id @default(autoincrement())
+  provider     String   @unique @default("DTDC")
+  username     String?
+  password     String?
+  apiKey       String?
+  isActive     Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+}
