@@ -73,23 +73,32 @@ router.put('/dtdc', verifyAdminToken, async (req, res) => {
 // POST test DTDC connection (API Indicator)
 router.post('/dtdc/test', verifyAdminToken, async (req, res) => {
   try {
-    const { username, password, apiKey } = req.body;
+    const { apiKey } = req.body;
     
-    if (!username || !apiKey) {
-      return res.status(400).json({ success: false, message: 'Missing credentials' });
+    if (!apiKey) {
+      return res.status(400).json({ success: false, message: 'Missing API Key' });
     }
 
-    // TODO: Replace this with an actual call to the DTDC API (e.g. checking pin code serviceability or ping endpoint) 
-    // when the exact API documentation is provided.
-    // For now, we simulate a successful API connection if credentials match expected lengths.
-    
-    if (username.startsWith('PO') && apiKey.length > 20) {
-       // Simulate API delay
-       await new Promise(resolve => setTimeout(resolve, 800));
-       return res.json({ success: true, message: 'Successfully connected to DTDC API' });
+    // Ping the PX Shipping Label API to verify the API key is active
+    try {
+      await axios.get('https://pxapi.dtdc.in/api/customer/integration/consignment/shippinglabel/stream?reference_number=TEST_API_CONNECTION&label_code=SHIP_LABEL_4X6', {
+        headers: {
+          'api-key': apiKey
+        }
+      });
+      // If 200 OK (unlikely with a fake tracking number but possible)
+      return res.json({ success: true, message: 'Successfully connected to DTDC API' });
+    } catch (apiError) {
+      if (apiError.response && apiError.response.status === 401) {
+        return res.status(401).json({ success: false, message: 'Invalid API Key - Authentication Failed' });
+      } else if (apiError.response && apiError.response.status === 400) {
+        // A 400 means auth passed but the tracking number (TEST_API_CONNECTION) was not found. This means the key works!
+        return res.json({ success: true, message: 'API Key Verified successfully' });
+      } else {
+         console.error('DTDC API Test unexpected response:', apiError.response?.data || apiError.message);
+         return res.status(500).json({ success: false, message: 'API connected but returned unexpected error' });
+      }
     }
-    
-    return res.status(400).json({ success: false, message: 'Invalid credentials format' });
   } catch (error) {
     console.error('Error testing DTDC connection:', error);
     res.status(500).json({ success: false, message: 'Failed to connect to DTDC API' });
