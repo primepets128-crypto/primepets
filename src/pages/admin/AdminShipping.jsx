@@ -40,14 +40,33 @@ export default function AdminShipping() {
           apiKey: data.apiKey || '',
           isActive: data.isActive
         });
+        
+        // Auto-test connection on load if we have an API key
         if (data.apiKey) {
-           // We could auto-test here, but for now we leave it disconnected until they test it.
+          testConnectionWithKey(data.apiKey);
         }
       }
     } catch (error) {
       console.error('Error fetching shipping settings:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const testConnectionWithKey = async (apiKeyToTest) => {
+    try {
+      const token = await getAuthToken();
+      const { data } = await axios.post('/api/shipping/dtdc/test', 
+        { apiKey: apiKeyToTest },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data.success) {
+        setConnectionStatus('connected');
+      } else {
+        setConnectionStatus('failed');
+      }
+    } catch (error) {
+      setConnectionStatus('failed');
     }
   };
 
