@@ -142,27 +142,23 @@ export default function PageLoader({ onFinish, skip, dataReady }) {
             <motion.div
               initial={{ scale: 0.8, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="mb-6 relative"
             >
               <motion.div
-                animate={{ y: [0, -10, 0] }}
+                animate={{ scale: [1, 1.02, 1], y: [0, -5, 0], opacity: 1 }}
                 transition={{ duration: 4, ease: "easeInOut", repeat: Infinity }}
-                className="relative w-64 h-64 md:w-96 md:h-96 flex items-center justify-center"
+                className="relative flex items-center justify-center drop-shadow-2xl"
               >
-                {/* Elegant Glowing Orb Background */}
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.95)_0%,rgba(255,255,255,0.6)_45%,transparent_75%)] rounded-full blur-[2px] opacity-90 mix-blend-screen shadow-[0_0_80px_rgba(208,126,32,0.3)]"></div>
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,216,168,0.4)_0%,transparent_60%)] rounded-full animate-pulse" style={{ animationDuration: '4s' }}></div>
-                
-                {/* Logo Image */}
-                <div className="relative z-10 w-48 h-48 md:w-72 md:h-72 flex items-center justify-center p-2">
+                {/* Clean, smaller white circle wrapper */}
+                <div className="relative w-40 h-40 md:w-56 md:h-56 flex items-center justify-center p-3 md:p-5 bg-white rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.5)] border border-white/20">
                   <picture>
                     <source srcSet={settings.logoBase64 || "/MA_logo.webp"} type="image/webp" />
                     <img 
                       src={settings.logoBase64 || "/MA_logo.png"} 
                       alt="Logo" 
                       fetchpriority="high" 
-                      className="w-full h-full object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,0.2)] transition-transform duration-700 hover:scale-105" 
+                      className="w-full h-full object-contain relative z-10" 
                     />
                   </picture>
                 </div>

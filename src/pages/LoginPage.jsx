@@ -53,9 +53,8 @@ export default function LoginPage() {
       <ScrollReveal>
         <div className="w-full max-w-md relative z-10">
           <div className="text-center mb-10">
-            <div className="relative w-20 h-20 md:w-24 md:h-24 mx-auto mb-6 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-md shadow-[inset_0_0_20px_rgba(255,255,255,0.2),0_4px_20px_rgba(0,0,0,0.5)] border border-white/10 p-3">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.8)_0%,transparent_70%)] rounded-full mix-blend-screen opacity-80"></div>
-              <img src={settings.logoBase64 || "/MA_logo.png"} alt="Logo" className="relative z-10 w-full h-full object-contain drop-shadow-md" />
+            <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4 overflow-hidden shadow-lg p-2">
+              <img src={settings.logoBase64 || "/MA_logo.png"} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <h1 className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-orange-200 to-[#d07e20]">
               {isLogin ? 'Welcome Back!' : 'Join the Pack'}
