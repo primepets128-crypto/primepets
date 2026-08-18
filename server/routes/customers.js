@@ -18,30 +18,76 @@ router.get('/', async (req, res) => {
       orderBy: { createdAt: 'desc' }
     });
 
-    // Map users
-    const formattedUsers = users.map(u => ({
-      id: `user_${u.id}`,
-      name: u.name,
-      email: u.email,
-      phone: u.phone,
-      role: u.role,
-      createdAt: u.createdAt,
-      type: 'Registered User'
-    }));
+    // 3. Fetch all orders to extract buyers who might not have registered
+    const orders = await prisma.order.findMany({
+      orderBy: { createdAt: 'desc' }
+    });
 
-    // Map visitors
-    const formattedVisitors = visitors.map(v => ({
-      id: `lead_${v.id}`,
-      name: v.name,
-      email: null,
-      phone: v.phone,
-      role: 'lead',
-      createdAt: v.createdAt,
-      type: 'Captured Lead'
-    }));
+    const customersMap = new Map();
 
-    // Combine and sort by date
-    const combined = [...formattedUsers, ...formattedVisitors].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    const addCustomer = (key, data) => {
+      if (!key) return;
+      if (customersMap.has(key)) {
+        const existing = customersMap.get(key);
+        // Prefer 'admin' or 'customer' over 'lead'
+        if (data.role === 'admin' || (data.role === 'customer' && existing.role !== 'admin')) {
+           existing.role = data.role;
+        }
+        if (!existing.email && data.email) existing.email = data.email;
+        if (!existing.name && data.name) existing.name = data.name;
+        // Keep the earliest creation date to show when they first joined/interacted
+        if (new Date(data.createdAt) < new Date(existing.createdAt)) {
+           existing.createdAt = data.createdAt;
+        }
+      } else {
+        customersMap.set(key, { ...data });
+      }
+    };
+
+    // Process Users
+    users.forEach(u => {
+      addCustomer(u.phone || u.email, {
+        id: `user_${u.id}`,
+        name: u.name,
+        email: u.email,
+        phone: u.phone,
+        role: u.role,
+        createdAt: u.createdAt,
+        type: 'Registered User'
+      });
+    });
+
+    // Process Orders
+    orders.forEach(o => {
+      if (o.customerPhone) {
+        addCustomer(o.customerPhone, {
+          id: `order_cust_${o.id}`,
+          name: o.customerName,
+          email: null, // Orders don't store email currently
+          phone: o.customerPhone,
+          role: 'customer',
+          createdAt: o.createdAt,
+          type: 'Purchasing Customer'
+        });
+      }
+    });
+
+    // Process Visitors (Leads)
+    visitors.forEach(v => {
+      addCustomer(v.phone || `visitor_${v.id}`, {
+        id: `lead_${v.id}`,
+        name: v.name,
+        email: null,
+        phone: v.phone,
+        role: 'lead',
+        createdAt: v.createdAt,
+        type: 'Captured Lead'
+      });
+    });
+
+    // Convert map to array and sort by date descending (newest first)
+    const combined = Array.from(customersMap.values())
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     res.json(combined);
   } catch (error) {

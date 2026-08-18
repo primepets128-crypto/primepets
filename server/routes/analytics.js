@@ -8,7 +8,7 @@ const { adminMessaging } = require('../firebaseAdmin');
 // Track a page view or an interaction
 router.post('/track', async (req, res) => {
   try {
-    const { type, visitorId, page, action, details, fcmToken } = req.body;
+    const { type, visitorId, page, action, details, fcmToken, name, phone } = req.body;
     
     // Basic IP and UserAgent capturing
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
@@ -25,23 +25,24 @@ router.post('/track', async (req, res) => {
 
     // Upsert visitor if we have visitorId
     if (visitorId && visitorId !== 'anonymous') {
+      const updateData = {
+        ip: ip?.toString() || '',
+        browser,
+        os,
+        device,
+        ...(fcmToken ? { fcmToken } : {})
+      };
+      
+      // If a component (like ChatBot lead catcher) sends name/phone, save it!
+      if (name) updateData.name = name;
+      if (phone) updateData.phone = phone;
+
       await prisma.visitor.upsert({
         where: { visitorId },
-        update: {
-          ip: ip?.toString() || '',
-          browser,
-          os,
-          device,
-          ...(fcmToken ? { fcmToken } : {})
-          // do NOT overwrite name and phone if already present
-        },
+        update: updateData,
         create: {
           visitorId,
-          ip: ip?.toString() || '',
-          browser,
-          os,
-          device,
-          ...(fcmToken ? { fcmToken } : {})
+          ...updateData
         }
       }).catch(e => console.error("Error upserting visitor:", e.message));
     }

@@ -7,7 +7,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 export default function ChatBot() {
   const { user, login, register, checkUserExists, isAuthenticated } = useAuth();
-  const { frontendSettings } = useData();
+  const { frontendSettings, logActivity } = useData();
   const settings = frontendSettings || {};
   const navigate = useNavigate();
   
@@ -89,6 +89,11 @@ export default function ChatBot() {
       setCapturedContact(input);
       setLoading(true);
       
+      // Immediately log as a captured lead so they appear in Customers tab even if they don't finish registration
+      if (logActivity) {
+        logActivity('Lead Captured via Chatbot', `Name: ${capturedName}, Contact: ${input}`, { name: capturedName, phone: input });
+      }
+
       try {
         const exists = await checkUserExists(input);
         if (exists) {

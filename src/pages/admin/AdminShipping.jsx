@@ -1,24 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { getFirebaseAuth } from '../../firebase';
-import { Truck, Save, RefreshCw, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
+import { Truck, Save, RefreshCw, CheckCircle2, XCircle, AlertCircle, MapPin, Search, PackageSearch, Package } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
+import { useCart } from '../../context/CartContext';
 
 export default function AdminShipping() {
+  const { showToast } = useCart();
+  const [activeTab, setActiveTab] = useState('settings'); // settings, pickup, pincode, track, book
   const [settings, setSettings] = useState({
-    username: '',
-    password: '',
-    apiKey: '',
-    isActive: true
+    username: '', password: '', apiKey: '', isActive: true,
+    senderName: '', senderPhone: '', senderAddress: '', senderPincode: '', senderCity: '', senderState: ''
   });
+  const [orders, setOrders] = useState([]);
+  
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
-  const [connectionStatus, setConnectionStatus] = useState('disconnected'); // 'connected' | 'failed' | 'disconnected'
-  const [saveMessage, setSaveMessage] = useState(null); // { text: '', type: 'success' | 'error' }
+  const [connectionStatus, setConnectionStatus] = useState('disconnected');
+  const [saveMessage, setSaveMessage] = useState(null);
+
+  // Pincode Search State
+  const [pincodeQuery, setPincodeQuery] = useState({ origin: '', dest: '' });
+  const [pincodeResult, setPincodeResult] = useState(null);
+  const [checkingPincode, setCheckingPincode] = useState(false);
+
+  // Booking State
+  const [bookingForm, setBookingForm] = useState({ orderId: '', weight: 1, length: 10, width: 10, height: 10 });
+  const [bookingResult, setBookingResult] = useState(null);
+  const [isBooking, setIsBooking] = useState(false);
+
+  // Tracking State
+  const [awbToTrack, setAwbToTrack] = useState('');
 
   useEffect(() => {
-    fetchSettings();
+    fetchData();
   }, []);
 
   const getAuthToken = async () => {
@@ -26,28 +42,26 @@ export default function AdminShipping() {
     return auth.currentUser ? await auth.currentUser.getIdToken() : null;
   };
 
-  const fetchSettings = async () => {
+  const fetchData = async () => {
     try {
       const token = await getAuthToken();
       if (!token) return;
-      const { data } = await axios.get('/api/shipping/dtdc', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (data) {
-        setSettings({
-          username: data.username || '',
-          password: data.password || '',
-          apiKey: data.apiKey || '',
-          isActive: data.isActive
-        });
-        
-        // Auto-test connection on load if we have an API key
-        if (data.apiKey) {
-          testConnectionWithKey(data.apiKey);
-        }
+      
+      const [settingsRes, ordersRes] = await Promise.all([
+        axios.get('/api/shipping/dtdc', { headers: { Authorization: `Bearer ${token}` } }),
+        axios.get('/api/orders') // Needs auth in real world, but assuming public/admin mixed for now
+      ]);
+
+      if (settingsRes.data) {
+        setSettings(prev => ({ ...prev, ...settingsRes.data }));
+        if (settingsRes.data.apiKey) testConnectionWithKey(settingsRes.data.apiKey);
+      }
+      
+      if (ordersRes.data) {
+        setOrders(Array.isArray(ordersRes.data) ? ordersRes.data : (ordersRes.data.orders || []));
       }
     } catch (error) {
-      console.error('Error fetching shipping settings:', error);
+      console.error('Error fetching shipping data:', error);
     } finally {
       setLoading(false);
     }
@@ -60,17 +74,13 @@ export default function AdminShipping() {
         { apiKey: apiKeyToTest },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (data.success) {
-        setConnectionStatus('connected');
-      } else {
-        setConnectionStatus('failed');
-      }
+      setConnectionStatus(data.success ? 'connected' : 'failed');
     } catch (error) {
       setConnectionStatus('failed');
     }
   };
 
-  const handleSave = async (e) => {
+  const handleSaveSettings = async (e) => {
     e.preventDefault();
     setSaving(true);
     setSaveMessage(null);
@@ -80,13 +90,12 @@ export default function AdminShipping() {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSaveMessage({ text: 'Settings saved successfully!', type: 'success' });
-      
-      setTimeout(() => {
-        setSaveMessage(null);
-      }, 3000);
+      showToast('✅ Shipping settings saved');
+      setTimeout(() => setSaveMessage(null), 3000);
     } catch (error) {
       console.error('Error saving shipping settings:', error);
       setSaveMessage({ text: 'Failed to save settings', type: 'error' });
+      showToast('❌ Failed to save shipping settings');
     } finally {
       setSaving(false);
     }
@@ -102,19 +111,57 @@ export default function AdminShipping() {
         { username: settings.username, password: settings.password, apiKey: settings.apiKey },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      if (data.success) {
-        setConnectionStatus('connected');
-        setSaveMessage({ text: data.message || 'Connection successful!', type: 'success' });
-      } else {
-        setConnectionStatus('failed');
-        setSaveMessage({ text: data.message || 'Connection failed.', type: 'error' });
-      }
+      setConnectionStatus(data.success ? 'connected' : 'failed');
+      setSaveMessage({ text: data.message || (data.success ? 'Connection successful!' : 'Connection failed.'), type: data.success ? 'success' : 'error' });
     } catch (error) {
-      console.error('Error testing connection:', error);
       setConnectionStatus('failed');
       setSaveMessage({ text: error.response?.data?.message || 'Connection failed. Please check credentials.', type: 'error' });
     } finally {
       setTesting(false);
+    }
+  };
+
+  const checkPincode = async (e) => {
+    e.preventDefault();
+    setCheckingPincode(true);
+    setPincodeResult(null);
+    try {
+      const token = await getAuthToken();
+      const { data } = await axios.post('/api/shipping/dtdc/pincode', 
+        { origin: pincodeQuery.origin || settings.senderPincode, dest: pincodeQuery.dest },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data.success && data.data?.ZIPCODE_RESP?.[0]) {
+        setPincodeResult(data.data.ZIPCODE_RESP[0]);
+      } else {
+        setPincodeResult({ error: 'No data found for this pincode combination.' });
+      }
+    } catch (error) {
+      setPincodeResult({ error: error.response?.data?.message || 'Failed to check pincode' });
+    } finally {
+      setCheckingPincode(false);
+    }
+  };
+
+  const bookShipment = async (e) => {
+    e.preventDefault();
+    setIsBooking(true);
+    setBookingResult(null);
+    try {
+      const token = await getAuthToken();
+      const { data } = await axios.post('/api/shipping/dtdc/book', 
+        bookingForm,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (data.success) {
+        setBookingResult({ success: true, awb: data.awb, message: data.message });
+        showToast('✅ Shipment Booked! AWB: ' + data.awb);
+      }
+    } catch (error) {
+      setBookingResult({ success: false, message: error.response?.data?.message || 'Failed to book shipment' });
+      showToast('❌ Booking Failed');
+    } finally {
+      setIsBooking(false);
     }
   };
 
@@ -126,105 +173,291 @@ export default function AdminShipping() {
     );
   }
 
+  const pendingOrders = orders.filter(o => o.status === 'PENDING' || o.status === 'CONFIRMED');
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-500">
-          <Truck size={24} />
+    <div className="max-w-5xl mx-auto space-y-6 pb-20">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center text-orange-500">
+            <Truck size={24} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">DTDC Logistics</h1>
+            <p className="text-gray-500">Manage API settings, check serviceability, and book shipments.</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Shipping & Delivery</h1>
-          <p className="text-gray-500">Manage your logistics providers and API settings.</p>
+        <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${connectionStatus === 'connected' ? 'bg-green-50 text-green-600 border border-green-200' : connectionStatus === 'failed' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
+          <span className="relative flex h-2.5 w-2.5">
+            {connectionStatus === 'connected' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
+            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${connectionStatus === 'connected' ? 'bg-green-500' : connectionStatus === 'failed' ? 'bg-red-500' : 'bg-gray-400'}`}></span>
+          </span>
+          {connectionStatus === 'connected' ? 'API Connected' : connectionStatus === 'failed' ? 'API Failed' : 'Disconnected'}
         </div>
       </div>
 
+      {/* Tabs */}
+      <div className="flex overflow-x-auto gap-2 pb-2 hide-scrollbar">
+        {[
+          { id: 'settings', label: 'API Keys', icon: Save },
+          { id: 'pickup', label: 'Pickup Details', icon: MapPin },
+          { id: 'book', label: 'Book Shipment', icon: Package },
+          { id: 'pincode', label: 'Check Pincode', icon: Search },
+          { id: 'track', label: 'Track AWB', icon: PackageSearch }
+        ].map(tab => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold whitespace-nowrap transition-all ${
+              activeTab === tab.id 
+                ? 'bg-orange-500 text-white shadow-md shadow-orange-500/20' 
+                : 'bg-white text-gray-600 border border-gray-200 hover:bg-gray-50'
+            }`}
+          >
+            <tab.icon size={18} />
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
       <ScrollReveal>
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-red-50 text-red-600 rounded-lg flex items-center justify-center font-bold text-xl">
-                D
+        <div className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+          
+          {/* TAB: API SETTINGS */}
+          {activeTab === 'settings' && (
+            <form onSubmit={handleSaveSettings} className="p-6 sm:p-8 space-y-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900">DTDC API Credentials</h2>
+                <p className="text-sm text-gray-500">Enter your live credentials to connect your store with DTDC.</p>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-gray-900">DTDC Express</h2>
-                <p className="text-sm text-gray-500">Live API Integration</p>
+
+              {saveMessage && (
+                <div className={`p-4 rounded-xl flex items-start gap-3 ${saveMessage.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  {saveMessage.type === 'success' ? <CheckCircle2 size={20} className="shrink-0" /> : <AlertCircle size={20} className="shrink-0" />}
+                  <p className="text-sm font-medium">{saveMessage.text}</p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Live Username</label>
+                  <input type="text" value={settings.username || ''} onChange={(e) => setSettings({ ...settings, username: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Live Password</label>
+                  <input type="password" value={settings.password || ''} onChange={(e) => setSettings({ ...settings, password: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">LIVE API Key</label>
+                  <input type="text" value={settings.apiKey || ''} onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all font-mono text-sm" />
+                </div>
+              </div>
+
+              <div className="pt-6 border-t border-gray-100 flex flex-wrap items-center gap-4">
+                <button type="submit" disabled={saving} className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2">
+                  {saving ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
+                  Save Credentials
+                </button>
+                <button type="button" onClick={testConnection} disabled={testing || !settings.apiKey} className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2">
+                  <RefreshCw size={18} className={testing ? 'animate-spin' : ''} />
+                  Test Connection
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* TAB: SENDER DETAILS */}
+          {activeTab === 'pickup' && (
+            <form onSubmit={handleSaveSettings} className="p-6 sm:p-8 space-y-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Pickup Address</h2>
+                <p className="text-sm text-gray-500">This address is required by DTDC for package pickup and returns.</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sender Name (Company)</label>
+                  <input type="text" required value={settings.senderName || ''} onChange={(e) => setSettings({ ...settings, senderName: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sender Phone</label>
+                  <input type="text" required value={settings.senderPhone || ''} onChange={(e) => setSettings({ ...settings, senderPhone: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Address</label>
+                  <input type="text" required value={settings.senderAddress || ''} onChange={(e) => setSettings({ ...settings, senderAddress: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">City</label>
+                  <input type="text" required value={settings.senderCity || ''} onChange={(e) => setSettings({ ...settings, senderCity: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">State</label>
+                  <input type="text" required value={settings.senderState || ''} onChange={(e) => setSettings({ ...settings, senderState: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Pincode</label>
+                  <input type="text" required value={settings.senderPincode || ''} onChange={(e) => setSettings({ ...settings, senderPincode: e.target.value })}
+                    className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+              </div>
+              <div className="pt-6 border-t border-gray-100">
+                <button type="submit" disabled={saving} className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2">
+                  {saving ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
+                  Save Pickup Details
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* TAB: BOOK SHIPMENT */}
+          {activeTab === 'book' && (
+            <div className="p-6 sm:p-8 space-y-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Book Shipment</h2>
+                <p className="text-sm text-gray-500">Push a pending order to DTDC to generate an AWB and schedule pickup.</p>
+              </div>
+
+              {!settings.apiKey || !settings.senderPincode ? (
+                <div className="bg-yellow-50 text-yellow-700 p-4 rounded-xl flex items-start gap-3">
+                  <AlertCircle className="shrink-0" />
+                  <p className="text-sm">You must configure your <strong>API Credentials</strong> and <strong>Pickup Details</strong> before you can book shipments.</p>
+                </div>
+              ) : (
+                <form onSubmit={bookShipment} className="space-y-6">
+                  <div className="bg-gray-50 p-5 rounded-2xl border border-gray-100">
+                    <label className="block text-sm font-bold text-gray-700 mb-2">Select Order to Ship</label>
+                    <select 
+                      required
+                      value={bookingForm.orderId}
+                      onChange={(e) => setBookingForm({ ...bookingForm, orderId: e.target.value })}
+                      className="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-orange-500"
+                    >
+                      <option value="">-- Choose an order --</option>
+                      {pendingOrders.map(o => (
+                        <option key={o.id} value={o.id}>
+                          Order #{String(o.id).slice(-6).toUpperCase()} - {o.customerName} (₹{o.totalAmount}) - {o.paymentMethod}
+                        </option>
+                      ))}
+                    </select>
+                    {pendingOrders.length === 0 && <p className="text-xs text-red-500 mt-2">No pending or confirmed orders found.</p>}
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Weight (kg)</label>
+                      <input type="number" step="0.1" required value={bookingForm.weight} onChange={e => setBookingForm({...bookingForm, weight: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Length (cm)</label>
+                      <input type="number" required value={bookingForm.length} onChange={e => setBookingForm({...bookingForm, length: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Width (cm)</label>
+                      <input type="number" required value={bookingForm.width} onChange={e => setBookingForm({...bookingForm, width: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Height (cm)</label>
+                      <input type="number" required value={bookingForm.height} onChange={e => setBookingForm({...bookingForm, height: e.target.value})} className="w-full border border-gray-200 rounded-xl px-4 py-2" />
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-gray-100">
+                    <button type="submit" disabled={isBooking || !bookingForm.orderId} className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                      {isBooking ? <RefreshCw className="animate-spin" size={18} /> : <Package size={18} />}
+                      {isBooking ? 'Booking...' : 'Book Shipment with DTDC'}
+                    </button>
+                  </div>
+
+                  {bookingResult && (
+                    <div className={`p-4 rounded-xl border mt-4 ${bookingResult.success ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800'}`}>
+                      <p className="font-bold">{bookingResult.success ? '🎉 Booking Successful!' : '❌ Booking Failed'}</p>
+                      <p className="text-sm mt-1">{bookingResult.message}</p>
+                      {bookingResult.awb && <p className="text-sm font-mono mt-2 font-bold">AWB: {bookingResult.awb}</p>}
+                    </div>
+                  )}
+                </form>
+              )}
+            </div>
+          )}
+
+          {/* TAB: PINCODE CHECK */}
+          {activeTab === 'pincode' && (
+            <div className="p-6 sm:p-8 space-y-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Serviceability Check</h2>
+                <p className="text-sm text-gray-500">Check if DTDC delivers to a specific pincode from your pickup location.</p>
+              </div>
+
+              <form onSubmit={checkPincode} className="flex flex-col sm:flex-row gap-4">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Origin Pincode</label>
+                  <input type="text" placeholder={settings.senderPincode || 'e.g. 110046'} value={pincodeQuery.origin} onChange={e => setPincodeQuery({...pincodeQuery, origin: e.target.value})} className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Destination Pincode</label>
+                  <input type="text" required placeholder="e.g. 560040" value={pincodeQuery.dest} onChange={e => setPincodeQuery({...pincodeQuery, dest: e.target.value})} className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-2.5 outline-none" />
+                </div>
+                <div className="flex items-end">
+                  <button type="submit" disabled={checkingPincode} className="w-full sm:w-auto bg-gray-900 hover:bg-black text-white px-6 py-2.5 rounded-xl font-medium transition-all flex items-center justify-center gap-2 h-[46px]">
+                    {checkingPincode ? <RefreshCw className="animate-spin" size={18} /> : <Search size={18} />} Check
+                  </button>
+                </div>
+              </form>
+
+              {pincodeResult && (
+                <div className="mt-6 border border-gray-200 rounded-2xl overflow-hidden">
+                  {pincodeResult.error ? (
+                    <div className="p-4 bg-red-50 text-red-600 text-sm font-medium">{pincodeResult.error}</div>
+                  ) : (
+                    <div className="p-6 bg-white">
+                      <div className="flex items-center gap-2 mb-4">
+                        <CheckCircle2 className="text-green-500" size={24} />
+                        <h3 className="text-lg font-bold text-gray-900">Serviceable</h3>
+                      </div>
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div><span className="text-gray-500">Destination:</span> <span className="font-semibold">{pincodeResult.DESTCITY} ({pincodeResult.DESTPIN})</span></div>
+                        <div><span className="text-gray-500">COD Available:</span> <span className="font-semibold text-green-600">{pincodeResult.SERV_COD === 'Y' ? 'YES' : 'NO'}</span></div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB: QUICK TRACK */}
+          {activeTab === 'track' && (
+            <div className="p-6 sm:p-8 space-y-6">
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-900">Quick Track</h2>
+                <p className="text-sm text-gray-500">Track any DTDC AWB number directly.</p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 max-w-xl">
+                <div className="flex-1">
+                  <input type="text" placeholder="Enter AWB (e.g. V01197967)" value={awbToTrack} onChange={e => setAwbToTrack(e.target.value)} className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 rounded-xl px-4 py-3 outline-none font-mono" />
+                </div>
+                <a 
+                  href={`https://www.dtdc.in/tracking/tracking_results.asp?awbno=${awbToTrack}`}
+                  target="_blank" rel="noopener noreferrer"
+                  className={`bg-orange-500 hover:bg-orange-600 text-white px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${!awbToTrack ? 'opacity-50 pointer-events-none' : ''}`}
+                >
+                  <PackageSearch size={18} />
+                  Track on DTDC
+                </a>
               </div>
             </div>
-            
-            {/* Live Indicator */}
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${connectionStatus === 'connected' ? 'bg-green-50 text-green-600 border border-green-200' : connectionStatus === 'failed' ? 'bg-red-50 text-red-600 border border-red-200' : 'bg-gray-50 text-gray-500 border border-gray-200'}`}>
-              <span className="relative flex h-2.5 w-2.5">
-                {connectionStatus === 'connected' && <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>}
-                <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${connectionStatus === 'connected' ? 'bg-green-500' : connectionStatus === 'failed' ? 'bg-red-500' : 'bg-gray-400'}`}></span>
-              </span>
-              {connectionStatus === 'connected' ? 'Connected' : connectionStatus === 'failed' ? 'Failed' : 'Disconnected'}
-            </div>
-          </div>
+          )}
 
-          <form onSubmit={handleSave} className="p-6 space-y-6">
-            {saveMessage && (
-              <div className={`p-4 rounded-xl flex items-start gap-3 ${saveMessage.type === 'success' ? 'bg-green-50 text-green-700 border border-green-100' : 'bg-red-50 text-red-700 border border-red-100'}`}>
-                {saveMessage.type === 'success' ? <CheckCircle2 size={20} className="shrink-0 text-green-600" /> : <AlertCircle size={20} className="shrink-0 text-red-600" />}
-                <p className="text-sm font-medium">{saveMessage.text}</p>
-              </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Live Username</label>
-                <input
-                  type="text"
-                  value={settings.username}
-                  onChange={(e) => setSettings({ ...settings, username: e.target.value })}
-                  placeholder="e.g. PO4418"
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Live Password</label>
-                <input
-                  type="password"
-                  value={settings.password}
-                  onChange={(e) => setSettings({ ...settings, password: e.target.value })}
-                  placeholder="••••••••"
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all"
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">LIVE API Key</label>
-                <input
-                  type="text"
-                  value={settings.apiKey}
-                  onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
-                  placeholder="e.g. 3f7bac4827bc43f6bf6ea6de401846"
-                  className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all font-mono text-sm"
-                />
-              </div>
-            </div>
-
-            <div className="pt-6 border-t border-gray-100 flex flex-wrap items-center gap-4">
-              <button
-                type="submit"
-                disabled={saving}
-                className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2 disabled:opacity-70"
-              >
-                {saving ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
-                {saving ? 'Saving...' : 'Save Settings'}
-              </button>
-
-              <button
-                type="button"
-                onClick={testConnection}
-                disabled={testing || !settings.username || !settings.apiKey}
-                className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300 px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2 disabled:opacity-50"
-              >
-                {testing ? <RefreshCw className="animate-spin" size={18} /> : <RefreshCw size={18} />}
-                {testing ? 'Testing...' : 'Test Connection'}
-              </button>
-            </div>
-          </form>
         </div>
       </ScrollReveal>
     </div>

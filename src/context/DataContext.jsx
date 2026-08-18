@@ -52,17 +52,24 @@ export function DataProvider({ children }) {
     }
   };
 
-  const logActivity = (action, details = '') => {
+  const logActivity = (action, details = '', leadInfo = null) => {
     const type = action === 'Page View' ? 'pageview' : 'interaction';
     
-    axios.post('/api/analytics/track', {
+    const payload = {
       type,
       visitorId,
       page: type === 'pageview' ? details.replace('Visited ', '') : '',
       action,
       details,
       fcmToken
-    }).catch(err => console.error("Failed to track:", err));
+    };
+
+    if (leadInfo) {
+      if (leadInfo.name) payload.name = leadInfo.name;
+      if (leadInfo.phone) payload.phone = leadInfo.phone;
+    }
+
+    axios.post('/api/analytics/track', payload).catch(err => console.error("Failed to track:", err));
   };
 
   const refreshData = async () => {

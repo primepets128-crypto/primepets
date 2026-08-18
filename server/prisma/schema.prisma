@@ -142,11 +142,19 @@ model Visitor {
 }
 
 model ShippingSetting {
-  id           Int      @id @default(autoincrement())
-  provider     String   @unique @default("DTDC")
-  username     String?
-  password     String?
-  apiKey       String?
-  isActive     Boolean  @default(true)
-  updatedAt    DateTime @updatedAt
+  id        Int      @id @default(autoincrement())
+  provider  String   @unique @default("DTDC") // e.g. DTDC
+  username  String?  // DTDC Live username
+  password  String?  // DTDC Live password
+  apiKey    String?  // DTDC Live API Key
+  isActive  Boolean  @default(true)
+  
+  senderName    String?
+  senderPhone   String?
+  senderAddress String?
+  senderPincode String?
+  senderCity    String?
+  senderState   String?
+
+  updatedAt DateTime @updatedAt
 }
