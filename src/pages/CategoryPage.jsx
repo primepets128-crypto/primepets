@@ -36,12 +36,20 @@ export default function CategoryPage() {
   }, [location.state]);
   const { addToCart, toggleWishlist, isInCart, isWishlisted } = useCart();
   const { categories: ALL_CATEGORIES, products: PRODUCTS, loading } = useData();
-  const PET_TABS = ['All', 'Dogs', 'Cats', 'Small Pets', 'Birds'];
+  const PET_TABS = [
+    { label: 'All', value: 'All', emoji: '🐾' },
+    { label: 'Dogs', value: 'Dogs', emoji: '🐕' },
+    { label: 'Cats', value: 'Cats', emoji: '🐈' },
+    { label: 'Small Pets', value: 'Small Pets', emoji: '🐹', comingSoon: true },
+    { label: 'Birds', value: 'Birds', emoji: '🐦' }
+  ];
 
   const BRANDS = ['All', ...new Set((PRODUCTS || []).map(p => p.brand).filter(Boolean))];
 
   // Filtering
-  let filteredProducts = [...PRODUCTS];
+  // Globally remove Small Pets products so they cannot be bought
+  let filteredProducts = [...PRODUCTS].filter(p => p.petType !== 'Small Pets');
+  
   if (searchQuery.trim() !== '') {
     const fuse = new Fuse(filteredProducts, {
       keys: ['name', 'brand', 'category', 'tag'],
@@ -129,9 +137,13 @@ export default function CategoryPage() {
                 <div className="p-4 border-b border-gray-50">
                   <p className="text-gray-700 font-bold text-sm mb-3">Pet Type</p>
                   {PET_TABS.map(t => (
-                    <button key={t} onClick={() => setActivePet(t)}
-                      className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-semibold transition-all mb-1 ${activePet === t ? 'bg-[#d07e20] text-white' : 'text-gray-600 hover:bg-orange-50 hover:text-[#d07e20]'}`}>
-                      {t === 'Dogs' ? '🐕' : t === 'Cats' ? '🐈' : t === 'Small Pets' ? '🐹' : t === 'Birds' ? '🐦' : '🐾'} {t}
+                    <button key={t.value} onClick={() => { if(!t.comingSoon) setActivePet(t.value); }}
+                      className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-xl text-sm font-semibold transition-all mb-1 ${t.comingSoon ? 'opacity-60 cursor-not-allowed text-gray-500' : activePet === t.value ? 'bg-[#d07e20] text-white' : 'text-gray-600 hover:bg-orange-50 hover:text-[#d07e20]'}`}>
+                      <span className="flex items-center gap-2">
+                        <span>{t.emoji}</span> 
+                        <span>{t.label}</span>
+                      </span>
+                      {t.comingSoon && <span className="text-[8px] bg-orange-100 text-orange-600 px-1 py-0.5 rounded font-bold uppercase tracking-wider ml-2">Soon</span>}
                     </button>
                   ))}
                 </div>
@@ -166,9 +178,10 @@ export default function CategoryPage() {
               {/* Mobile tabs */}
               <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 mb-4 lg:hidden">
                 {PET_TABS.map(t => (
-                  <button key={t} onClick={() => setActivePet(t)}
-                    className={`flex-shrink-0 text-xs font-bold px-4 py-2 rounded-full border transition-all ${activePet === t ? 'bg-[#d07e20] text-white border-[#d07e20]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#d07e20]'}`}>
-                    {t}
+                  <button key={t.value} onClick={() => { if(!t.comingSoon) setActivePet(t.value); }}
+                    className={`flex-shrink-0 flex items-center gap-1 text-xs font-bold px-4 py-2 rounded-full border transition-all ${t.comingSoon ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-70' : activePet === t.value ? 'bg-[#d07e20] text-white border-[#d07e20]' : 'bg-white text-gray-600 border-gray-200 hover:border-[#d07e20]'}`}>
+                    {t.label}
+                    {t.comingSoon && <span className="text-[8px] bg-orange-100 text-orange-600 px-1 py-0.5 rounded font-bold uppercase tracking-wider ml-0.5">Soon</span>}
                   </button>
                 ))}
               </div>

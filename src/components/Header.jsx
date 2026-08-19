@@ -20,7 +20,7 @@ const NAV_LINKS = [
 const SHOP_DROPS = [
   { label: '🐕 Dogs',     sub: 'Food, Treats, Toys & More' },
   { label: '🐈 Cats',     sub: 'Food, Litter, Accessories' },
-  { label: '🐹 Small Pets',sub: 'Hamsters, Rabbits & More' },
+  { label: '🐹 Small Pets',sub: 'Hamsters, Rabbits & More', comingSoon: true },
   { label: '🐦 Birds',    sub: 'Feed, Cages & Accessories' },
   { label: '🐟 Fish',     sub: 'Tanks, Food & Decor' },
   { label: '✂️ Grooming', sub: 'Tools, Shampoos & Spa' },
@@ -127,14 +127,23 @@ export default function Header() {
                       {SHOP_DROPS.map(d => (
                         <button
                           key={d.label}
-                          onClick={() => { navigate('/category', { state: { pet: d.label.split(' ').slice(1).join(' ') } }); setShopOpen(false); }}
-                          className="w-full flex items-start gap-3 px-3 py-2.5 rounded-xl hover:bg-orange-50 transition-colors text-left group"
+                          onClick={() => { 
+                            if(d.comingSoon) return;
+                            navigate('/category', { state: { pet: d.label.split(' ').slice(1).join(' ') } }); 
+                            setShopOpen(false); 
+                          }}
+                          className={`w-full flex items-start gap-3 px-3 py-2.5 rounded-xl text-left group ${d.comingSoon ? 'opacity-60 cursor-not-allowed' : 'hover:bg-orange-50 transition-colors'}`}
                         >
                           <span className="text-xl flex-shrink-0 mt-0.5">{d.label.split(' ')[0]}</span>
-                          <div>
-                            <p className="text-gray-800 font-semibold text-sm group-hover:text-[#d07e20] transition-colors">
-                              {d.label.substring(d.label.indexOf(' ') + 1)}
-                            </p>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <p className={`font-semibold text-sm transition-colors ${d.comingSoon ? 'text-gray-500' : 'text-gray-800 group-hover:text-[#d07e20]'}`}>
+                                {d.label.substring(d.label.indexOf(' ') + 1)}
+                              </p>
+                              {d.comingSoon && (
+                                <span className="text-[9px] bg-orange-100 text-orange-600 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">Coming Soon</span>
+                              )}
+                            </div>
                             <p className="text-gray-400 text-xs">{d.sub}</p>
                           </div>
                         </button>
@@ -311,7 +320,7 @@ export default function Header() {
           {[
             { label: 'Dog', pet: 'Dogs' },
             { label: 'Cat', pet: 'Cats' },
-            { label: 'Small Pet', pet: 'Small Pets' },
+            { label: 'Small Pet', pet: 'Small Pets', comingSoon: true },
             { label: 'Bird', pet: 'Birds' },
             { label: 'Fish', pet: 'Fish' },
             { label: 'Offers', path: '/offers' }
@@ -319,19 +328,23 @@ export default function Header() {
             <button
               key={item.label}
               onClick={() => {
+                if(item.comingSoon) return;
                 if (item.path) {
                   navigate(item.path);
                 } else {
                   navigate('/category', { state: { pet: item.pet } });
                 }
               }}
-              className={`flex-shrink-0 text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
-                i === 0
-                  ? 'bg-[#d07e20] text-white border-[#d07e20]'
-                  : 'bg-white text-gray-600 border-gray-200 hover:border-[#d07e20] hover:text-[#d07e20]'
+              className={`flex-shrink-0 flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full border transition-all ${
+                item.comingSoon 
+                  ? 'bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed opacity-70'
+                  : i === 0
+                    ? 'bg-[#d07e20] text-white border-[#d07e20]'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-[#d07e20] hover:text-[#d07e20]'
               }`}
             >
               {item.label}
+              {item.comingSoon && <span className="text-[8px] bg-orange-100 text-orange-600 px-1 py-0.5 rounded font-bold uppercase tracking-wider ml-0.5">Soon</span>}
             </button>
           ))}
         </div>
