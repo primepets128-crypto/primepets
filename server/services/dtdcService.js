@@ -39,6 +39,7 @@ async function bookDTDCShipment(orderId, overrides = {}) {
         origin_details: {
           name: settings.senderName,
           phone: settings.senderPhone,
+          mobile: settings.senderPhone,
           address_line_1: settings.senderAddress || 'Address',
           address_line_2: '',
           pincode: settings.senderPincode,
@@ -48,6 +49,7 @@ async function bookDTDCShipment(orderId, overrides = {}) {
         destination_details: {
           name: order.customerName || 'Customer',
           phone: order.customerPhone || '0000000000',
+          mobile: order.customerPhone || '0000000000',
           address_line_1: order.customerAddress || 'Address',
           address_line_2: '',
           pincode: order.customerAddress?.match(/\d{6}/)?.[0] || '110001',
