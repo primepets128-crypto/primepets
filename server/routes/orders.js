@@ -78,6 +78,28 @@ router.put('/:id', async (req, res) => {
       where: { id: parseInt(id) },
       data: updateData
     });
+
+    // Auto-book DTDC shipment if status changed to CONFIRMED
+    if (status === 'CONFIRMED') {
+      try {
+        const { bookDTDCShipment } = require('../services/dtdcService');
+        // Book with default dimensions/weight. 
+        await bookDTDCShipment(order.id, {});
+      } catch (dtdcError) {
+        console.error('Failed to auto-book DTDC shipment:', dtdcError.message);
+        // We log the error but don't fail the order status update.
+        // We can append a note to the order so the admin knows it failed.
+        await prisma.order.update({
+          where: { id: parseInt(id) },
+          data: {
+            notes: order.notes 
+              ? order.notes + ' | DTDC Auto-book failed: ' + dtdcError.message 
+              : 'DTDC Auto-book failed: ' + dtdcError.message
+          }
+        });
+      }
+    }
+
     res.json(order);
   } catch (error) {
     console.error('Error updating order:', error);
