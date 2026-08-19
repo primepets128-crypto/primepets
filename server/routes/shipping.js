@@ -93,7 +93,7 @@ router.post('/dtdc/test', verifyAdminToken, async (req, res) => {
 
     // Ping the PX Shipping Label API to verify the API key is active
     try {
-      await axios.get('https://pxapi.dtdc.in/api/customer/integration/consignment/shippinglabel/stream?reference_number=TEST_API_CONNECTION&label_code=SHIP_LABEL_4X6', {
+      await axios.get('https://dtdcapi.shipsy.io/api/customer/integration/consignment/shippinglabel/stream?reference_number=TEST_API_CONNECTION&label_code=SHIP_LABEL_4X6', {
         headers: {
           'api-key': apiKey
         }
@@ -172,7 +172,7 @@ router.post('/dtdc/book', verifyAdminToken, async (req, res) => {
       consignments: [
         {
           customer_code: settings.username, // Usually customer code is the username
-          service_type_id: "B2C PREMIUM", // Using a default B2C service
+          service_type_id: "B2C SMART EXPRESS", // Using a default B2C service
           load_type: "NON-DOCUMENT",
           consignment_type: "Forward",
           description: description,
@@ -185,6 +185,7 @@ router.post('/dtdc/book', verifyAdminToken, async (req, res) => {
           declared_value: order.totalAmount.toString(),
           num_pieces: "1",
           customer_reference_number: order.id.toString(),
+          commodity_id: "pet-supplies",
           is_risk_surcharge_applicable: "false",
           origin_details: {
             name: settings.senderName,
@@ -215,7 +216,7 @@ router.post('/dtdc/book', verifyAdminToken, async (req, res) => {
     }
 
     // 4. Call DTDC API
-    const { data } = await axios.post('https://pxapi.dtdc.in/api/customer/integration/consignment/softdata', payload, {
+    const { data } = await axios.post('https://dtdcapi.shipsy.io/api/customer/integration/consignment/softdata', payload, {
       headers: {
         'Content-Type': 'application/json',
         'api-key': settings.apiKey
