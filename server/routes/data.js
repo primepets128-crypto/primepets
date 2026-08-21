@@ -4,13 +4,14 @@ const prisma = require('../db');
 
 router.get('/', async (req, res) => {
   try {
-    const [slides, categories, deals, products, settings, banners] = await Promise.all([
+    const [slides, categories, deals, products, settings, banners, coupons] = await Promise.all([
       prisma.slide.findMany(),
       prisma.category.findMany(),
       prisma.deal.findMany(),
       prisma.product.findMany(),
       prisma.frontendSetting.findFirst(),
-      prisma.banner.findMany()
+      prisma.banner.findMany(),
+      prisma.coupon.findMany({ orderBy: { id: 'asc' } })
     ]);
 
     const parsedProducts = products.map(p => ({
@@ -24,7 +25,8 @@ router.get('/', async (req, res) => {
       categories,
       deals,
       products: parsedProducts,
-      frontendSettings: settings
+      frontendSettings: settings,
+      coupons
     });
   } catch (error) {
     console.error('Error fetching combined data:', error);

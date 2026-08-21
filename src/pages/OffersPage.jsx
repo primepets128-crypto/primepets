@@ -6,12 +6,13 @@ import BottomNav from '../components/BottomNav';
 import ScrollReveal from '../components/ScrollReveal';
 import MediaDisplay from '../components/MediaDisplay';
 import { useCart } from '../context/CartContext';
+import { useData } from '../context/DataContext';
 
-const COUPONS = [
-  { id: 1, title: 'PAWDAY SALE', sub: 'Up to 60% Off Sitewide', expiry: '2 Days Left', grad: 'from-[#d07e20] to-[#a65d14]', emoji: '🐾', code: 'PAWDAY60' },
-  { id: 2, title: 'MONSOON MANIA', sub: '35% Off Grooming & Wear', expiry: '5 Days Left', grad: 'from-[#0F9B8E] to-[#007CF0]', emoji: '🌧️', code: 'MONSOON35' },
-  { id: 3, title: 'FIRST ORDER', sub: 'Extra 15% Off for New Users', expiry: 'Ongoing', grad: 'from-[#6C3FC8] to-[#E040FB]', emoji: '🎁', code: 'NEWPET15' },
-  { id: 4, title: 'WEEKEND DEAL', sub: '20% Off All Accessories', expiry: '3 Days Left', grad: 'from-[#E91E63] to-[#9C27B0]', emoji: '🎀', code: 'WEEKEND20' },
+const DEFAULT_COUPONS = [
+  { id: 1, title: 'PAWDAY SALE', sub: 'Up to 60% Off Sitewide', expiry: '2 Days Left', grad: 'from-[#d07e20] to-[#a65d14]', emoji: '🐾', code: 'PAWDAY60', isActive: true },
+  { id: 2, title: 'MONSOON MANIA', sub: '35% Off Grooming & Wear', expiry: '5 Days Left', grad: 'from-[#0F9B8E] to-[#007CF0]', emoji: '🌧️', code: 'MONSOON35', isActive: true },
+  { id: 3, title: 'FIRST ORDER', sub: 'Extra 15% Off for New Users', expiry: 'Ongoing', grad: 'from-[#6C3FC8] to-[#E040FB]', emoji: '🎁', code: 'NEWPET15', isActive: true },
+  { id: 4, title: 'WEEKEND DEAL', sub: '20% Off All Accessories', expiry: '3 Days Left', grad: 'from-[#E91E63] to-[#9C27B0]', emoji: '🎀', code: 'WEEKEND20', isActive: true },
 ];
 
 const FLASH_PRODUCTS = [
@@ -59,6 +60,12 @@ function CouponCard({ item, delay }) {
 
 export default function OffersPage() {
   const { addToCart, toggleWishlist, isInCart, isWishlisted } = useCart();
+  const { coupons: liveCoupons } = useData();
+
+  // Use live coupons from admin if available (filtered to active only), otherwise fall back to defaults
+  const activeCoupons = (liveCoupons && liveCoupons.length > 0)
+    ? liveCoupons.filter(c => c.isActive)
+    : DEFAULT_COUPONS;
 
   return (
     <div className="min-h-screen">
@@ -111,12 +118,12 @@ export default function OffersPage() {
               <div className="flex items-center gap-2">
                 <Tag size={18} className="text-[#d07e20]" />
                 <h2 className="text-gray-800 font-bold text-lg md:text-xl">Active Coupons</h2>
-                <span className="bg-orange-100 text-[#d07e20] text-xs font-bold px-2 py-0.5 rounded-full">{COUPONS.length} available</span>
+                <span className="bg-orange-100 text-[#d07e20] text-xs font-bold px-2 py-0.5 rounded-full">{activeCoupons.length} available</span>
               </div>
             </div>
             {/* Mobile: scroll | Desktop: grid */}
             <div className="flex gap-3 overflow-x-auto scrollbar-hide md:overflow-visible md:grid md:grid-cols-2 lg:grid-cols-4 pb-2 md:pb-0">
-              {COUPONS.map((c, idx) => <CouponCard key={c.id} item={c} delay={idx * 100} />)}
+              {activeCoupons.map((c, idx) => <CouponCard key={c.id} item={c} delay={idx * 100} />)}
             </div>
           </section>
           </ScrollReveal>

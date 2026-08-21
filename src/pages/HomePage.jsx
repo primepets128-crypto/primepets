@@ -404,13 +404,18 @@ function Footer() {
             </div>
           </div>
 
-          {/* Contact */}
           <div>
             <p className="font-black text-base uppercase tracking-wider text-white mb-6">Get in Touch</p>
             <div className="flex flex-col gap-3 text-orange-100/70 text-sm">
-              <p className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="text-xl">📞</span> 1800-123-Prime</p>
-              <p className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="text-xl">✉️</span> help@primepets.com</p>
-              <p className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="text-xl">📍</span> 100+ Stores India</p>
+              {(settings.contactPhone) && (
+                <a href={`tel:${settings.contactPhone}`} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="text-xl">📞</span> {settings.contactPhone}</a>
+              )}
+              {(settings.contactEmail) && (
+                <a href={`mailto:${settings.contactEmail}`} className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><span className="text-xl">✉️</span> {settings.contactEmail}</a>
+              )}
+              {(!settings.contactPhone && !settings.contactEmail) && (
+                <p className="flex items-center gap-3"><span className="text-xl">📞</span> Contact via WhatsApp</p>
+              )}
             </div>
             <div className="mt-6 bg-white/5 rounded-2xl p-4 border border-white/10 backdrop-blur-md relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]" />

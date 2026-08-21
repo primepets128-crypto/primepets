@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { path: '/admin/categories', label: 'Category Images', icon: Image },
   { path: '/admin/slides', label: 'Slides', icon: Image },
   { path: '/admin/deals', label: 'Deals', icon: Percent },
+  { path: '/admin/offers', label: 'Offer Zone', icon: Tag },
   { path: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { path: '/admin/shipping', label: 'Shipping', icon: Truck },
   { path: '/admin/customers', label: 'Customers', icon: Users },
