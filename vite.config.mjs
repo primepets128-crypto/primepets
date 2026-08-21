@@ -2,24 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 
-// Plugin: Make Vite-injected CSS non-render-blocking
-// This allows the inline HTML loader to paint immediately (FCP ~300ms)
-// instead of waiting for the full 17.7 KiB CSS bundle to download.
-// The CSS still loads fully — it just doesn't block the first paint.
-const asyncCssPlugin = {
-  name: 'async-css',
-  transformIndexHtml(html) {
-    return html.replace(
-      /<link rel="stylesheet" crossorigin href="(\/assets\/[^"]+\.css)">/g,
-      (_, href) =>
-        `<link rel="preload" as="style" href="${href}" onload="this.rel='stylesheet'" crossorigin>` +
-        `<noscript><link rel="stylesheet" crossorigin href="${href}"></noscript>`
-    );
-  }
-};
-
 export default defineConfig({
-  plugins: [react(), tailwindcss(), asyncCssPlugin],
+  plugins: [react(), tailwindcss()],
   server: {
     proxy: {
       '/api': {
