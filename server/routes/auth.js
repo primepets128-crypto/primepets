@@ -39,21 +39,51 @@ router.post('/check', async (req, res) => {
 
 router.post('/me', verifyToken, async (req, res) => {
   try {
-    // Fetch user from DB based on firebase UID
+    const email = req.user.email?.toLowerCase();
+    
+    // 1. Try finding by firebaseId
     let user = await prisma.user.findUnique({
       where: { firebaseId: req.user.uid }
     });
 
+    // 2. If not found by firebaseId, try finding by email
+    if (!user && email) {
+      user = await prisma.user.findUnique({
+        where: { email }
+      });
+      
+      if (user) {
+        // Update user to link their firebaseId
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { firebaseId: req.user.uid }
+        });
+      }
+    }
+
+    // 3. If still not found, create new user
     if (!user) {
-      // If user logs in via Google Auth for first time without /register, create them
+      const count = await prisma.user.count();
+      const role = (count === 0 || email === 'admin@primepets.com') ? 'admin' : 'user';
+      
       user = await prisma.user.create({
         data: {
           firebaseId: req.user.uid,
-          email: req.user.email,
-          name: req.user.name || req.user.email.split('@')[0],
+          email: email,
+          name: req.user.name || email.split('@')[0],
+          role
         }
       });
     }
+
+    // Ensure admin email always has admin role in database
+    if (email === 'admin@primepets.com' && user.role !== 'admin') {
+      user = await prisma.user.update({
+        where: { id: user.id },
+        data: { role: 'admin' }
+      });
+    }
+
     res.json({ user });
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -64,15 +94,40 @@ router.post('/me', verifyToken, async (req, res) => {
 router.post('/register', verifyToken, async (req, res) => {
   try {
     const { name, email } = req.body;
+    const userEmail = (email || req.user.email)?.toLowerCase();
     
+    // Check if user already exists
+    let existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { firebaseId: req.user.uid },
+          { email: userEmail }
+        ]
+      }
+    });
+
+    if (existingUser) {
+      const role = (existingUser.role === 'admin' || userEmail === 'admin@primepets.com') ? 'admin' : existingUser.role;
+      const user = await prisma.user.update({
+        where: { id: existingUser.id },
+        data: {
+          firebaseId: req.user.uid,
+          name: name || existingUser.name,
+          email: userEmail,
+          role
+        }
+      });
+      return res.json({ user });
+    }
+
     // Check if user is first to register, make admin
     const count = await prisma.user.count();
-    const role = count === 0 ? 'admin' : 'user';
+    const role = (count === 0 || userEmail === 'admin@primepets.com') ? 'admin' : 'user';
 
     const user = await prisma.user.create({
       data: {
         firebaseId: req.user.uid,
-        email: email || req.user.email,
+        email: userEmail,
         name: name || req.user.name || 'User',
         role
       }

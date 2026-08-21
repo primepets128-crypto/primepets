@@ -9,13 +9,25 @@ try {
   const { createClient } = require('@libsql/client/web');
   const { PrismaLibSQL } = require('@prisma/adapter-libsql');
   
-  const url = process.env.TURSO_DATABASE_URL;
-  if (!url) throw new Error("TURSO_DATABASE_URL is missing in environment variables!");
+  const dbUrl = process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL;
+  if (!dbUrl) throw new Error("Database URL (DATABASE_URL or TURSO_DATABASE_URL) is missing in environment variables!");
   
-  const libsql = createClient({
-    url,
-    authToken: process.env.TURSO_AUTH_TOKEN,
-  });
+  let libsql;
+  if (dbUrl.startsWith('file:')) {
+    const { createClient } = require('@libsql/client');
+    let filePath = dbUrl.replace('file:', '');
+    if (!path.isAbsolute(filePath)) {
+      // Resolve relative path to be inside the prisma/ directory
+      filePath = path.resolve(__dirname, 'prisma', filePath);
+    }
+    libsql = createClient({ url: `file:${filePath}` });
+  } else {
+    const { createClient } = require('@libsql/client/web');
+    libsql = createClient({
+      url: dbUrl,
+      authToken: process.env.TURSO_AUTH_TOKEN,
+    });
+  }
 
   const adapter = new PrismaLibSQL(libsql);
   prisma = new PrismaClient({ adapter });
