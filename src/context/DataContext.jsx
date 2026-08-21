@@ -10,6 +10,7 @@ export function DataProvider({ children }) {
   const [deals, setDeals] = useState([]);
   const [products, setProducts] = useState([]);
   const [coupons, setCoupons] = useState([]);
+  const [dealCategories, setDealCategories] = useState([]);
   const [frontendSettings, setFrontendSettings] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -83,6 +84,7 @@ export function DataProvider({ children }) {
       setDeals(res.data.deals || []);
       setProducts(res.data.products || []);
       setCoupons(res.data.coupons || []);
+      setDealCategories(res.data.dealCategories || []);
       setFrontendSettings(res.data.frontendSettings || null);
     } catch (error) {
       console.error("Failed to fetch initial data:", error);
@@ -109,6 +111,7 @@ export function DataProvider({ children }) {
       deals, setDeals,
       products, setProducts,
       coupons, setCoupons,
+      dealCategories, setDealCategories,
       frontendSettings, setFrontendSettings,
       activityLog, logActivity,
       loading,

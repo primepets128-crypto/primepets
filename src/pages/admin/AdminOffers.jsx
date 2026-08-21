@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Plus, Trash2, Save, Tag, Flame, Loader2, ToggleLeft, ToggleRight, Edit3, X, Check } from 'lucide-react';
+import { Plus, Trash2, Save, Tag, Flame, Loader2, ToggleLeft, ToggleRight, Edit3, X, Check, Image as ImageIcon } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
 import Toast from '../../components/Toast';
+import { handleImageUpload } from '../../utils/imageUpload';
+import { useData } from '../../context/DataContext';
 
 const GRADIENT_OPTIONS = [
   { label: 'Gold (Brand)', value: 'from-[#d07e20] to-[#a65d14]' },
@@ -23,6 +25,152 @@ const DEAL_CATEGORIES = [
   { id: 5, label: 'CAT TREATS', off: '20% OFF', img: 'https://images.unsplash.com/photo-1529778873920-4da4926a72c2?w=400&h=260&fit=crop', grad: 'from-[#4CAF50] to-[#1B5E20]', bg: '#F0FDF4', border: '#BBF7D0', flash: false },
   { id: 6, label: 'ACCESSORIES', off: '40% OFF', img: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?w=400&h=260&fit=crop', grad: 'from-[#F44336] to-[#B71C1C]', bg: '#FFF1F2', border: '#FECACA', flash: true },
 ];
+
+const BLANK_DEAL_CATEGORY = {
+  label: '',
+  off: '',
+  img: '',
+  grad: 'from-[#d07e20] to-[#a65d14]',
+  bg: '#FFF4ED',
+  border: '#e6c8a8',
+  flash: false,
+};
+
+function DealCategoryPreview({ item }) {
+  return (
+    <div className="rounded-2xl overflow-hidden border w-full max-w-[200px]" style={{ backgroundColor: item.bg || '#FFF4ED', borderColor: item.border || '#e6c8a8' }}>
+      <div className="relative overflow-hidden shrink-0" style={{ height: 110 }}>
+        {item.img ? (
+          <img src={item.img} alt={item.label} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>
+        )}
+        <div className={`absolute inset-0 bg-gradient-to-t ${item.grad || 'from-[#d07e20] to-[#a65d14]'} opacity-40`} />
+        {item.flash && (
+          <div className="absolute top-2 left-2 flex items-center gap-1 bg-red-500 rounded-full px-2 py-0.5">
+            <span className="text-white text-[8px] font-bold">⚡ FLASH</span>
+          </div>
+        )}
+      </div>
+      <div className="p-3">
+        <p className={`font-black text-sm bg-clip-text text-transparent bg-gradient-to-r ${item.grad || 'from-[#d07e20] to-[#a65d14]'}`}>{item.off || '30% OFF'}</p>
+        <p className="text-gray-700 font-bold text-xs">{item.label || 'CATEGORY LABEL'}</p>
+      </div>
+    </div>
+  );
+}
+
+function DealCategoryForm({ category, onSave, onCancel, isSaving }) {
+  const [form, setForm] = useState(category);
+  const [isUploading, setIsUploading] = useState(false);
+  const change = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  return (
+    <div className="bg-gray-50 rounded-2xl p-5 border border-gray-200">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Preview */}
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Live Preview</p>
+          <div className="rounded-2xl overflow-hidden border w-full max-w-[200px]" style={{ backgroundColor: form.bg, borderColor: form.border }}>
+            <div className="relative overflow-hidden shrink-0" style={{ height: 110 }}>
+              {form.img ? (
+                <img src={form.img} alt={form.label} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>
+              )}
+              <div className={`absolute inset-0 bg-gradient-to-t ${form.grad} opacity-40`} />
+              {form.flash && (
+                <div className="absolute top-2 left-2 flex items-center gap-1 bg-red-500 rounded-full px-2 py-0.5">
+                  <span className="text-white text-[8px] font-bold">⚡ FLASH</span>
+                </div>
+              )}
+            </div>
+            <div className="p-3">
+              <p className={`font-black text-sm bg-clip-text text-transparent bg-gradient-to-r ${form.grad}`}>{form.off || '30% OFF'}</p>
+              <p className="text-gray-700 font-bold text-xs">{form.label || 'CATEGORY LABEL'}</p>
+            </div>
+          </div>
+        </div>
+        {/* Fields */}
+        <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">Flash Label</label>
+              <button
+                type="button"
+                onClick={() => change('flash', !form.flash)}
+                className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl font-semibold text-sm transition-all ${form.flash ? 'bg-red-100 text-red-700 border border-red-200' : 'bg-gray-100 text-gray-500 border border-gray-200'}`}
+              >
+                {form.flash ? '⚡ Flash Active' : 'No Flash'}
+              </button>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">Discount Text</label>
+              <input value={form.off} onChange={e => change('off', e.target.value)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white" placeholder="e.g. 30% OFF" />
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 mb-1 block">Label</label>
+            <input value={form.label} onChange={e => change('label', e.target.value.toUpperCase())} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm font-semibold bg-white" placeholder="e.g. DOG FOOD" />
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 mb-1 block">Image</label>
+            <div className="flex gap-2">
+              <input value={form.img} onChange={e => change('img', e.target.value)} className="flex-1 border border-gray-200 rounded-xl px-3 py-2 text-xs bg-white" placeholder="Paste image URL..." />
+              <label className={`cursor-pointer shrink-0 ${isUploading ? 'bg-gray-200 opacity-70' : 'bg-gray-100 hover:bg-gray-200'} px-3 py-2 rounded-xl border border-gray-200 flex items-center gap-1.5 text-xs font-semibold transition-colors text-gray-700`}>
+                {isUploading ? <Loader2 className="animate-spin" size={14} /> : 'Upload'}
+                <input type="file" accept="image/*" className="hidden" disabled={isUploading} onChange={async (e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setIsUploading(true);
+                    try {
+                      const base64 = await handleImageUpload(e.target.files[0]);
+                      change('img', base64);
+                    } catch(err) {
+                      console.error("Upload failed", err);
+                      alert("Image upload failed");
+                    } finally {
+                      setIsUploading(false);
+                    }
+                  }
+                }} />
+              </label>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-gray-600 mb-1 block">Color Gradient</label>
+            <select value={form.grad} onChange={e => change('grad', e.target.value)} className="w-full border border-gray-200 rounded-xl px-3 py-2 text-sm bg-white">
+              {GRADIENT_OPTIONS.map(g => (
+                <option key={g.value} value={g.value}>{g.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">Background Color</label>
+              <div className="flex gap-1.5">
+                <input type="color" value={form.bg && form.bg.startsWith('#') ? form.bg : '#FFF4ED'} onChange={e => change('bg', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 cursor-pointer p-0 shrink-0" />
+                <input value={form.bg} onChange={e => change('bg', e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-1 text-xs bg-white" placeholder="#FFF4ED" />
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-gray-600 mb-1 block">Border Color</label>
+              <div className="flex gap-1.5">
+                <input type="color" value={form.border && form.border.startsWith('#') ? form.border : '#e6c8a8'} onChange={e => change('border', e.target.value)} className="w-8 h-8 rounded-lg overflow-hidden border border-gray-200 cursor-pointer p-0 shrink-0" />
+                <input value={form.border} onChange={e => change('border', e.target.value)} className="w-full border border-gray-200 rounded-xl px-2 py-1 text-xs bg-white" placeholder="#e6c8a8" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="flex gap-2 mt-4 justify-end">
+        <button type="button" onClick={onCancel} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-100 transition-all"><X size={16} /> Cancel</button>
+        <button type="button" onClick={() => onSave(form)} disabled={isSaving} className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-sm font-bold bg-[#d07e20] text-white hover:bg-[#E06900] disabled:opacity-60 transition-all">
+          {isSaving ? <Loader2 size={16} className="animate-spin" /> : <Check size={16} />} Save Category
+        </button>
+      </div>
+    </div>
+  );
+}
 
 const BLANK_COUPON = {
   title: '',
@@ -119,12 +267,19 @@ function CouponForm({ coupon, onSave, onCancel, isSaving }) {
 }
 
 export default function AdminOffers() {
+  const { refreshData } = useData();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('coupons');
+
+  // Deal Categories state
+  const [dealCategories, setDealCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [editingCategoryId, setEditingCategoryId] = useState(null);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
 
   const toast = (msg) => window.dispatchEvent(new CustomEvent('toast', { detail: { message: msg } }));
 
@@ -139,7 +294,63 @@ export default function AdminOffers() {
     }
   };
 
-  useEffect(() => { fetchCoupons(); }, []);
+  const fetchDealCategories = async () => {
+    try {
+      const res = await axios.get('/api/deal-categories');
+      setDealCategories(res.data);
+    } catch (e) {
+      toast('Failed to load deal categories');
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCoupons();
+    fetchDealCategories();
+  }, []);
+
+  const handleAddCategory = async (form) => {
+    setIsSaving(true);
+    try {
+      await axios.post('/api/deal-categories', form);
+      toast('Deal Category created!');
+      setIsAddingCategory(false);
+      fetchDealCategories();
+      refreshData();
+    } catch (e) { toast('Failed to create category'); }
+    finally { setIsSaving(false); }
+  };
+
+  const handleUpdateCategory = async (form) => {
+    setIsSaving(true);
+    try {
+      await axios.put(`/api/deal-categories/${form.id}`, form);
+      toast('Deal Category updated!');
+      setEditingCategoryId(null);
+      fetchDealCategories();
+      refreshData();
+    } catch (e) { toast('Failed to update category'); }
+    finally { setIsSaving(false); }
+  };
+
+  const handleDeleteCategory = async (id) => {
+    if (!window.confirm('Delete this deal category?')) return;
+    try {
+      await axios.delete(`/api/deal-categories/${id}`);
+      toast('Deal Category deleted');
+      fetchDealCategories();
+      refreshData();
+    } catch (e) { toast('Failed to delete category'); }
+  };
+
+  const handleToggleCategoryFlash = async (category) => {
+    try {
+      await axios.put(`/api/deal-categories/${category.id}`, { ...category, flash: !category.flash });
+      fetchDealCategories();
+      refreshData();
+    } catch (e) { toast('Failed to update category'); }
+  };
 
   const handleAdd = async (form) => {
     setIsSaving(true);
@@ -319,31 +530,112 @@ export default function AdminOffers() {
       {activeTab === 'categories' && (
         <ScrollReveal delay={100}>
           <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
-            <div className="flex items-center gap-2 mb-2">
-              <Flame size={20} className="text-[#d07e20]" />
-              <h2 className="text-xl font-bold text-gray-800">Deal Categories</h2>
+            <div className="flex items-center justify-between mb-5">
+              <div className="flex items-center gap-2">
+                <Flame size={20} className="text-[#d07e20]" />
+                <h2 className="text-xl font-bold text-gray-800">Deal Categories</h2>
+                <span className="bg-orange-100 text-[#d07e20] text-xs font-bold px-2 py-0.5 rounded-full">{dealCategories.length}</span>
+              </div>
+              {!isAddingCategory && (
+                <button
+                  onClick={() => { setIsAddingCategory(true); setEditingCategoryId(null); }}
+                  className="flex items-center gap-2 bg-[#d07e20] hover:bg-[#E06900] text-white px-4 py-2 rounded-xl font-bold text-sm transition-all shadow-sm"
+                >
+                  <Plus size={16} /> Add Category
+                </button>
+              )}
             </div>
-            <p className="text-sm text-gray-500 mb-6">
-              These deal category cards are shown on the Offers page. Editing is coming soon — for now, they are auto-linked to product categories in the shop. To change discount % or images, update your products directly.
-            </p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {DEAL_CATEGORIES.map(d => (
-                <div key={d.id} className="rounded-2xl overflow-hidden border" style={{ backgroundColor: d.bg, borderColor: d.border }}>
-                  <img src={d.img} alt={d.label} className="w-full h-28 object-cover" />
-                  <div className="p-3">
-                    <p className={`font-black text-sm bg-clip-text text-transparent bg-gradient-to-r ${d.grad}`}>{d.off}</p>
-                    <p className="text-gray-700 font-bold text-xs">{d.label}</p>
-                    {d.flash && (
-                      <span className="inline-block mt-1 text-[10px] bg-red-500 text-white px-2 py-0.5 rounded-full font-bold">⚡ FLASH</span>
+
+            {/* Add form */}
+            {isAddingCategory && (
+              <div className="mb-5">
+                <DealCategoryForm
+                  category={BLANK_DEAL_CATEGORY}
+                  onSave={handleAddCategory}
+                  onCancel={() => setIsAddingCategory(false)}
+                  isSaving={isSaving}
+                />
+              </div>
+            )}
+
+            {categoriesLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="animate-spin text-[#d07e20]" size={32} />
+              </div>
+            ) : dealCategories.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="text-5xl mb-3">🔥</div>
+                <p className="text-gray-500 font-medium">No deal categories yet. Add your first one!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {dealCategories.map(category => (
+                  <div key={category.id}>
+                    {editingCategoryId === category.id ? (
+                      <DealCategoryForm
+                        category={category}
+                        onSave={handleUpdateCategory}
+                        onCancel={() => setEditingCategoryId(null)}
+                        isSaving={isSaving}
+                      />
+                    ) : (
+                      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-orange-100 transition-all group">
+                        {/* Mini preview */}
+                        <div className="rounded-xl overflow-hidden border shrink-0" style={{ backgroundColor: category.bg, borderColor: category.border, width: 140 }}>
+                          <div className="relative overflow-hidden shrink-0" style={{ height: 80 }}>
+                            {category.img ? (
+                              <img src={category.img} alt={category.label} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full bg-gray-100 flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                            )}
+                            <div className={`absolute inset-0 bg-gradient-to-t ${category.grad} opacity-40`} />
+                            {category.flash && (
+                              <div className="absolute top-1.5 left-1.5 flex items-center gap-1 bg-red-500 rounded-full px-1.5 py-0.5">
+                                <span className="text-white text-[7px] font-bold">⚡ FLASH</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="p-2">
+                            <p className={`font-black text-xs bg-clip-text text-transparent bg-gradient-to-r ${category.grad}`}>{category.off}</p>
+                            <p className="text-gray-700 font-bold text-[10px] truncate">{category.label}</p>
+                          </div>
+                        </div>
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${category.flash ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500'}`}>
+                              {category.flash ? '⚡ Flash Sale Category' : 'Standard Category'}
+                            </span>
+                          </div>
+                        </div>
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => handleToggleCategoryFlash(category)}
+                            title={category.flash ? 'Disable Flash' : 'Enable Flash'}
+                            className={`p-2 rounded-xl transition-all ${category.flash ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}
+                          >
+                            {category.flash ? <ToggleRight size={18} /> : <ToggleLeft size={18} />}
+                          </button>
+                          <button
+                            onClick={() => { setEditingCategoryId(category.id); setIsAddingCategory(false); }}
+                            className="p-2 rounded-xl bg-blue-50 text-blue-600 hover:bg-blue-100 transition-all"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteCategory(category.id)}
+                            className="p-2 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 transition-all"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
                     )}
                   </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-6 bg-orange-50 border border-orange-100 rounded-2xl p-4">
-              <p className="text-sm font-semibold text-orange-700">🚧 Full deal category editor coming soon</p>
-              <p className="text-xs text-orange-600 mt-1">You'll be able to set category images, discount percentages, and flash labels from here.</p>
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </ScrollReveal>
       )}

@@ -11,4 +11,4 @@ const adminAuth = {
   })
 };
 
-module.exports = adminAuth;
+module.exports = { adminAuth };

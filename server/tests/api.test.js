@@ -1,10 +1,21 @@
 const request = require('supertest');
-const app = require('../index');
-const prisma = require('../db');
 
 // Mock external services using the files we created
-jest.mock('../utils/cloudinary', () => require('./__mocks__/cloudinary'));
+jest.mock('../utils/cloudinary', () => ({
+  uploadToCloudinary: jest.fn().mockResolvedValue('https://res.cloudinary.com/demo/image/upload/sample.jpg')
+}));
 jest.mock('../firebaseAdmin', () => require('./__mocks__/firebaseAdmin'));
+jest.mock('cloudinary', () => ({
+  v2: {
+    config: jest.fn(),
+    uploader: {
+      upload: jest.fn().mockResolvedValue({ secure_url: 'https://res.cloudinary.com/demo/image/upload/sample.jpg' })
+    }
+  }
+}));
+
+const app = require('../index');
+const prisma = require('../db');
 
 describe('Prime Pets API E2E Tests', () => {
   let createdProductId;
@@ -13,6 +24,7 @@ describe('Prime Pets API E2E Tests', () => {
     // Clear out tables before tests
     await prisma.product.deleteMany();
     await prisma.category.deleteMany();
+    await prisma.user.deleteMany();
   });
 
   afterAll(async () => {

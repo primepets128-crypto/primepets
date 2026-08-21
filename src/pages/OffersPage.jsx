@@ -60,12 +60,16 @@ function CouponCard({ item, delay }) {
 
 export default function OffersPage() {
   const { addToCart, toggleWishlist, isInCart, isWishlisted } = useCart();
-  const { coupons: liveCoupons } = useData();
+  const { coupons: liveCoupons, dealCategories: liveDealCategories } = useData();
 
   // Use live coupons from admin if available (filtered to active only), otherwise fall back to defaults
   const activeCoupons = (liveCoupons && liveCoupons.length > 0)
     ? liveCoupons.filter(c => c.isActive)
     : DEFAULT_COUPONS;
+
+  const activeDealCategories = (liveDealCategories && liveDealCategories.length > 0)
+    ? liveDealCategories
+    : DEAL_CATEGORIES;
 
   return (
     <div className="min-h-screen">
@@ -186,7 +190,7 @@ export default function OffersPage() {
             </div>
             {/* 2-col mobile → 3-col md → 6-col lg */}
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
-              {DEAL_CATEGORIES.map((d, idx) => (
+              {activeDealCategories.map((d, idx) => (
                 <ScrollReveal key={d.id} delay={(idx % 6) * 100} className="h-full">
                 <div className="rounded-2xl overflow-hidden cursor-pointer product-card border h-full flex flex-col" style={{ backgroundColor: d.bg, borderColor: d.border }}>
                   <div className="relative overflow-hidden flex-shrink-0" style={{ height: 120 }}>

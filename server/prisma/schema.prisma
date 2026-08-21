@@ -169,3 +169,15 @@ model Coupon {
   grad    String
   isActive Boolean @default(true)
 }
+
+model DealCategory {
+  id     Int     @id @default(autoincrement())
+  label  String
+  off    String
+  img    String
+  grad   String
+  bg     String
+  border String
+  flash  Boolean @default(false)
+}
+
