@@ -1,8 +1,11 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import { useAuth } from './AuthContext';
+import { trackFacebookEvent } from '../utils/metaPixel';
 
 export const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
+  const { user } = useAuth();
   const [cartItems, setCartItems]       = useState([]);   // [{...product, qty}]
   const [wishlistItems, setWishlistItems] = useState([]); // [...product]
   const [cartOpen, setCartOpen]         = useState(false);
@@ -14,7 +17,6 @@ export function CartProvider({ children }) {
     setTimeout(() => setToastMsg(''), 2200);
   }, []);
 
-  /* ── CART ── */
   const addToCart = useCallback((product) => {
     setCartItems(prev => {
       const idx = prev.findIndex(i => i.id === product.id);
@@ -25,9 +27,16 @@ export function CartProvider({ children }) {
       }
       return [...prev, { ...product, qty: 1 }];
     });
+    trackFacebookEvent('AddToCart', {
+      content_ids: [product.id],
+      content_name: product.name,
+      content_type: 'product',
+      value: product.price,
+      currency: 'INR'
+    }, user?.email);
     showToast(`🛒 "${product.name}" added to cart!`);
     setCartOpen(true);
-  }, [showToast]);
+  }, [showToast, user]);
 
   const removeFromCart = useCallback((id) => {
     setCartItems(prev => prev.filter(i => i.id !== id));

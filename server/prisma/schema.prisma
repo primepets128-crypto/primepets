@@ -85,6 +85,9 @@ model FrontendSetting {
   siteAudioUrl        String?
   contactEmail        String?
   contactPhone        String?
+  facebookPixelId     String?
+  facebookAccessToken String?
+  facebookConversionsUrl String?
 }
 
 model Banner {
@@ -179,5 +182,18 @@ model DealCategory {
   bg     String
   border String
   flash  Boolean @default(false)
+}
+
+model FacebookEvent {
+  id          Int      @id @default(autoincrement())
+  eventName   String
+  eventData   String?  // JSON stringified payload
+  userEmail   String?
+  visitorId   String?
+  ip          String?
+  userAgent   String?
+  url         String?
+  eventId     String?
+  createdAt   DateTime @default(now())
 }
 

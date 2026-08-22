@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Tag, Image, Percent,
-  Menu, X, Settings, Users, ShoppingBag, CreditCard, Music2, Activity, Truck
+  Menu, X, Settings, Users, ShoppingBag, CreditCard, Music2, Activity, Truck, Facebook
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -17,6 +17,7 @@ const NAV_ITEMS = [
   { path: '/admin/shipping', label: 'Shipping', icon: Truck },
   { path: '/admin/customers', label: 'Customers', icon: Users },
   { path: '/admin/retention', label: 'Retention', icon: Activity },
+  { path: '/admin/facebook-events', label: 'Facebook Events', icon: Facebook },
   { path: '/admin/payment', label: 'Payment', icon: CreditCard },
   { path: '/admin/music', label: 'Music', icon: Music2 },
   { path: '/admin/settings', label: 'Settings', icon: Settings },

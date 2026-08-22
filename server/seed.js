@@ -592,7 +592,8 @@ const INITIAL_SETTINGS = {
   "instagramUrl": "https://instagram.com",
   "youtubeUrl": "https://youtube.com",
   "whatsappNumber": "+919876543210",
-  "logoBase64": null
+  "logoBase64": null,
+  "facebookPixelId": "2059730591295871"
 };
 
 async function main() {

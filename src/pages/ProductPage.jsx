@@ -6,6 +6,8 @@ import ScrollReveal from '../components/ScrollReveal';
 import MediaDisplay from '../components/MediaDisplay';
 import { useCart } from '../context/CartContext';
 import { useData } from '../context/DataContext';
+import { useAuth } from '../context/AuthContext';
+import { trackFacebookEvent } from '../utils/metaPixel';
 
 export default function ProductPage() {
   const { id } = useParams();
@@ -13,6 +15,7 @@ export default function ProductPage() {
   const { products } = useData();
   const { addToCart, toggleWishlist, isWishlisted } = useCart();
   
+  const { user } = useAuth();
   const product = products.find(p => String(p.id) === String(id));
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
@@ -20,7 +23,17 @@ export default function ProductPage() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [id]);
+    if (product) {
+      trackFacebookEvent('ViewContent', {
+        content_ids: [product.id],
+        content_name: product.name,
+        content_category: product.category,
+        content_type: 'product',
+        value: product.price,
+        currency: 'INR'
+      }, user?.email);
+    }
+  }, [id, product, user]);
 
   if (!product) {
     return (

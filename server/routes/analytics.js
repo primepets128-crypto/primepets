@@ -303,4 +303,149 @@ router.get('/retention', async (req, res) => {
   }
 });
 
+// POST /api/analytics/facebook-event
+router.post('/facebook-event', async (req, res) => {
+  const crypto = require('crypto');
+  const axios = require('axios');
+  try {
+    const { eventName, eventData, userEmail, visitorId, url, eventId } = req.body;
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const userAgent = req.headers['user-agent'] || '';
+
+    // Save to local database
+    const newEvent = await prisma.facebookEvent.create({
+      data: {
+        eventName,
+        eventData: eventData ? JSON.stringify(eventData) : null,
+        userEmail,
+        visitorId,
+        ip: ip?.toString() || '',
+        userAgent,
+        url,
+        eventId
+      }
+    });
+
+    // Optionally forward to Meta Conversions API / Gateway
+    const settings = await prisma.frontendSetting.findFirst();
+    if (settings && settings.facebookPixelId && settings.facebookAccessToken) {
+      const pixelId = settings.facebookPixelId;
+      const accessToken = settings.facebookAccessToken;
+
+      const hashEmail = userEmail ? crypto.createHash('sha256').update(userEmail.trim().toLowerCase()).digest('hex') : undefined;
+
+      const payload = {
+        data: [
+          {
+            event_name: eventName,
+            event_time: Math.floor(Date.now() / 1000),
+            event_source_url: url || 'https://primepets.in',
+            action_source: 'website',
+            event_id: eventId || undefined,
+            user_data: {
+              client_ip_address: ip?.toString().split(',')[0].trim() || '',
+              client_user_agent: userAgent,
+              ...(hashEmail ? { em: [hashEmail] } : {})
+            },
+            ...(eventData ? { custom_data: eventData } : {})
+          }
+        ]
+      };
+
+      const targetUrl = settings.facebookConversionsUrl 
+        ? `${settings.facebookConversionsUrl.replace(/\/$/, '')}?access_token=${accessToken}`
+        : `https://graph.facebook.com/v18.0/${pixelId}/events?access_token=${accessToken}`;
+
+      // Run asynchronously
+      axios.post(targetUrl, payload)
+        .then(response => {
+          console.log('Successfully sent Conversions API event to Meta:', response.data);
+        })
+        .catch(err => {
+          console.error('Error sending event to Meta Conversions API:', err.response ? err.response.data : err.message);
+        });
+    }
+
+    res.json({ success: true, event: newEvent });
+  } catch (error) {
+    console.error('Error logging Facebook event:', error);
+    res.status(500).json({ error: 'Failed to log event' });
+  }
+});
+
+// GET /api/analytics/facebook-events
+router.get('/facebook-events', async (req, res) => {
+  try {
+    const { range } = req.query; // '7d' or '30d'
+    const now = new Date();
+    let startDate = new Date();
+    if (range === '30d') {
+      startDate.setDate(now.getDate() - 30);
+    } else {
+      startDate.setDate(now.getDate() - 7);
+    }
+
+    const events = await prisma.facebookEvent.findMany({
+      where: {
+        createdAt: {
+          gte: startDate
+        }
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    const dailyData = {};
+    const temp = new Date(startDate);
+    while (temp <= now) {
+      const dateStr = temp.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      dailyData[dateStr] = { date: dateStr, PageView: 0, AddToCart: 0, InitiateCheckout: 0, Purchase: 0, Other: 0 };
+      temp.setDate(temp.getDate() + 1);
+    }
+
+    events.forEach(event => {
+      const dateStr = new Date(event.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (!dailyData[dateStr]) {
+        dailyData[dateStr] = { date: dateStr, PageView: 0, AddToCart: 0, InitiateCheckout: 0, Purchase: 0, Other: 0 };
+      }
+      if (['PageView', 'AddToCart', 'InitiateCheckout', 'Purchase'].includes(event.eventName)) {
+        dailyData[dateStr][event.eventName] += 1;
+      } else {
+        dailyData[dateStr].Other += 1;
+      }
+    });
+
+    const counts = {
+      PageView: 0,
+      AddToCart: 0,
+      InitiateCheckout: 0,
+      Purchase: 0,
+      Total: events.length
+    };
+    events.forEach(e => {
+      if (counts[e.eventName] !== undefined) {
+        counts[e.eventName] += 1;
+      }
+    });
+
+    const settings = await prisma.frontendSetting.findFirst();
+    const configStatus = {
+      pixelId: settings?.facebookPixelId || null,
+      hasAccessToken: !!settings?.facebookAccessToken,
+      conversionsUrl: settings?.facebookConversionsUrl || null
+    };
+
+    res.json({
+      events: events.slice(0, 100),
+      chartData: Object.values(dailyData),
+      counts,
+      configStatus
+    });
+  } catch (error) {
+    console.error('Error fetching Facebook events analytics:', error);
+    res.status(500).json({ error: 'Failed to fetch Facebook events' });
+  }
+});
+
 module.exports = router;

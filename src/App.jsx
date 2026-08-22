@@ -14,6 +14,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import ChatBot from './components/ChatBot';
 import TopBar from './components/TopBar';
 import ActivityTracker from './components/ActivityTracker';
+import { trackFacebookEvent } from './utils/metaPixel';
 
 // Lazy load pages
 const HomePage = lazy(() => import('./pages/HomePage'));
@@ -44,6 +45,7 @@ const AdminLive = lazy(() => import('./pages/admin/AdminLive'));
 const AdminRetention = lazy(() => import('./pages/admin/AdminRetention'));
 const AdminShipping = lazy(() => import('./pages/admin/AdminShipping'));
 const AdminOffers = lazy(() => import('./pages/admin/AdminOffers'));
+const AdminFacebookEvents = lazy(() => import('./pages/admin/AdminFacebookEvents'));
 
 // Protected Admin Route Component
 const ProtectedAdminRoute = ({ children }) => {
@@ -55,6 +57,7 @@ const ProtectedAdminRoute = ({ children }) => {
 // Inner app that has access to DataContext
 function AppInner() {
   const location = useLocation();
+  const { user } = useAuth();
   const [loaderFinished, setLoaderFinished] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef(null);
@@ -70,8 +73,13 @@ function AppInner() {
       document.documentElement.scrollTo(0, 0);
       document.body.scrollTo(0, 0);
     }, 100);
+
+    if (loaderFinished) {
+      trackFacebookEvent('PageView', null, user?.email);
+    }
+
     return () => clearTimeout(timer);
-  }, [location.pathname]);
+  }, [location.pathname, loaderFinished, user]);
 
   // Update audio source when settings change
   useEffect(() => {
@@ -144,6 +152,7 @@ function AppInner() {
                   <Route path="music" element={<AdminMusic />} />
                   <Route path="settings" element={<AdminSettings />} />
                   <Route path="retention" element={<AdminRetention />} />
+                  <Route path="facebook-events" element={<AdminFacebookEvents />} />
                 </Route>
               </Routes>
             </Suspense>

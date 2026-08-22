@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useData } from '../../context/DataContext';
-import { Save, Layout, MessageSquare, Globe, Database, Trash2, AlertTriangle, Phone, Mail, Music2, CreditCard, Loader2 } from 'lucide-react';
+import { Save, Layout, MessageSquare, Globe, Database, Trash2, AlertTriangle, Phone, Mail, Music2, CreditCard, Loader2, Facebook } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
 import Toast from '../../components/Toast';
 import { handleImageUpload } from '../../utils/imageUpload';
@@ -68,6 +68,7 @@ export default function AdminSettings() {
     { id: 'footer', label: 'Footer & Text', icon: MessageSquare },
     { id: 'social', label: 'Social Links', icon: Globe },
     { id: 'contact', label: 'Contact & WhatsApp', icon: Phone },
+    { id: 'facebook', label: 'Meta Pixel & Events', icon: Facebook },
     { id: 'data', label: 'Data Management', icon: Database },
   ];
 
@@ -257,6 +258,51 @@ export default function AdminSettings() {
                     <input type="email" name="contactEmail" value={formData.contactEmail || ''} onChange={handleChange}
                       className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
                       placeholder="support@primepets.in" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'facebook' && (
+              <div className="space-y-6">
+                <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex gap-3 items-start mb-4">
+                  <div className="text-blue-600 mt-1"><Facebook size={20} /></div>
+                  <div>
+                    <p className="font-bold text-blue-850">Meta Pixel & Conversions API Tracking</p>
+                    <p className="text-blue-700 text-sm">
+                      Configure tracking of standard conversions (PageView, AddToCart, InitiateCheckout, and Purchase) 
+                      to optimize your marketing campaigns. Both client-side browser script and backend server logs will use these values.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Meta Pixel ID
+                    </label>
+                    <input type="text" name="facebookPixelId" value={formData.facebookPixelId || ''} onChange={handleChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
+                      placeholder="e.g. 123456789012345" />
+                    <p className="text-xs text-gray-400 mt-1">Found in your Meta Events Manager setting tab.</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Facebook System User Access Token (Conversions API)
+                    </label>
+                    <input type="password" name="facebookAccessToken" value={formData.facebookAccessToken || ''} onChange={handleChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
+                      placeholder="e.g. EAAGzD..." />
+                    <p className="text-xs text-gray-400 mt-1">Used to log server-side Conversions API events directly to Facebook. Leave empty to only track events locally.</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      Conversions API Gateway Routing URL (Optional / Stape)
+                    </label>
+                    <input type="text" name="facebookConversionsUrl" value={formData.facebookConversionsUrl || ''} onChange={handleChange}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
+                      placeholder="e.g. https://capi.yourdomain.com/v1/events" />
+                    <p className="text-xs text-gray-400 mt-1">If using Stape Conversions API Gateway, enter your custom gateway routing URL. Leave blank to default to standard Meta Graph API.</p>
                   </div>
                 </div>
               </div>

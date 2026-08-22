@@ -3,6 +3,8 @@ import { X, Plus, Minus, Trash2, ShoppingBag, ArrowRight, Tag } from 'lucide-rea
 import { useCart } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
 import CheckoutModal from './CheckoutModal';
+import { useAuth } from '../context/AuthContext';
+import { trackFacebookEvent } from '../utils/metaPixel';
 
 export default function CartDrawer() {
   const {
@@ -10,6 +12,7 @@ export default function CartDrawer() {
     cartItems, cartTotal, cartCount,
     removeFromCart, updateQty, clearCart,
   } = useCart();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
@@ -18,6 +21,15 @@ export default function CartDrawer() {
   if (!cartOpen && !checkoutOpen) return null;
 
   const handleOrderSuccess = (orderId) => {
+    trackFacebookEvent('Purchase', {
+      value: cartTotal,
+      currency: 'INR',
+      content_ids: cartItems.map(item => item.id),
+      content_type: 'product',
+      num_items: cartCount,
+      order_id: orderId
+    }, user?.email);
+
     setCheckoutOpen(false);
     setCartOpen(false);
     clearCart();
@@ -165,7 +177,18 @@ export default function CartDrawer() {
 
                 {/* CTA */}
                 <button
-                  onClick={() => { setCheckoutOpen(true); setCartOpen(false); }}
+                  onClick={() => { 
+                    setCheckoutOpen(true); 
+                    setCartOpen(false); 
+                    trackFacebookEvent('InitiateCheckout', {
+                      num_items: cartCount,
+                      value: cartTotal,
+                      currency: 'INR',
+                      content_ids: cartItems.map(item => item.id),
+                      content_type: 'product',
+                      contents: cartItems.map(item => ({ id: item.id, quantity: item.qty }))
+                    }, user?.email);
+                  }}
                   className="w-full bg-gradient-to-r from-[#d07e20] to-[#a65d14] text-white font-bold text-sm py-3.5 rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex items-center justify-center gap-2">
                   Proceed to Checkout <ArrowRight size={16} />
                 </button>

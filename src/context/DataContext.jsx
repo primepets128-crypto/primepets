@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { initMetaPixel } from '../utils/metaPixel';
 
 export const DataContext = createContext(null);
 
@@ -100,6 +101,9 @@ export function DataProvider({ children }) {
   useEffect(() => {
     if (frontendSettings) {
       document.title = `${frontendSettings.storeName || 'Prime Pets'} | ${frontendSettings.tagline || 'Universe'}`;
+      if (frontendSettings.facebookPixelId) {
+        initMetaPixel(frontendSettings.facebookPixelId);
+      }
     }
   }, [frontendSettings]);
 
