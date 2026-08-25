@@ -259,7 +259,9 @@ const INITIAL_PRODUCTS = [
     "badge": "🏆 Bestseller",
     "category": "Dog Food",
     "petType": "Dogs",
-    "description": null
+    "description": null,
+    "isFlashSale": true,
+    "flashSaleLeft": 12
   },
   {
     "id": 109,
@@ -275,7 +277,9 @@ const INITIAL_PRODUCTS = [
     "badge": "⭐ Top Rated",
     "category": "Cat Food",
     "petType": "Cats",
-    "description": null
+    "description": null,
+    "isFlashSale": true,
+    "flashSaleLeft": 7
   },
   {
     "id": 110,
@@ -291,7 +295,9 @@ const INITIAL_PRODUCTS = [
     "badge": "🔥 Hot Deal",
     "category": "Dog Food",
     "petType": "Dogs",
-    "description": null
+    "description": null,
+    "isFlashSale": true,
+    "flashSaleLeft": 23
   },
   {
     "id": 111,
@@ -307,7 +313,9 @@ const INITIAL_PRODUCTS = [
     "badge": "✨ New",
     "category": "Dog Food",
     "petType": "Dogs",
-    "description": null
+    "description": null,
+    "isFlashSale": true,
+    "flashSaleLeft": 4
   },
   {
     "id": 112,
@@ -323,7 +331,9 @@ const INITIAL_PRODUCTS = [
     "badge": "💎 Premium",
     "category": "Dog Food",
     "petType": "Dogs",
-    "description": null
+    "description": null,
+    "isFlashSale": true,
+    "flashSaleLeft": 9
   },
   {
     "id": 113,
@@ -339,7 +349,9 @@ const INITIAL_PRODUCTS = [
     "badge": "🌟 Staff Pick",
     "category": "Cat Food",
     "petType": "Cats",
-    "description": null
+    "description": null,
+    "isFlashSale": true,
+    "flashSaleLeft": 15
   },
   {
     "id": 114,

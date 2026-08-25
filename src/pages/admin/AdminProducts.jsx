@@ -27,7 +27,7 @@ export default function AdminProducts() {
   }, [isModalOpen]);
 
   const defaultProduct = {
-    name: '', brand: '', petType: 'Dogs', category: '', price: '', mrp: '', rating: 4.5, reviews: 0, img: '', images: [], tag: '', badge: ''
+    name: '', brand: '', petType: 'Dogs', category: '', price: '', mrp: '', rating: 4.5, reviews: 0, img: '', images: [], tag: '', badge: '', isFlashSale: false, flashSaleLeft: 10
   };
 
   const uniqueBrands = [...new Set(products.map(p => p.brand).filter(Boolean))];
@@ -36,7 +36,13 @@ export default function AdminProducts() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const payload = { ...editing, price: Number(editing.price), mrp: Number(editing.mrp) };
+      const payload = { 
+        ...editing, 
+        price: Number(editing.price), 
+        mrp: Number(editing.mrp),
+        isFlashSale: Boolean(editing.isFlashSale),
+        flashSaleLeft: Number(editing.flashSaleLeft || 10)
+      };
       if (editing.id) {
         await axios.put(`/api/products/${editing.id}`, payload);
         showToast('Product updated successfully!');
@@ -391,6 +397,32 @@ export default function AdminProducts() {
                     <label className="block text-sm font-bold text-gray-700 mb-1">Status Badge</label>
                     <input type="text" placeholder="e.g. 🏆 Bestseller" value={editing.badge || ''} onChange={e => setEditing({...editing, badge: e.target.value})} className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm" />
                   </div>
+
+                  <div className="flex items-center gap-4 py-2">
+                    <label className="flex items-center gap-2 text-sm font-bold text-gray-700 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={Boolean(editing.isFlashSale)}
+                        onChange={e => setEditing({...editing, isFlashSale: e.target.checked})}
+                        className="rounded border-gray-300 text-orange-600 focus:ring-orange-500 w-4 h-4"
+                      />
+                      Active in Flash Sale
+                    </label>
+                  </div>
+
+                  {editing.isFlashSale && (
+                    <div>
+                      <label className="block text-sm font-bold text-gray-700 mb-1">Flash Sale Stock Left</label>
+                      <input
+                        type="number"
+                        min="0"
+                        placeholder="e.g. 10"
+                        value={editing.flashSaleLeft ?? 10}
+                        onChange={e => setEditing({...editing, flashSaleLeft: e.target.value})}
+                        className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all text-sm"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

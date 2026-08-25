@@ -33,6 +33,8 @@ model Product {
   category    String
   petType     String
   description String?
+  isFlashSale Boolean  @default(false)
+  flashSaleLeft Int    @default(10)
 }
 
 model Category {

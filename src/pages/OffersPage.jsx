@@ -60,7 +60,7 @@ function CouponCard({ item, delay }) {
 
 export default function OffersPage() {
   const { addToCart, toggleWishlist, isInCart, isWishlisted } = useCart();
-  const { coupons: liveCoupons, dealCategories: liveDealCategories } = useData();
+  const { coupons: liveCoupons, dealCategories: liveDealCategories, products } = useData();
 
   // Use live coupons from admin if available (filtered to active only), otherwise fall back to defaults
   const activeCoupons = (liveCoupons && liveCoupons.length > 0)
@@ -70,6 +70,24 @@ export default function OffersPage() {
   const activeDealCategories = (liveDealCategories && liveDealCategories.length > 0)
     ? liveDealCategories
     : DEAL_CATEGORIES;
+
+  // Filter flash sale products from database dynamically
+  const dbFlashProducts = (products && products.length > 0)
+    ? products.filter(p => p.isFlashSale)
+    : [];
+
+  const flashSaleItems = dbFlashProducts.length > 0
+    ? dbFlashProducts.map(p => ({
+        id: p.id,
+        name: p.name,
+        price: p.price,
+        mrp: p.mrp,
+        img: p.img,
+        rating: p.rating,
+        off: p.tag || `${Math.round(((p.mrp - p.price) / p.mrp) * 100)}% OFF`,
+        left: p.flashSaleLeft || 10
+      }))
+    : FLASH_PRODUCTS;
 
   return (
     <div className="min-h-screen">
@@ -144,7 +162,7 @@ export default function OffersPage() {
             </div>
             {/* Mobile: scroll | Desktop: 3/6-col grid */}
             <div className="flex gap-3 md:gap-4 overflow-x-auto scrollbar-hide md:overflow-visible md:grid md:grid-cols-3 lg:grid-cols-6 pb-2 md:pb-0">
-              {FLASH_PRODUCTS.map((p, idx) => (
+              {flashSaleItems.map((p, idx) => (
                 <ScrollReveal key={p.id} delay={(idx % 6) * 100} className="flex-shrink-0 md:flex-shrink min-w-[148px] h-full">
                 <Link to={`/product/${p.id}`} className="block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl product-card cursor-pointer h-full flex flex-col hover:-translate-y-1 transition-all">
                   <div className="relative bg-gray-50 overflow-hidden flex-shrink-0" style={{ height: 130 }}>

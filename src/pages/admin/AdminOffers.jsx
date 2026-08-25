@@ -267,7 +267,7 @@ function CouponForm({ coupon, onSave, onCancel, isSaving }) {
 }
 
 export default function AdminOffers() {
-  const { refreshData } = useData();
+  const { refreshData, products } = useData();
   const [coupons, setCoupons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
@@ -280,6 +280,44 @@ export default function AdminOffers() {
   const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [editingCategoryId, setEditingCategoryId] = useState(null);
   const [isAddingCategory, setIsAddingCategory] = useState(false);
+
+  // Flash Sale state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [updatingProductId, setUpdatingProductId] = useState(null);
+
+  const handleToggleFlashSale = async (product, checked) => {
+    setUpdatingProductId(product.id);
+    try {
+      await axios.put(`/api/products/${product.id}`, {
+        isFlashSale: checked,
+        flashSaleLeft: product.flashSaleLeft || 10
+      });
+      toast(`Updated ${product.name} Flash Sale status.`);
+      refreshData();
+    } catch (err) {
+      toast('Failed to update product');
+    } finally {
+      setUpdatingProductId(null);
+    }
+  };
+
+  const handleUpdateFlashStock = async (product, val) => {
+    const stock = parseInt(val, 10);
+    if (isNaN(stock) || stock < 0) return;
+    setUpdatingProductId(product.id);
+    try {
+      await axios.put(`/api/products/${product.id}`, {
+        isFlashSale: product.isFlashSale,
+        flashSaleLeft: stock
+      });
+      toast(`Updated stock for ${product.name}.`);
+      refreshData();
+    } catch (err) {
+      toast('Failed to update stock');
+    } finally {
+      setUpdatingProductId(null);
+    }
+  };
 
   const toast = (msg) => window.dispatchEvent(new CustomEvent('toast', { detail: { message: msg } }));
 
@@ -408,6 +446,7 @@ export default function AdminOffers() {
           {[
             { id: 'coupons', label: '🏷️ Coupons', icon: Tag },
             { id: 'categories', label: '🔥 Deal Categories', icon: Flame },
+            { id: 'flash', label: '⚡ Flash Sale Products', icon: Flame },
           ].map(tab => (
             <button
               key={tab.id}
@@ -639,6 +678,104 @@ export default function AdminOffers() {
           </div>
         </ScrollReveal>
       )}
+
+      {/* ── FLASH SALE TAB ── */}
+      {activeTab === 'flash' && (() => {
+        const filteredProductsList = (products || []).filter(product => {
+          if (!searchQuery.trim()) return true;
+          const q = searchQuery.toLowerCase();
+          return product.name.toLowerCase().includes(q) || 
+                 (product.brand && product.brand.toLowerCase().includes(q)) ||
+                 (product.category && product.category.toLowerCase().includes(q));
+        });
+
+        return (
+          <ScrollReveal delay={100}>
+            <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-2">
+                  <Flame size={20} className="text-yellow-500 fill-yellow-500 animate-pulse" />
+                  <h2 className="text-xl font-bold text-gray-800">Flash Sale Products</h2>
+                  <span className="bg-orange-100 text-[#d07e20] text-xs font-bold px-2 py-0.5 rounded-full">
+                    {(products || []).filter(p => p.isFlashSale).length} Active
+                  </span>
+                </div>
+              </div>
+
+              {/* Search filter */}
+              <div className="mb-6">
+                <input
+                  type="text"
+                  placeholder="Search products to add to Flash Sale..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium"
+                />
+              </div>
+
+              {/* Product list */}
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                {filteredProductsList.map((product) => {
+                  const isFlash = product.isFlashSale;
+                  return (
+                    <div key={product.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-orange-200 transition-all">
+                      <div className="flex items-center gap-3">
+                        <img src={product.img} alt={product.name} className="w-12 h-12 object-cover rounded-xl border border-gray-200 bg-white" />
+                        <div>
+                          <p className="font-bold text-gray-800 text-sm leading-snug">{product.name}</p>
+                          <p className="text-xs text-gray-400 font-medium">{product.brand} • ₹{product.price} <span className="line-through">₹{product.mrp}</span></p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-6">
+                        {/* Stock edit field */}
+                        {isFlash && (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-gray-500">Stock Left:</span>
+                            <input
+                              type="number"
+                              min="0"
+                              defaultValue={product.flashSaleLeft ?? 10}
+                              onBlur={(e) => handleUpdateFlashStock(product, e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  handleUpdateFlashStock(product, e.target.value);
+                                  e.target.blur();
+                                }
+                              }}
+                              className="w-16 px-2 py-1 bg-white border border-gray-200 rounded-lg text-center font-bold text-xs focus:outline-none focus:border-[#d07e20]"
+                            />
+                          </div>
+                        )}
+
+                        {/* Toggle Switch */}
+                        <button
+                          onClick={() => handleToggleFlashSale(product, !isFlash)}
+                          disabled={updatingProductId === product.id}
+                          className={`flex items-center justify-center p-1 rounded-full transition-colors ${
+                            isFlash ? 'text-green-500' : 'text-gray-300'
+                          }`}
+                        >
+                          {updatingProductId === product.id ? (
+                            <Loader2 size={24} className="animate-spin text-orange-500" />
+                          ) : isFlash ? (
+                            <ToggleRight size={32} className="text-green-500 fill-green-50" />
+                          ) : (
+                            <ToggleLeft size={32} className="text-gray-400" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+                {filteredProductsList.length === 0 && (
+                  <p className="text-center text-gray-500 font-semibold py-8">No products found matching your search</p>
+                )}
+              </div>
+            </div>
+          </ScrollReveal>
+        );
+      })()}
     </div>
   );
 }

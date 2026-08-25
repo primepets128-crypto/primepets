@@ -262,13 +262,27 @@ export default function CategoryPage() {
                       <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer group h-full flex flex-col hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
                         <div className="relative bg-gray-50 overflow-hidden flex-shrink-0" style={{ height: 160 }}>
                           <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                          <div className="absolute top-2 left-2 bg-[#d07e20] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">{p.tag}</div>
+                          {p.isFlashSale ? (
+                            <span className="absolute top-2 left-2 bg-red-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-md animate-pulse">
+                              {p.tag || `${Math.round(((p.mrp - p.price) / p.mrp) * 100)}% OFF`}
+                            </span>
+                          ) : (
+                            p.tag && <div className="absolute top-2 left-2 bg-[#d07e20] text-white text-[9px] font-black px-1.5 py-0.5 rounded-md">{p.tag}</div>
+                          )}
                           <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleWishlist(p); }} className="absolute top-2 right-2 bg-white rounded-full p-1.5 shadow-sm hover:scale-110 transition-transform">
                             <Heart size={13} className={isWishlisted(p.id) ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
                           </button>
-                          <div className="absolute bottom-2 left-2 bg-white/90 rounded-full px-2 py-0.5">
-                            <span className="text-[9px] font-bold text-gray-700">{p.badge}</span>
-                          </div>
+                          {p.isFlashSale ? (
+                            <div className="absolute bottom-0 left-0 right-0 bg-red-500/90 text-white text-[8px] font-bold text-center py-1">
+                              Only {p.flashSaleLeft || 10} left!
+                            </div>
+                          ) : (
+                            p.badge && (
+                              <div className="absolute bottom-2 left-2 bg-white/90 rounded-full px-2 py-0.5">
+                                <span className="text-[9px] font-bold text-gray-700">{p.badge}</span>
+                              </div>
+                            )
+                          )}
                         </div>
                         <div className="p-3 flex flex-col flex-1">
                           <p className="text-[10px] text-[#d07e20] font-semibold uppercase">{p.brand}</p>
@@ -298,12 +312,27 @@ export default function CategoryPage() {
                       <Link to={`/product/${p.id}`} className="product-card block bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm cursor-pointer flex items-center gap-4 p-3 md:p-4 h-full hover:shadow-xl hover:-translate-y-1 hover:border-[#d07e20]/30 transition-all">
                         <div className="relative bg-gray-50 rounded-xl overflow-hidden flex-shrink-0" style={{ width: 90, height: 90 }}>
                           <MediaDisplay src={p.img} alt={p.name} className="w-full h-full object-cover" />
-                          <div className="absolute top-1 left-1 bg-[#d07e20] text-white text-[8px] font-black px-1 py-0.5 rounded">{p.tag}</div>
+                          {p.isFlashSale ? (
+                            <div className="absolute top-1 left-1 bg-red-500 text-white text-[8px] font-black px-1 py-0.5 rounded animate-pulse">
+                              {p.tag || `${Math.round(((p.mrp - p.price) / p.mrp) * 100)}% OFF`}
+                            </div>
+                          ) : (
+                            p.tag && <div className="absolute top-1 left-1 bg-[#d07e20] text-white text-[8px] font-black px-1 py-0.5 rounded">{p.tag}</div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-[10px] text-[#d07e20] font-semibold uppercase">{p.brand}</p>
-                          <p className="text-gray-800 text-sm font-bold leading-tight line-clamp-1">{p.name}</p>
-                          <p className="text-gray-400 text-[10px] mt-0.5">{p.badge}</p>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <p className="text-[10px] text-[#d07e20] font-semibold uppercase">{p.brand}</p>
+                            {p.isFlashSale && (
+                              <span className="bg-red-100 text-red-700 text-[8px] font-bold px-1 py-0.2 rounded">⚡ FLASH SALE</span>
+                            )}
+                          </div>
+                          <p className="text-gray-800 text-sm font-bold leading-tight line-clamp-1 mt-0.5">{p.name}</p>
+                          {p.isFlashSale ? (
+                            <p className="text-red-500 text-[9px] font-black mt-0.5">Only {p.flashSaleLeft || 10} left!</p>
+                          ) : (
+                            p.badge && <p className="text-gray-400 text-[10px] mt-0.5">{p.badge}</p>
+                          )}
                           <div className="flex items-center gap-2 mt-1.5">
                             <span className="text-gray-900 font-black text-base">₹{p.price}</span>
                             <span className="text-gray-400 text-xs line-through">₹{p.mrp}</span>
