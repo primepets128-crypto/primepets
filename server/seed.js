@@ -593,7 +593,8 @@ const INITIAL_SETTINGS = {
   "youtubeUrl": "https://youtube.com",
   "whatsappNumber": "+919876543210",
   "logoBase64": null,
-  "facebookPixelId": "2059730591295871"
+  "facebookPixelId": "2059730591295871",
+  "announcementText": "Up to 60% Off – Limited Time! | FREE DELIVERY on orders above ₹499 | Use code: PAWDAY30 | 100+ Stores across India 🐾"
 };
 
 async function main() {

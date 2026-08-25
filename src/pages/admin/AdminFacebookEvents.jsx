@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
-  Facebook, Eye, ShoppingCart, CreditCard, ShoppingBag, 
+  Eye, ShoppingCart, CreditCard, ShoppingBag, 
   Settings, Loader2, Calendar, Search, ArrowRight, RefreshCw, CheckCircle, XCircle
 } from 'lucide-react';
 import { 
@@ -9,6 +9,23 @@ import {
 } from 'recharts';
 import ScrollReveal from '../../components/ScrollReveal';
 import { useCart } from '../../context/CartContext';
+
+const Facebook = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size || 24}
+    height={props.size || 24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
 
 export default function AdminFacebookEvents() {
   const { showToast } = useCart();

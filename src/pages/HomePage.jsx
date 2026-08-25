@@ -448,8 +448,43 @@ function Footer() {
 
 /* ── HOME PAGE ── */
 export default function HomePage() {
-  const { slides, products, deals, categories, banners } = useData();
+  const { slides, products, deals, categories, banners, frontendSettings } = useData();
   const navigate = useNavigate();
+
+  const announcementRaw = frontendSettings?.announcementText || '[zap] [yellow]Up to 60% Off[/yellow] – Limited Time! | [yellow]FREE DELIVERY[/yellow] on orders above ₹499 | Use code: [orange]PAWDAY30[/orange] | 100+ Stores across India 🐾';
+  const announcementItems = announcementRaw.split('|').map(s => s.trim()).filter(Boolean);
+
+  const parseAnnouncementItem = (text) => {
+    let remainingText = text;
+    let hasZap = false;
+    
+    if (remainingText.includes('[zap]')) {
+      hasZap = true;
+      remainingText = remainingText.replace('[zap]', '').trim();
+    }
+    
+    const regex = /(\[yellow\][\s\S]*?\[\/yellow\]|\[orange\][\s\S]*?\[\/orange\]|\*\*[\s\S]*?\*\*)/g;
+    const splitParts = remainingText.split(regex);
+    
+    return (
+      <span className="inline-flex items-center gap-2">
+        {hasZap && <Zap size={12} className="text-yellow-400" />}
+        {splitParts.map((part, i) => {
+          if (part.startsWith('[yellow]') && part.endsWith('[/yellow]')) {
+            return <span key={i} className="text-yellow-300 font-bold">{part.slice(8, -9)}</span>;
+          }
+          if (part.startsWith('[orange]') && part.endsWith('[/orange]')) {
+            return <span key={i} className="text-orange-300 font-bold">{part.slice(8, -9)}</span>;
+          }
+          if (part.startsWith('**') && part.endsWith('**')) {
+            return <span key={i} className="font-bold">{part.slice(2, -2)}</span>;
+          }
+          return part;
+        })}
+      </span>
+    );
+  };
+
   return (
     <div className="min-h-screen">
       {/* Announcement marquee */}
@@ -457,16 +492,14 @@ export default function HomePage() {
         <div className="marquee-inner flex items-center gap-12 whitespace-nowrap" style={{ width: 'max-content' }}>
           {[...Array(3)].map((_, r) => (
             <React.Fragment key={r}>
-              <span className="text-white text-xs font-semibold flex items-center gap-2">
-                <Zap size={12} className="text-yellow-400" /> Up to <span className="text-yellow-300 font-bold">60% Off</span> – Limited Time!
-              </span>
-              <span className="text-white/40">•</span>
-              <span className="text-white text-xs font-semibold"><span className="text-yellow-300">FREE DELIVERY</span> on orders above ₹499</span>
-              <span className="text-white/40">•</span>
-              <span className="text-white text-xs font-semibold">Use code: <span className="text-orange-300 font-bold">PAWDAY30</span></span>
-              <span className="text-white/40">•</span>
-              <span className="text-white text-xs font-semibold">100+ Stores across India 🐾</span>
-              <span className="text-white/40">•</span>
+              {announcementItems.map((item, idx) => (
+                <React.Fragment key={idx}>
+                  <span className="text-white text-xs font-semibold">
+                    {parseAnnouncementItem(item)}
+                  </span>
+                  <span className="text-white/40">•</span>
+                </React.Fragment>
+              ))}
             </React.Fragment>
           ))}
         </div>

@@ -1,11 +1,28 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useData } from '../../context/DataContext';
-import { Save, Layout, MessageSquare, Globe, Database, Trash2, AlertTriangle, Phone, Mail, Music2, CreditCard, Loader2, Facebook } from 'lucide-react';
+import { Save, Layout, MessageSquare, Globe, Database, Trash2, AlertTriangle, Phone, Mail, Music2, CreditCard, Loader2 } from 'lucide-react';
 import ScrollReveal from '../../components/ScrollReveal';
 import Toast from '../../components/Toast';
 import { handleImageUpload } from '../../utils/imageUpload';
 import { Link } from 'react-router-dom';
+
+const Facebook = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width={props.size || 24}
+    height={props.size || 24}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+  </svg>
+);
 
 export default function AdminSettings() {
   const { frontendSettings, refreshData } = useData();
@@ -186,6 +203,14 @@ export default function AdminSettings() {
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium resize-none"
                     placeholder="Welcome to the ultimate pet universe..." />
                   <p className="text-xs text-gray-400 mt-2">Shown above the social media icons in the footer.</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Scrolling Announcement Bar</label>
+                  <textarea name="announcementText" value={formData.announcementText || ''} onChange={handleChange}
+                    rows={3}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium resize-none"
+                    placeholder="Up to 60% Off – Limited Time! | FREE DELIVERY on orders above ₹499 | Use code: PAWDAY30 | 100+ Stores across India 🐾" />
+                  <p className="text-xs text-gray-400 mt-2">Separate different scrolling statements/banners with a vertical line character (<code>|</code>).</p>
                 </div>
               </div>
             )}

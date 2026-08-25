@@ -88,6 +88,7 @@ model FrontendSetting {
   facebookPixelId     String?
   facebookAccessToken String?
   facebookConversionsUrl String?
+  announcementText    String?
 }
 
 model Banner {
