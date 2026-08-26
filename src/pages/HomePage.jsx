@@ -375,7 +375,6 @@ function Footer() {
                 { label: 'Home', path: '/' },
                 { label: 'Shop by Category', path: '/category' },
                 { label: 'Offer Zone', path: '/offers' },
-                { label: 'Prime Pets Hub', path: '/hub' },
                 { label: 'Find a Store', path: '/' },
                 { label: 'About Us', path: '/' }
               ].map(l => (

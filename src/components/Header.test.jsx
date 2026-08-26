@@ -48,7 +48,6 @@ describe('Header Component', () => {
     expect(screen.getByText('Home')).toBeInTheDocument();
     expect(screen.getByText('Shop')).toBeInTheDocument();
     expect(screen.getByText('Offer Zone')).toBeInTheDocument();
-    expect(screen.getByText('Prime Pets Hub')).toBeInTheDocument();
     expect(screen.getByText('Account')).toBeInTheDocument();
   });
 

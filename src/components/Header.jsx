@@ -13,7 +13,6 @@ const NAV_LINKS = [
   { label: 'Home',      path: '/' },
   { label: 'Shop',      path: '/category', hasDropdown: true },
   { label: 'Offer Zone',path: '/offers' },
-  { label: 'Prime Pets Hub',  path: '/hub' },
   { label: 'Account',   path: '/account' },
 ];
 

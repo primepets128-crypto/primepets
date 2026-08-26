@@ -21,7 +21,6 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const CategoryPage = lazy(() => import('./pages/CategoryPage'));
 const ProductPage = lazy(() => import('./pages/ProductPage'));
 const OffersPage = lazy(() => import('./pages/OffersPage'));
-const HubPage = lazy(() => import('./pages/HubPage'));
 const AccountPage = lazy(() => import('./pages/AccountPage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/PrivacyPolicyPage'));
@@ -127,7 +126,6 @@ function AppInner() {
                 <Route path="/"         element={<PageTransition><HomePage /></PageTransition>} />
                 <Route path="/category" element={<PageTransition><CategoryPage /></PageTransition>} />
                 <Route path="/offers"   element={<PageTransition><OffersPage /></PageTransition>} />
-                <Route path="/hub"      element={<PageTransition><HubPage /></PageTransition>} />
                 <Route path="/account"  element={<PageTransition><AccountPage /></PageTransition>} />
                 <Route path="/login"    element={<PageTransition><LoginPage /></PageTransition>} />
                 <Route path="/product/:id"      element={<PageTransition><ProductPage /></PageTransition>} />

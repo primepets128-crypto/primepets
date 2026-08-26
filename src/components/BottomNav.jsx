@@ -7,7 +7,6 @@ const NAV_ITEMS = [
   { label: 'Home',    icon: Home,     path: '/' },
   { label: 'Shop',    icon: Grid3X3,  path: '/category' },
   { label: 'Offers',  icon: Tag,      path: '/offers' },
-  { label: 'Hub',     icon: BookOpen, path: '/hub' },
   { label: 'Account', icon: User,     path: '/account' },
 ];
 

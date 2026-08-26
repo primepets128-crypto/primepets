@@ -36,6 +36,16 @@ export default function AdminFacebookEvents() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [expandedEventId, setExpandedEventId] = useState(null);
 
+  const getPathname = (urlString) => {
+    try {
+      if (!urlString) return '/';
+      if (urlString.startsWith('/') || !urlString.includes('://')) return urlString;
+      return new URL(urlString).pathname;
+    } catch (e) {
+      return urlString || '/';
+    }
+  };
+
   const fetchEvents = async (silent = false) => {
     if (!silent) setLoading(true);
     else setIsRefreshing(true);
@@ -87,7 +97,7 @@ export default function AdminFacebookEvents() {
   const { events = [], chartData = [], counts = {}, configStatus = {} } = data || {};
 
   const filteredEvents = events.filter(e => 
-    e.eventName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (e.eventName || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     (e.userEmail && e.userEmail.toLowerCase().includes(searchQuery.toLowerCase())) ||
     (e.visitorId && e.visitorId.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -275,7 +285,7 @@ export default function AdminFacebookEvents() {
                           </td>
                           <td className="p-4 max-w-[180px] truncate" title={event.url}>
                             <span className="text-gray-600 font-medium">
-                              {event.url ? new URL(event.url).pathname : '/'}
+                              {getPathname(event.url)}
                             </span>
                           </td>
                           <td className="p-4 font-mono text-gray-500">{event.ip}</td>

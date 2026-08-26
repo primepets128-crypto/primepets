@@ -46,7 +46,6 @@ export default function SitemapPage() {
         { label: 'Home', path: '/', icon: Home },
         { label: 'Shop by Category', path: '/category', icon: Tag },
         { label: 'Offers & Deals', path: '/offers', icon: Gift },
-        { label: 'Prime Pets Hub', path: '/hub', icon: BookOpen },
       ],
     },
     {

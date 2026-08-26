@@ -442,7 +442,7 @@ export default function AdminOffers() {
 
       {/* Tabs */}
       <ScrollReveal delay={50}>
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 overflow-x-auto scrollbar-hide shrink-0 pb-1">
           {[
             { id: 'coupons', label: '🏷️ Coupons', icon: Tag },
             { id: 'categories', label: '🔥 Deal Categories', icon: Flame },
@@ -451,7 +451,7 @@ export default function AdminOffers() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-[#d07e20] text-white shadow-md shadow-orange-200'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-orange-200 hover:text-[#d07e20]'
@@ -516,9 +516,9 @@ export default function AdminOffers() {
                         isSaving={isSaving}
                       />
                     ) : (
-                      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-orange-100 transition-all group">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-orange-100 transition-all group">
                         {/* Mini preview */}
-                        <div className={`bg-gradient-to-r ${coupon.grad} rounded-xl p-3 text-white min-w-[180px] relative overflow-hidden shrink-0`}>
+                        <div className={`bg-gradient-to-r ${coupon.grad} rounded-xl p-3 text-white sm:min-w-[180px] w-full sm:w-auto relative overflow-hidden shrink-0`}>
                           <div className="text-xl mb-0.5">{coupon.emoji}</div>
                           <p className="font-black text-sm leading-tight">{coupon.title}</p>
                           <p className="text-white/80 text-[10px]">{coupon.sub}</p>
@@ -534,7 +534,7 @@ export default function AdminOffers() {
                           </div>
                         </div>
                         {/* Actions */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0 justify-end w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-150 sm:border-transparent">
                           <button
                             onClick={() => handleToggle(coupon)}
                             title={coupon.isActive ? 'Deactivate' : 'Activate'}
@@ -618,9 +618,9 @@ export default function AdminOffers() {
                         isSaving={isSaving}
                       />
                     ) : (
-                      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-orange-100 transition-all group">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 hover:border-orange-100 transition-all group">
                         {/* Mini preview */}
-                        <div className="rounded-xl overflow-hidden border shrink-0" style={{ backgroundColor: category.bg, borderColor: category.border, width: 140 }}>
+                        <div className="rounded-xl overflow-hidden border shrink-0 w-full sm:w-[140px]" style={{ backgroundColor: category.bg, borderColor: category.border }}>
                           <div className="relative overflow-hidden shrink-0" style={{ height: 80 }}>
                             {category.img ? (
                               <img src={category.img} alt={category.label} className="w-full h-full object-cover" />
@@ -648,7 +648,7 @@ export default function AdminOffers() {
                           </div>
                         </div>
                         {/* Actions */}
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-2 shrink-0 justify-end w-full sm:w-auto border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-150 sm:border-transparent">
                           <button
                             onClick={() => handleToggleCategoryFlash(category)}
                             title={category.flash ? 'Disable Flash' : 'Enable Flash'}

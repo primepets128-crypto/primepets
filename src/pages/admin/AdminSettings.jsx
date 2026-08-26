@@ -31,6 +31,12 @@ export default function AdminSettings() {
   const [isClearing, setIsClearing] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  React.useEffect(() => {
+    if (frontendSettings) {
+      setFormData(frontendSettings);
+    }
+  }, [frontendSettings]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -125,7 +131,7 @@ export default function AdminSettings() {
       <ScrollReveal delay={100}>
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
           {/* Tabs */}
-          <div className="flex flex-wrap border-b border-gray-100 px-2 pt-2 overflow-x-auto">
+          <div className="flex border-b border-gray-100 px-2 pt-2 overflow-x-auto scrollbar-hide shrink-0 pb-1">
             {tabs.map(tab => {
               const Icon = tab.icon;
               return (
