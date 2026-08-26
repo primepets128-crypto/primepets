@@ -92,20 +92,20 @@ export default function Header() {
               <img src={settings.logoBase64 || "/MA_logo.png"} alt="Logo" className="w-full h-full object-contain" />
             </div>
             <div className="flex flex-col leading-none text-left hidden sm:flex">
-              <span className="text-[#d07e20] font-black text-base md:text-xl tracking-tight">{settings.storeName || 'Prime Pets'}</span>
-              <span className="text-[8px] md:text-[10px] text-gray-400 font-medium tracking-widest uppercase">{settings.tagline || 'Premium Store'}</span>
+              <span className="text-[#d07e20] font-black text-base md:text-xl tracking-tight whitespace-nowrap">{settings.storeName || 'Prime Pets'}</span>
+              <span className="text-[8px] md:text-[10px] text-gray-400 font-medium tracking-widest uppercase whitespace-nowrap">{settings.tagline || 'Premium Store'}</span>
             </div>
           </button>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1 ml-4">
+          <nav className="hidden lg:flex items-center gap-1.5 ml-4">
             {NAV_LINKS.map(link => (
               <div key={link.label} className="relative group">
                 <button
                   onClick={() => !link.hasDropdown && navigate(link.path)}
                   onMouseEnter={() => link.hasDropdown && setShopOpen(true)}
                   onMouseLeave={() => link.hasDropdown && setShopOpen(false)}
-                  className={`desk-nav-link flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                  className={`desk-nav-link flex items-center gap-1 px-3 py-2 text-sm font-semibold rounded-lg transition-colors whitespace-nowrap ${
                     isActive(link.path)
                       ? 'text-[#d07e20] active'
                       : 'text-gray-600 hover:text-[#d07e20] hover:bg-orange-50'
