@@ -162,9 +162,9 @@ export default function Header() {
           </nav>
 
           {/* Search bar */}
-          <div className="flex-1 min-w-0 max-w-xs md:max-w-lg lg:max-w-xl">
-            <div className="search-bar relative flex items-center bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 gap-2 transition-all duration-200">
-              <Search size={15} className="text-gray-400 flex-shrink-0" />
+          <div className="flex-1 min-w-[180px] max-w-xs md:max-w-lg lg:max-w-xl">
+            <div className="search-bar relative flex items-center bg-gray-50 border border-gray-200 rounded-xl p-1.5 gap-2 transition-all duration-200">
+              <Search size={15} className="text-gray-400 ml-1.5 flex-shrink-0" />
               <input
                 type="text"
                 value={query}
@@ -176,18 +176,18 @@ export default function Header() {
                 onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
                 onKeyDown={e => e.key === 'Enter' && handleSearch()}
                 placeholder="Search for 'Wet Food', 'Dog Toys'..."
-                className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none min-w-0 font-medium"
+                className="flex-1 bg-transparent text-sm text-gray-700 placeholder-gray-400 outline-none min-w-0 font-medium py-1"
               />
               {query && (
-                <button onClick={() => { setQuery(''); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600">
+                <button onClick={() => { setQuery(''); setShowSuggestions(false); }} className="text-gray-400 hover:text-gray-600 mr-0.5">
                   <X size={13} />
                 </button>
               )}
-              <button onClick={handleSearch} className="hidden md:flex items-center gap-1.5 bg-[#d07e20] rounded-lg px-3 py-1 flex-shrink-0">
+              <button onClick={handleSearch} className="hidden md:flex items-center gap-1.5 bg-[#d07e20] hover:bg-[#b06a1a] text-white rounded-lg px-4 py-1.5 flex-shrink-0 transition-colors">
                 <Search size={13} className="text-white" />
-                <span className="text-white text-xs font-semibold">Search</span>
+                <span className="text-white text-xs font-bold">Search</span>
               </button>
-              <button onClick={handleSearch} className="md:hidden bg-[#d07e20] rounded-lg p-1.5 flex-shrink-0">
+              <button onClick={handleSearch} className="md:hidden bg-[#d07e20] hover:bg-[#b06a1a] text-white rounded-lg p-2 flex-shrink-0 transition-colors">
                 <Search size={14} className="text-white" />
               </button>
 
