@@ -368,8 +368,17 @@ export default function AdminSettings() {
                     </div>
                   </div>
                 </div>
-              </div>
             )}
+          </div>
+
+          {/* Bottom Save Button (Improved UX) */}
+          <div className="p-6 bg-gray-50 border-t border-gray-150 flex justify-end">
+            <button 
+              onClick={handleSave}
+              className="flex items-center gap-2 bg-[#d07e20] hover:bg-[#E06900] text-white px-7 py-3 rounded-xl font-bold transition-all shadow-md hover:shadow-lg"
+            >
+              <Save size={18} /> Save Settings
+            </button>
           </div>
         </div>
       </ScrollReveal>

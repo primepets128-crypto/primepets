@@ -18,7 +18,7 @@ describe('AdminPayment', () => {
       </BrowserRouter>
     );
     
-    expect(screen.getByText('Payment Integrations')).toBeInTheDocument();
-    expect(screen.getByText('Razorpay Integration')).toBeInTheDocument();
+    expect(screen.getByText('Payment Settings')).toBeInTheDocument();
+    expect(screen.getByText('Online Payment (Razorpay)')).toBeInTheDocument();
   });
 });

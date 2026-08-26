@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { expect, test, vi } from 'vitest';
 import AdminSettings from './AdminSettings';
 import { DataContext } from '../../context/DataContext';
+import { MemoryRouter } from 'react-router-dom';
+import axios from 'axios';
 
 // Mock matchMedia
 Object.defineProperty(window, 'matchMedia', {
@@ -19,13 +21,25 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 });
 
-const mockSetFrontendSettings = vi.fn();
+// Mock axios
+vi.mock('axios', () => ({
+  default: {
+    put: vi.fn().mockResolvedValue({ data: {} })
+  }
+}));
+
+const mockRefreshData = vi.fn();
 
 const renderAdminSettings = () => {
   return render(
-    <DataContext.Provider value={{ frontendSettings: { storeName: 'Prime Pets', tagline: 'Premium Store', logoChar: 'P' }, setFrontendSettings: mockSetFrontendSettings }}>
-      <AdminSettings />
-    </DataContext.Provider>
+    <MemoryRouter>
+      <DataContext.Provider value={{ 
+        frontendSettings: { storeName: 'Prime Pets', tagline: 'Premium Store', logoChar: 'P' }, 
+        refreshData: mockRefreshData 
+      }}>
+        <AdminSettings />
+      </DataContext.Provider>
+    </MemoryRouter>
   );
 };
 
@@ -35,7 +49,7 @@ test('renders settings form correctly', () => {
   expect(screen.getByDisplayValue('Prime Pets')).toBeInTheDocument();
 });
 
-test('changes tabs and updates form data', () => {
+test('changes tabs and updates form data', async () => {
   renderAdminSettings();
   
   // Update general info
@@ -54,8 +68,9 @@ test('changes tabs and updates form data', () => {
   const saveBtn = screen.getByRole('button', { name: /Save Changes/i });
   fireEvent.click(saveBtn);
   
-  expect(mockSetFrontendSettings).toHaveBeenCalledWith(expect.objectContaining({
+  expect(axios.default.put).toHaveBeenCalledWith('/api/settings', expect.objectContaining({
     storeName: 'New Pets Store',
     tagline: 'Premium Store'
   }));
+  expect(mockRefreshData).toHaveBeenCalled();
 });

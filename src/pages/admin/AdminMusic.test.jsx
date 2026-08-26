@@ -18,6 +18,6 @@ describe('AdminMusic', () => {
       </BrowserRouter>
     );
     
-    expect(screen.getByText(/Site Background Music/i)).toBeInTheDocument();
+    expect(screen.getByText(/Background Audio/i)).toBeInTheDocument();
   });
 });

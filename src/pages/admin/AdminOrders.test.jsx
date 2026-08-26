@@ -5,6 +5,7 @@ import { BrowserRouter } from 'react-router-dom';
 import AdminOrders from './AdminOrders';
 import { DataProvider } from '../../context/DataContext';
 import { AuthProvider } from '../../context/AuthContext';
+import { CartProvider } from '../../context/CartContext';
 import axios from 'axios';
 
 vi.mock('axios');
@@ -17,13 +18,15 @@ describe('AdminOrders', () => {
       <BrowserRouter>
         <AuthProvider>
           <DataProvider>
-            <AdminOrders />
+            <CartProvider>
+              <AdminOrders />
+            </CartProvider>
           </DataProvider>
         </AuthProvider>
       </BrowserRouter>
     );
     
-    expect(screen.getByText('Orders Management')).toBeInTheDocument();
+    expect(screen.getByText('Orders')).toBeInTheDocument();
     
     await waitFor(() => {
       expect(screen.getByText('No orders found')).toBeInTheDocument();
