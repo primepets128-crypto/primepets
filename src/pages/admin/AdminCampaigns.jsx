@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Send, Mail, Users, FileUp, Loader, AlertCircle } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { useCart } from '../../context/CartContext';
 
 export default function AdminCampaigns() {
+  const { showToast } = useCart();
   const [emails, setEmails] = useState([]);
   const [loadingEmails, setLoadingEmails] = useState(true);
   
@@ -27,7 +28,7 @@ export default function AdminCampaigns() {
       setEmails(res.data.emails || []);
     } catch (err) {
       console.error('Failed to fetch emails', err);
-      toast.error('Could not load email list');
+      showToast('Could not load email list');
     } finally {
       setLoadingEmails(false);
     }
@@ -36,7 +37,7 @@ export default function AdminCampaigns() {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.size > 10 * 1024 * 1024) { // 10MB limit
-      toast.error("File is too large! Maximum 10MB allowed.");
+      showToast("File is too large! Maximum 10MB allowed.");
       e.target.value = '';
       setAttachment(null);
       return;
@@ -47,16 +48,16 @@ export default function AdminCampaigns() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!subject.trim() || !body.trim()) {
-      toast.error('Subject and message body are required.');
+      showToast('Subject and message body are required.');
       return;
     }
     if (targetType === 'SPECIFIC' && !targetEmail.trim()) {
-      toast.error('Please specify a target email address.');
+      showToast('Please specify a target email address.');
       return;
     }
 
     if (targetType === 'ALL' && emails.length === 0) {
-      toast.error('No customers found to send emails to.');
+      showToast('No customers found to send emails to.');
       return;
     }
 
@@ -82,7 +83,7 @@ export default function AdminCampaigns() {
         }
       });
 
-      toast.success(res.data.message || 'Campaign sent successfully!');
+      showToast(res.data.message || 'Campaign sent successfully!');
       
       // Reset form on success
       setSubject('');
@@ -93,7 +94,7 @@ export default function AdminCampaigns() {
 
     } catch (err) {
       console.error('Failed to send campaign', err);
-      toast.error(err.response?.data?.error || 'Failed to send campaign');
+      showToast(err.response?.data?.error || 'Failed to send campaign');
     } finally {
       setSending(false);
     }
