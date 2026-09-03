@@ -109,10 +109,43 @@ router.post('/', async (req, res) => {
       }
       
       // Sending an alert to the admin
+      const adminEmailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+          <h2 style="color: #20a0d0; text-align: center;">New Order Received! 🛍️</h2>
+          <p><strong>${customerName}</strong> has just placed a new order.</p>
+          <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Order ID:</strong> #${order.id}</p>
+            <p><strong>Customer Name:</strong> ${customerName}</p>
+            <p><strong>Customer Email:</strong> ${customerEmail || 'Not provided'}</p>
+            <p><strong>Customer Phone:</strong> ${customerPhone}</p>
+            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+            <p><strong>Delivery Address:</strong> ${customerAddress}</p>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+              <tr style="background: #f0f8ff; color: #20a0d0;">
+                <th style="padding: 10px; text-align: left;">Item</th>
+                <th style="padding: 10px; text-align: left;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td style="padding: 10px; text-align: right; font-weight: bold;">Grand Total:</td>
+                <td style="padding: 10px; font-weight: bold; color: #20a0d0;">₹${total}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <p style="text-align: center; color: #666;">View this order in the <a href="${process.env.FRONTEND_URL || 'https://primepets.in'}/admin">Admin Dashboard</a></p>
+        </div>
+      `;
+
       await sendEmail({
         to: process.env.EMAIL_USER,
-        subject: `New Order Alert! #${order.id}`,
-        text: `You have received a new order from ${customerName} for ₹${total}.`
+        subject: `New Order Alert! #${order.id} - ₹${total}`,
+        html: adminEmailHtml
       });
     } catch (emailErr) {
       console.error("Failed to send order email:", emailErr);
