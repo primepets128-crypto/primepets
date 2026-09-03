@@ -217,9 +217,12 @@ function downloadInvoice(order) {
       <body>
         <div class="invoice-container">
           <div class="header">
-            <div class="header-logo">
-              <h1>Prime Pets 🐾</h1>
-              <p>Premium Pet Supplies & Care</p>
+            <div class="header-logo" style="display: flex; align-items: center; gap: 15px;">
+              <img src="${window.location.origin}/logo.png" alt="Prime Pets Logo" style="height: 60px; max-width: 150px; object-fit: contain; background: white; border-radius: 8px; padding: 5px;" />
+              <div>
+                <h1>Prime Pets</h1>
+                <p>Premium Pet Supplies & Care</p>
+              </div>
             </div>
             <div class="header-info">
               <h2>INVOICE</h2>
@@ -292,14 +295,27 @@ function downloadInvoice(order) {
             
             <div class="footer">
               <div class="footer-thanks">Thank you for choosing Prime Pets! 🐶🐱</div>
-              <div class="socials">
-                <span>📸 <strong>IG:</strong> @primepets_in</span>
-                <span>📘 <strong>FB:</strong> /primepetsindia</span>
-                <span>🐦 <strong>X:</strong> @primepets</span>
+              <div class="socials" style="display: flex; justify-content: center; align-items: center; gap: 24px; flex-wrap: wrap;">
+                <span style="display: flex; align-items: center; gap: 6px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                  @primepets_in
+                </span>
+                <span style="display: flex; align-items: center; gap: 6px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                  /primepetsindia
+                </span>
+                <span style="display: flex; align-items: center; gap: 6px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                  +91 98765 43210
+                </span>
+                <span style="display: flex; align-items: center; gap: 6px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  1800-123-PRIME
+                </span>
               </div>
               <div class="contact-info">
                 Prime Pets HQ, 123 Pet Street, Mumbai, 400001<br>
-                www.primepets.in | help@primepets.in | 1800-123-PRIME
+                www.primepets.in | help@primepets.in
               </div>
             </div>
           </div>
