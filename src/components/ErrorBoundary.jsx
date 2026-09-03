@@ -12,6 +12,10 @@ export default class ErrorBoundary extends React.Component {
 
   componentDidCatch(error, errorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Auto-reload the page if Vercel deployed a new version and chunk hashes changed
+    if (error && error.message && error.message.includes('Failed to fetch dynamically imported module')) {
+      window.location.reload();
+    }
   }
 
   render() {
