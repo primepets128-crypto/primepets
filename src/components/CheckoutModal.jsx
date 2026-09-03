@@ -9,16 +9,22 @@ import { useData } from '../context/DataContext';
 const DELIVERY_THRESHOLD = 499;
 const DELIVERY_CHARGE    = 49;
 
-function deliveryFee(subtotal) {
-  return subtotal >= DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
+function getQty(cartItems) {
+  if (!Array.isArray(cartItems)) return 1;
+  return cartItems.reduce((acc, item) => acc + (item.qty || item.quantity || 1), 0);
+}
+
+function deliveryFee(subtotal, cartItems) {
+  const qty = getQty(cartItems);
+  return (subtotal >= DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE) + (qty * 100);
 }
 
 function calculateGST(subtotal) {
   return Math.round(subtotal * 0.18);
 }
 
-function grandTotal(subtotal) {
-  return subtotal + calculateGST(subtotal) + deliveryFee(subtotal);
+function grandTotal(subtotal, cartItems) {
+  return subtotal + calculateGST(subtotal) + deliveryFee(subtotal, cartItems);
 }
 
 function loadRazorpayScript() {
@@ -118,8 +124,8 @@ function Field({ label, icon: Icon, error, children }) {
 
 function MiniOrderSummary({ cartItems, cartTotal }) {
   const [open, setOpen] = useState(false);
-  const fee   = deliveryFee(cartTotal);
-  const total = grandTotal(cartTotal);
+  const fee   = deliveryFee(cartTotal, cartItems);
+  const total = grandTotal(cartTotal, cartItems);
   const toFree = DELIVERY_THRESHOLD - cartTotal;
 
   return (
@@ -190,8 +196,8 @@ function MiniOrderSummary({ cartItems, cartTotal }) {
 // ─── Full Order Summary (Step 2) ─────────────────────────────────────────────
 
 function OrderSummary({ cartItems, cartTotal }) {
-  const fee   = deliveryFee(cartTotal);
-  const total = grandTotal(cartTotal);
+  const fee   = deliveryFee(cartTotal, cartItems);
+  const total = grandTotal(cartTotal, cartItems);
   return (
     <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 space-y-2.5">
       <p className="text-xs font-black text-gray-700 uppercase tracking-wide">Order Summary</p>
@@ -283,7 +289,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
         customerPhone:   form.phone.trim(),
         customerAddress: fullAddress,
         items:           JSON.stringify(cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))),
-        total:           grandTotal(cartTotal),
+        total:           grandTotal(cartTotal, cartItems),
         paymentMethod:   'COD',
       });
       setOrderStep('confirmed');
@@ -295,7 +301,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
       goTo(2);
       onOrderSuccess && onOrderSuccess(orderId);
       const phone   = (frontendSettings?.whatsappOrderNumber || '919763405605').replace(/\D/g, '');
-      const message = buildWhatsAppMessage(orderId, form, cartItems, grandTotal(cartTotal), 'COD');
+      const message = buildWhatsAppMessage(orderId, form, cartItems, grandTotal(cartTotal, cartItems), 'COD');
       window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
     } catch (err) {
       showToast(err?.response?.data?.message || 'Failed to place order. Please try again.');
@@ -309,7 +315,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
     setLoading(true);
     try {
       // Step 1 — create Razorpay order on backend
-      const orderRes = await axios.post('/api/payment/create-order', { amount: grandTotal(cartTotal) * 100 });
+      const orderRes = await axios.post('/api/payment/create-order', { amount: grandTotal(cartTotal, cartItems) * 100 });
       const rpOrder  = orderRes.data; // { id, amount, currency, key_id }
 
       // Use key from DB settings first, fall back to the one the server returns
@@ -353,7 +359,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
               customerPhone:     form.phone.trim(),
               customerAddress:   fullAddress,
               items:             JSON.stringify(cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))),
-              total:             grandTotal(cartTotal),
+              total:             grandTotal(cartTotal, cartItems),
               paymentMethod:     'ONLINE',
               razorpayOrderId:   rpOrder.id,
               razorpayPaymentId: response.razorpay_payment_id,
@@ -389,7 +395,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
   function openWhatsApp() {
     if (!confirmedOrder) return;
     const phone   = (frontendSettings?.whatsappOrderNumber || '919763405605').replace(/\D/g, '');
-    const message = buildWhatsAppMessage(confirmedOrder.orderId, form, cartItems, grandTotal(cartTotal), confirmedOrder.paymentMethod);
+    const message = buildWhatsAppMessage(confirmedOrder.orderId, form, cartItems, grandTotal(cartTotal, cartItems), confirmedOrder.paymentMethod);
     window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
   }
 
@@ -614,7 +620,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
                       </div>
                     </div>
                   ) : (
-                    <><Package size={16} /> Place Order — ₹{grandTotal(cartTotal)}</>
+                    <><Package size={16} /> Place Order — ₹{grandTotal(cartTotal, cartItems)}</>
                   )}
                 </button>
 
@@ -663,7 +669,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
                   ))}
                   <div className="border-t border-gray-200 pt-2 flex justify-between text-sm font-black text-gray-900">
                     <span>Total Paid</span>
-                    <span>₹{grandTotal(cartTotal)}</span>
+                    <span>₹{grandTotal(cartTotal, cartItems)}</span>
                   </div>
                 </div>
 

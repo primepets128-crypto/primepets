@@ -162,19 +162,19 @@ export default function CartDrawer() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Delivery</span>
-                    <span className={cartTotal >= 499 ? 'text-green-600 font-semibold' : 'text-gray-700'}>
-                      {cartTotal >= 499 ? 'FREE 🎉' : '₹49'}
+                    <span className="text-gray-700 font-semibold">
+                      ₹{(cartTotal >= 499 ? 0 : 49) + (cartCount * 100)}
                     </span>
                   </div>
                   {cartTotal < 499 && (
                     <p className="text-orange-500 text-[10px] font-medium">
-                      Add ₹{499 - cartTotal} more for FREE delivery!
+                      Add ₹{499 - cartTotal} more for FREE base delivery!
                     </p>
                   )}
                   <div className="border-t border-gray-100 pt-2 flex justify-between">
                     <span className="text-gray-800 font-bold">Total</span>
                     <span className="text-gray-900 font-black text-lg">
-                      ₹{cartTotal + Math.round(cartTotal * 0.18) + (cartTotal >= 499 ? 0 : 49)}
+                      ₹{cartTotal + Math.round(cartTotal * 0.18) + (cartTotal >= 499 ? 0 : 49) + (cartCount * 100)}
                     </span>
                   </div>
                 </div>
