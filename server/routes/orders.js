@@ -56,6 +56,66 @@ router.post('/', async (req, res) => {
       }).catch(e => console.error("Error linking visitor to order:", e.message));
     }
 
+    // --- SEND ORDER NOTIFICATION EMAIL ---
+    try {
+      const { sendEmail } = require('../utils/email');
+      const orderItems = typeof items === 'string' ? JSON.parse(items) : items;
+      
+      let itemsHtml = orderItems.map(item => `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">${item.name} x ${item.qty || item.quantity || 1}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #eee;">₹${item.price || item.sellingPrice}</td>
+        </tr>
+      `).join('');
+
+      const emailHtml = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px;">
+          <h2 style="color: #d07e20; text-align: center;">Order Confirmed! 🐾</h2>
+          <p>Hi <strong>${customerName}</strong>,</p>
+          <p>Thank you for shopping at Prime Pets! Your order has been successfully placed.</p>
+          <div style="background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0;">
+            <p><strong>Order ID:</strong> #${order.id}</p>
+            <p><strong>Payment Method:</strong> ${paymentMethod}</p>
+            <p><strong>Delivery Address:</strong> ${customerAddress}</p>
+          </div>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+              <tr style="background: #fff7ed; color: #d07e20;">
+                <th style="padding: 10px; text-align: left;">Item</th>
+                <th style="padding: 10px; text-align: left;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td style="padding: 10px; text-align: right; font-weight: bold;">Grand Total:</td>
+                <td style="padding: 10px; font-weight: bold; color: #d07e20;">₹${total}</td>
+              </tr>
+            </tfoot>
+          </table>
+          <p style="text-align: center; color: #666;">We will notify you once your order is shipped!</p>
+        </div>
+      `;
+
+      // Sending to the dummy customer email
+      await sendEmail({
+        to: 'pranavgugale561@gmail.com', 
+        subject: `Order Confirmation - Prime Pets #${order.id}`,
+        html: emailHtml
+      });
+      
+      // Sending an alert to the admin
+      await sendEmail({
+        to: process.env.EMAIL_USER,
+        subject: `New Order Alert! #${order.id}`,
+        text: `You have received a new order from ${customerName} for ₹${total}.`
+      });
+    } catch (emailErr) {
+      console.error("Failed to send order email:", emailErr);
+    }
+
     res.status(201).json(order);
   } catch (error) {
     console.error('Error creating order:', error);
