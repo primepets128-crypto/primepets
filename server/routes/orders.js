@@ -19,7 +19,7 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const {
-      visitorId, customerName, customerPhone, customerAddress,
+      visitorId, customerName, customerEmail, customerPhone, customerAddress,
       items, total, paymentMethod, razorpayOrderId,
       razorpayPaymentId, notes
     } = req.body;
@@ -99,12 +99,14 @@ router.post('/', async (req, res) => {
         </div>
       `;
 
-      // Sending to the dummy customer email
-      await sendEmail({
-        to: 'pranavgugale561@gmail.com', 
-        subject: `Order Confirmation - Prime Pets #${order.id}`,
-        html: emailHtml
-      });
+      // Send to the customer's email if provided
+      if (customerEmail) {
+        await sendEmail({
+          to: customerEmail, 
+          subject: `Order Confirmation - Prime Pets #${order.id}`,
+          html: emailHtml
+        });
+      }
       
       // Sending an alert to the admin
       await sendEmail({

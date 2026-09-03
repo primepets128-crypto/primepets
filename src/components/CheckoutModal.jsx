@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { X, ArrowRight, ArrowLeft, CheckCircle2, MapPin, Phone, User, Package, Loader2, Truck, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, CheckCircle2, MapPin, Phone, User, Package, Loader2, Truck, ChevronDown, ChevronUp, Mail } from 'lucide-react';
 import axios from 'axios';
 import { useData } from '../context/DataContext';
 
@@ -229,7 +229,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
   const [step, setStep]     = useState(0);
   const [direction, setDir] = useState(1);
 
-  const [form, setForm] = useState({ name: '', phone: '', address: '', pincode: '', city: '' });
+  const [form, setForm] = useState({ name: '', email: '', phone: '', address: '', pincode: '', city: '' });
   const [errors, setErrors] = useState({});
 
   const [payMethod, setPayMethod] = useState('COD');
@@ -250,7 +250,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
 
   const handleClose = useCallback(() => {
     setStep(0); setDir(1);
-    setForm({ name: '', phone: '', address: '', pincode: '', city: '' });
+    setForm({ name: '', email: '', phone: '', address: '', pincode: '', city: '' });
     setErrors({}); setPayMethod('COD'); setLoading(false);
     setToast(null); setConfirmedOrder(null);
     onClose();
@@ -259,6 +259,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
   function validateForm() {
     const e = {};
     if (!form.name.trim())                   e.name    = 'Name is required.';
+    if (form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = 'Enter a valid email address.';
     if (!/^\d{10}$/.test(form.phone.trim())) e.phone   = 'Enter a valid 10-digit mobile number.';
     if (!form.address.trim())                e.address = 'Please enter your delivery address.';
     setErrors(e);
@@ -277,6 +278,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
       const res = await axios.post('/api/orders', {
         visitorId:       'anonymous',
         customerName:    form.name.trim(),
+        customerEmail:   form.email.trim(),
         customerPhone:   form.phone.trim(),
         customerAddress: fullAddress,
         items:           JSON.stringify(cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))),
@@ -347,6 +349,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
             const saveRes = await axios.post('/api/orders', {
               visitorId:         'anonymous',
               customerName:      form.name.trim(),
+              customerEmail:     form.email.trim(),
               customerPhone:     form.phone.trim(),
               customerAddress:   fullAddress,
               items:             JSON.stringify(cartItems.map(i => ({ id: i.id, name: i.name, qty: i.qty, price: i.price }))),
@@ -455,6 +458,16 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
                       onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                       placeholder="e.g. Rahul Sharma"
                       className={`w-full border ${errors.name ? 'border-red-400 bg-red-50' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
+                    />
+                  </Field>
+
+                  <Field label="Email Address (Optional)" icon={Mail} error={errors.email}>
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                      placeholder="e.g. yourname@gmail.com"
+                      className={`w-full border ${errors.email ? 'border-red-400 bg-red-50' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
                     />
                   </Field>
 
