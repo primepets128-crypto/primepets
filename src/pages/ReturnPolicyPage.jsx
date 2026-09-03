@@ -39,7 +39,7 @@ export default function ReturnPolicyPage() {
     'Opened or partially used pet food, treats, or supplements',
     'Live animals or live plants',
     'Perishable goods and prescription items',
-    'Items returned after the 7-day window has passed',
+    'Items returned after the return window has passed',
     'Products with removed or damaged labels/tags',
     'Digital products or gift cards',
   ];
@@ -48,7 +48,7 @@ export default function ReturnPolicyPage() {
     {
       number: '01',
       title: 'Raise a Return Request',
-      description: 'Go to My Account → Orders and select "Return" next to the item within 7 days of delivery.',
+      description: 'Go to My Account → Orders and select "Return" next to the item.',
     },
     {
       number: '02',
@@ -81,7 +81,7 @@ export default function ReturnPolicyPage() {
             </div>
             <h1 className="font-black text-4xl md:text-5xl text-white mb-4">Return Policy</h1>
             <p className="text-orange-200/70 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-              Hassle-free returns within 7 days. Your pet's happiness — and yours — is our priority.
+              Hassle-free returns. Your pet's happiness — and yours — is our priority.
             </p>
             <p className="text-orange-200/40 text-xs mt-4">Last updated: August 2026</p>
           </div>

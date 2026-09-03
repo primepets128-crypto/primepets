@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   Package, ChevronDown, ChevronUp, Trash2, MessageCircle,
   ShoppingBag, Clock, CheckCircle, TrendingUp, RefreshCw,
-  IndianRupee, Phone, User, Hash, Filter, Loader2,
+  IndianRupee, Phone, User, Hash, Filter, Loader2, Download
 } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import ScrollReveal from '../../components/ScrollReveal';
@@ -57,6 +57,268 @@ function buildWhatsAppUrl(order) {
     `Thank you for shopping with us! 🐶🐱`
   );
   return `https://wa.me/${cc}?text=${text}`;
+}
+
+function downloadInvoice(order) {
+  const itemList = parseItems(order.items);
+  const subtotal = itemList.reduce((sum, item) => sum + (Number(item.price || item.sellingPrice || 0) * (item.qty || item.quantity || 1)), 0);
+  const gst = Math.round(subtotal * 0.18);
+  const totalRaw = Number(order.total || order.totalAmount || 0);
+  const delivery = Math.max(0, totalRaw - subtotal - gst);
+  const total = totalRaw.toLocaleString('en-IN');
+  
+  const html = `
+    <html>
+      <head>
+        <title>Invoice - ${order.id}</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+          body {
+            font-family: 'Inter', sans-serif;
+            padding: 40px;
+            color: #374151;
+            margin: 0;
+            line-height: 1.5;
+            background: #f3f4f6;
+          }
+          .invoice-container {
+            max-width: 800px;
+            margin: auto;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+          }
+          .header {
+            background: linear-gradient(135deg, #5c3110 0%, #d07e20 100%);
+            color: white;
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          }
+          .header-logo h1 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -1px;
+          }
+          .header-logo p {
+            margin: 5px 0 0;
+            font-size: 14px;
+            opacity: 0.9;
+          }
+          .header-info {
+            text-align: right;
+          }
+          .header-info h2 {
+            margin: 0 0 5px;
+            font-size: 24px;
+            letter-spacing: 2px;
+            opacity: 0.9;
+          }
+          .header-info p {
+            margin: 2px 0;
+            font-size: 14px;
+            opacity: 0.9;
+          }
+          .content {
+            padding: 40px;
+          }
+          .details-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+          }
+          .details-section h3 {
+            color: #d07e20;
+            margin: 0 0 10px;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+          }
+          .details-section p {
+            margin: 4px 0;
+            font-size: 14px;
+          }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+          }
+          th {
+            background-color: #fff7ed;
+            color: #d07e20;
+            font-weight: 600;
+            text-align: left;
+            padding: 12px 15px;
+            border-bottom: 2px solid #fdba74;
+          }
+          td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+          }
+          .text-right { text-align: right; }
+          .text-center { text-align: center; }
+          .summary-box {
+            width: 300px;
+            float: right;
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+          }
+          .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+          }
+          .summary-row.grand-total {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e5e7eb;
+            font-size: 18px;
+            font-weight: 800;
+            color: #5c3110;
+          }
+          .clear { clear: both; }
+          .footer {
+            margin-top: 40px;
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
+          }
+          .footer-thanks {
+            color: #d07e20;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+          }
+          .socials {
+            margin-bottom: 20px;
+          }
+          .socials span {
+            display: inline-block;
+            margin: 0 10px;
+            font-size: 13px;
+            color: #6b7280;
+          }
+          .contact-info {
+            font-size: 12px;
+            color: #9ca3af;
+          }
+          @media print {
+            body { background: white; padding: 0; }
+            .invoice-container { box-shadow: none; border: none; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="invoice-container">
+          <div class="header">
+            <div class="header-logo">
+              <h1>Prime Pets 🐾</h1>
+              <p>Premium Pet Supplies & Care</p>
+            </div>
+            <div class="header-info">
+              <h2>INVOICE</h2>
+              <p><strong>Order #</strong> ${String(order.id).slice(-6).toUpperCase()}</p>
+              <p><strong>Date:</strong> ${formatDate(order.createdAt || order.date)}</p>
+            </div>
+          </div>
+          
+          <div class="content">
+            <div class="details-grid">
+              <div class="details-section">
+                <h3>Billed To</h3>
+                <p><strong>${order.customerName || order.name || 'Customer'}</strong></p>
+                <p>📞 ${order.phone || order.customerPhone || '—'}</p>
+                <p style="max-width: 250px;">📍 ${order.address || order.deliveryAddress || '—'}</p>
+              </div>
+              <div class="details-section text-right">
+                <h3>Payment Info</h3>
+                <p><strong>Method:</strong> ${order.paymentMethod || order.payment || '—'}</p>
+                <p><strong>Status:</strong> <span style="color: ${order.paymentStatus === 'PAID' ? '#059669' : '#d97706'}">${order.paymentStatus || 'PENDING'}</span></p>
+              </div>
+            </div>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>Item Description</th>
+                  <th class="text-center">Qty</th>
+                  <th class="text-right">Price</th>
+                  <th class="text-right">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemList.map(item => {
+                  const qty = item.qty || item.quantity || 1;
+                  const price = Number(item.price || item.sellingPrice || 0);
+                  return \`
+                    <tr>
+                      <td>
+                        <strong>\${item.name || item.productName || 'Item'}</strong>
+                        \${item.brand ? \`<br><span style="color: #6b7280; font-size: 12px;">Brand: \${item.brand}</span>\` : ''}
+                      </td>
+                      <td class="text-center">\${qty}</td>
+                      <td class="text-right">Rs. \${price.toLocaleString('en-IN')}</td>
+                      <td class="text-right"><strong>Rs. \${(price * qty).toLocaleString('en-IN')}</strong></td>
+                    </tr>
+                  \`;
+                }).join('')}
+              </tbody>
+            </table>
+            
+            <div class="summary-box">
+              <div class="summary-row">
+                <span>Subtotal</span>
+                <span>Rs. ${subtotal.toLocaleString('en-IN')}</span>
+              </div>
+              <div class="summary-row">
+                <span>GST (18%)</span>
+                <span>Rs. ${gst.toLocaleString('en-IN')}</span>
+              </div>
+              <div class="summary-row">
+                <span>Delivery</span>
+                <span>Rs. ${delivery.toLocaleString('en-IN')}</span>
+              </div>
+              <div class="summary-row grand-total">
+                <span>Grand Total</span>
+                <span>Rs. ${total}</span>
+              </div>
+            </div>
+            <div class="clear"></div>
+            
+            <div class="footer">
+              <div class="footer-thanks">Thank you for choosing Prime Pets! 🐶🐱</div>
+              <div class="socials">
+                <span>📸 <strong>IG:</strong> @primepets_in</span>
+                <span>📘 <strong>FB:</strong> /primepetsindia</span>
+                <span>🐦 <strong>X:</strong> @primepets</span>
+              </div>
+              <div class="contact-info">
+                Prime Pets HQ, 123 Pet Street, Mumbai, 400001<br>
+                www.primepets.in | help@primepets.in | 1800-123-PRIME
+              </div>
+            </div>
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+  
+  const printWindow = window.open('', '_blank');
+  if (printWindow) {
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  }
 }
 
 /* ─── Sub-components ─────────────────────────────────────────────────────── */
@@ -432,6 +694,14 @@ export default function AdminOrders() {
                                 >
                                   <MessageCircle size={16} />
                                 </a>
+                                {/* Download Invoice */}
+                                <button
+                                  title="Download Invoice PDF"
+                                  onClick={() => downloadInvoice(order)}
+                                  className="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                                >
+                                  <Download size={16} />
+                                </button>
                                 {/* Delete */}
                                 <button
                                   title="Delete order"

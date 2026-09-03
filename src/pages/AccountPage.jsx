@@ -654,7 +654,7 @@ export default function AccountPage() {
                     <div className="divide-y divide-gray-50">
                       {[
                         { q: 'How do I track my order?', a: 'You can track your order in the "My Orders" tab. Click on any order to see real-time status updates.' },
-                        { q: 'What is the return policy?', a: 'We offer a 7-day no-questions-asked return policy for unused products in their original packaging.' },
+                        { q: 'What is the return policy?', a: 'We offer a no-questions-asked return policy for unused products in their original packaging.' },
                         { q: 'How are rewards points calculated?', a: 'You earn 1 point for every ₹1 spent. 10 points equals ₹1 in value for future purchases.' },
                       ].map((faq, idx) => (
                         <div key={idx} className="p-4 hover:bg-gray-50 transition-colors cursor-pointer">

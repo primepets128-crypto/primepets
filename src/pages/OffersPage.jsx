@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Clock, Tag, Star, ShoppingBag, Heart, Flame, Zap, Copy, Check, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
@@ -89,6 +89,24 @@ export default function OffersPage() {
       }))
     : FLASH_PRODUCTS;
 
+  const [timeLeft, setTimeLeft] = useState({ h: 5, m: 47, s: 22 });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        let { h, m, s } = prev;
+        if (h === 0 && m === 0 && s === 0) return { h: 23, m: 59, s: 59 }; // loop for demo
+        
+        s -= 1;
+        if (s < 0) { s = 59; m -= 1; }
+        if (m < 0) { m = 59; h -= 1; }
+        
+        return { h, m, s };
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="min-h-screen">
       <Header />
@@ -115,7 +133,11 @@ export default function OffersPage() {
                   <Zap size={13} className="text-yellow-300" /> Flash Sale ends in
                 </p>
                 <div className="flex items-center gap-2 justify-center">
-                  {[{ val: '05', label: 'Hrs' }, { val: '47', label: 'Min' }, { val: '22', label: 'Sec' }].map(t => (
+                  {[
+                    { val: String(timeLeft.h).padStart(2, '0'), label: 'Hrs' }, 
+                    { val: String(timeLeft.m).padStart(2, '0'), label: 'Min' }, 
+                    { val: String(timeLeft.s).padStart(2, '0'), label: 'Sec' }
+                  ].map(t => (
                     <React.Fragment key={t.label}>
                       <div className="text-center">
                         <div className="bg-white/20 text-white font-black text-2xl md:text-3xl px-4 py-2 rounded-xl min-w-[52px]">{t.val}</div>

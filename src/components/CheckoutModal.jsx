@@ -13,8 +13,12 @@ function deliveryFee(subtotal) {
   return subtotal >= DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE;
 }
 
+function calculateGST(subtotal) {
+  return Math.round(subtotal * 0.18);
+}
+
 function grandTotal(subtotal) {
-  return subtotal + deliveryFee(subtotal);
+  return subtotal + calculateGST(subtotal) + deliveryFee(subtotal);
 }
 
 function loadRazorpayScript() {
@@ -164,6 +168,9 @@ function MiniOrderSummary({ cartItems, cartTotal }) {
                 <div className="flex justify-between text-xs text-gray-500">
                   <span>Subtotal</span><span>₹{cartTotal}</span>
                 </div>
+                <div className="flex justify-between text-xs text-gray-500">
+                  <span>GST (18%)</span><span>₹{calculateGST(cartTotal)}</span>
+                </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-500">Delivery</span>
                   <span className={fee === 0 ? 'text-green-600 font-bold' : 'text-gray-500'}>{fee === 0 ? 'FREE 🎉' : `₹${fee}`}</span>
@@ -201,6 +208,9 @@ function OrderSummary({ cartItems, cartTotal }) {
       <div className="border-t border-orange-200 pt-2 space-y-1">
         <div className="flex justify-between text-xs text-gray-500">
           <span>Subtotal</span><span>₹{cartTotal}</span>
+        </div>
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>GST (18%)</span><span>₹{calculateGST(cartTotal)}</span>
         </div>
         <div className="flex justify-between text-xs text-gray-500">
           <span>Delivery</span>

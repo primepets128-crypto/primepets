@@ -72,7 +72,7 @@ export default function Header() {
           <div className="flex items-center gap-4 text-orange-200">
             <span>🚚 Free Delivery above ₹499</span>
             <span>|</span>
-            <span>↩️ 7-day Easy Returns</span>
+            <span>↩️ Easy Returns</span>
             <span>|</span>
             <button onClick={() => navigate('/offers')} className="text-yellow-300 font-semibold hover:text-white transition-colors">
               🏷️ Today's Deals
@@ -227,12 +227,6 @@ export default function Header() {
 
           {/* Action icons */}
           <div className="flex items-center gap-1 flex-shrink-0">
-            {/* Find Store (desktop) */}
-            <button className="hidden lg:flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors">
-              <MapPin size={18} className="text-[#d07e20]" />
-              <span className="text-xs font-semibold text-gray-600">Find Store</span>
-            </button>
-
             {/* Wishlist */}
             <button
               onClick={() => navigate('/account')}

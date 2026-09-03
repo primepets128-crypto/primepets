@@ -157,6 +157,10 @@ export default function CartDrawer() {
                     <span className="text-gray-700 font-semibold">₹{cartTotal}</span>
                   </div>
                   <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">GST (18%)</span>
+                    <span className="text-gray-700 font-semibold">₹{Math.round(cartTotal * 0.18)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Delivery</span>
                     <span className={cartTotal >= 499 ? 'text-green-600 font-semibold' : 'text-gray-700'}>
                       {cartTotal >= 499 ? 'FREE 🎉' : '₹49'}
@@ -170,7 +174,7 @@ export default function CartDrawer() {
                   <div className="border-t border-gray-100 pt-2 flex justify-between">
                     <span className="text-gray-800 font-bold">Total</span>
                     <span className="text-gray-900 font-black text-lg">
-                      ₹{cartTotal + (cartTotal >= 499 ? 0 : 49)}
+                      ₹{cartTotal + Math.round(cartTotal * 0.18) + (cartTotal >= 499 ? 0 : 49)}
                     </span>
                   </div>
                 </div>
@@ -207,7 +211,7 @@ export default function CartDrawer() {
         isOpen={checkoutOpen}
         onClose={() => setCheckoutOpen(false)}
         cartItems={cartItems}
-        cartTotal={cartTotal + (cartTotal >= 499 ? 0 : 49)}
+        cartTotal={cartTotal}
         onOrderSuccess={handleOrderSuccess}
       />
 

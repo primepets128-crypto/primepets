@@ -285,7 +285,7 @@ function TrustBar() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {[
           { icon: Truck, label: 'Free Delivery', sub: 'On orders above ₹499', color: '#d07e20' },
-          { icon: Shield, label: 'Easy Returns', sub: '7-day hassle-free returns', color: '#10B981' },
+          { icon: Shield, label: 'Easy Returns', sub: 'Hassle-free returns', color: '#10B981' },
           { icon: Award, label: 'Trusted Brand', sub: '10+ years, 100+ stores', color: '#6366F1' },
           { icon: Zap, label: 'Secure Payment', sub: '100% safe & encrypted', color: '#F59E0B' },
         ].map((item, idx) => {
@@ -375,8 +375,7 @@ function Footer() {
                 { label: 'Home', path: '/' },
                 { label: 'Shop by Category', path: '/category' },
                 { label: 'Offer Zone', path: '/offers' },
-                { label: 'Find a Store', path: '/' },
-                { label: 'About Us', path: '/' }
+                { label: 'About Us', path: '/about-us' }
               ].map(l => (
                 <button key={l.label} onClick={() => navigate(l.path)} className="group flex items-center gap-2 text-orange-100/70 text-sm hover:text-white transition-colors text-left w-max">
                   <span className="w-0 overflow-hidden group-hover:w-4 transition-all duration-300 text-[#d07e20]">→</span>
