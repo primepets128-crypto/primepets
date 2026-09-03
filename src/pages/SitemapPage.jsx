@@ -110,20 +110,7 @@ export default function SitemapPage() {
             ))}
           </div>
 
-          {/* Admin note */}
-          <div className="mt-6 bg-[#0a0502]/80 backdrop-blur rounded-2xl p-5 border border-white/10 flex items-center gap-4">
-            <Settings size={20} className="text-[#d07e20] flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-white text-sm font-bold">Admin Panel</p>
-              <p className="text-orange-200/50 text-xs">For authorised staff only — requires admin login.</p>
-            </div>
-            <button
-              onClick={() => navigate('/admin')}
-              className="text-[#d07e20] text-xs font-bold hover:text-orange-300 transition-colors whitespace-nowrap"
-            >
-              Go to Admin →
-            </button>
-          </div>
+
 
           <div className="mt-8 text-center">
             <p className="text-gray-500 text-xs">© 2026 {storeName}. All rights reserved.</p>

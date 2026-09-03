@@ -382,10 +382,6 @@ function Footer() {
                   <span className="group-hover:translate-x-1 transition-transform duration-300">{l.label}</span>
                 </button>
               ))}
-              <button onClick={() => navigate('/admin')} className="group flex items-center gap-2 text-[#d07e20] text-sm hover:text-white transition-colors text-left font-bold mt-2 w-max">
-                <span className="w-0 overflow-hidden group-hover:w-4 transition-all duration-300">→</span>
-                <span className="group-hover:translate-x-1 transition-transform duration-300">Admin Panel ⚙️</span>
-              </button>
             </div>
           </div>
 
