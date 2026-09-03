@@ -252,21 +252,20 @@ function downloadInvoice(order) {
                   <th class="text-right">Total</th>
                 </tr>
               </thead>
-              <tbody>
                 ${itemList.map(item => {
                   const qty = item.qty || item.quantity || 1;
                   const price = Number(item.price || item.sellingPrice || 0);
-                  return \`
+                  return `
                     <tr>
                       <td>
-                        <strong>\${item.name || item.productName || 'Item'}</strong>
-                        \${item.brand ? \`<br><span style="color: #6b7280; font-size: 12px;">Brand: \${item.brand}</span>\` : ''}
+                        <strong>${item.name || item.productName || 'Item'}</strong>
+                        ${item.brand ? `<br><span style="color: #6b7280; font-size: 12px;">Brand: ${item.brand}</span>` : ''}
                       </td>
-                      <td class="text-center">\${qty}</td>
-                      <td class="text-right">Rs. \${price.toLocaleString('en-IN')}</td>
-                      <td class="text-right"><strong>Rs. \${(price * qty).toLocaleString('en-IN')}</strong></td>
+                      <td class="text-center">${qty}</td>
+                      <td class="text-right">Rs. ${price.toLocaleString('en-IN')}</td>
+                      <td class="text-right"><strong>Rs. ${(price * qty).toLocaleString('en-IN')}</strong></td>
                     </tr>
-                  \`;
+                  `;
                 }).join('')}
               </tbody>
             </table>
