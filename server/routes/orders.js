@@ -32,6 +32,7 @@ router.post('/', async (req, res) => {
       data: {
         visitorId: visitorId && visitorId !== 'anonymous' ? visitorId : null,
         customerName,
+        customerEmail: customerEmail || null,
         customerPhone,
         customerAddress,
         items: typeof items === 'string' ? items : JSON.stringify(items),

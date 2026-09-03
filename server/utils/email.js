@@ -16,7 +16,7 @@ const transporter = nodemailer.createTransport({
  * @param {string} text - Plain text body
  * @param {string} html - HTML body (optional)
  */
-const sendEmail = async ({ to, subject, text, html }) => {
+const sendEmail = async ({ to, subject, text, html, attachments }) => {
   try {
     const mailOptions = {
       from: `Prime Pets <${process.env.EMAIL_USER}>`,
@@ -24,6 +24,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
       subject,
       text,
       html,
+      attachments,
     };
 
     const info = await transporter.sendMail(mailOptions);

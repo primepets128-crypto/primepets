@@ -39,6 +39,7 @@ const AdminSlides = lazy(() => import('./pages/admin/AdminSlides'));
 const AdminDeals = lazy(() => import('./pages/admin/AdminDeals'));
 const AdminSettings = lazy(() => import('./pages/admin/AdminSettings'));
 const AdminCustomers = lazy(() => import('./pages/admin/AdminCustomers'));
+const AdminCampaigns = lazy(() => import('./pages/admin/AdminCampaigns'));
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'));
 const AdminPayment = lazy(() => import('./pages/admin/AdminPayment'));
 const AdminMusic = lazy(() => import('./pages/admin/AdminMusic'));
@@ -148,6 +149,7 @@ function AppInner() {
                   <Route path="deals" element={<AdminDeals />} />
                   <Route path="orders" element={<AdminOrders />} />
                   <Route path="customers" element={<AdminCustomers />} />
+                  <Route path="campaigns" element={<AdminCampaigns />} />
                   <Route path="shipping" element={<AdminShipping />} />
                   <Route path="offers" element={<AdminOffers />} />
                   <Route path="payment" element={<AdminPayment />} />

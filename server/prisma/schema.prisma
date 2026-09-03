@@ -103,6 +103,7 @@ model Order {
   id            Int      @id @default(autoincrement())
   visitorId     String?
   customerName  String
+  customerEmail String?
   customerPhone String
   customerAddress String
   items         String   // JSON string of cart items

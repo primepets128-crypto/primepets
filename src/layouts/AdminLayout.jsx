@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Package, Tag, Image, Percent,
-  Menu, X, Settings, Users, ShoppingBag, CreditCard, Music2, Activity, Truck
+  Menu, X, Settings, Users, ShoppingBag, CreditCard, Music2, Activity, Truck, Mail
 } from 'lucide-react';
 
 const Facebook = (props) => (
@@ -33,6 +33,7 @@ const NAV_ITEMS = [
   { path: '/admin/orders', label: 'Orders', icon: ShoppingBag },
   { path: '/admin/shipping', label: 'Shipping', icon: Truck },
   { path: '/admin/customers', label: 'Customers', icon: Users },
+  { path: '/admin/campaigns', label: 'Campaigns', icon: Mail },
   { path: '/admin/retention', label: 'Retention', icon: Activity },
   { path: '/admin/facebook-events', label: 'Facebook Events', icon: Facebook },
   { path: '/admin/payment', label: 'Payment', icon: CreditCard },
