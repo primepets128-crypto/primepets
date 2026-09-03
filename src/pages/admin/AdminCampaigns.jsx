@@ -101,39 +101,39 @@ export default function AdminCampaigns() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-12">
+    <div className="max-w-4xl mx-auto pb-12 animate-fade-in">
       <div className="mb-8">
-        <h1 className="text-2xl font-black text-white flex items-center gap-3">
+        <h1 className="text-3xl font-black text-gray-800 flex items-center gap-3 tracking-tight">
           <Mail className="text-[#d07e20]" />
           Email Campaigns
         </h1>
-        <p className="text-orange-200/60 mt-1">Send promotional emails and announcements to your customers.</p>
+        <p className="text-gray-500 font-medium mt-2">Send promotional emails and announcements to your customers.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-[#1a0f08] border border-white/10 rounded-2xl p-6">
+        <div className="bg-white border border-gray-100 shadow-sm rounded-3xl p-6">
           <div className="flex items-center gap-3 text-[#d07e20] mb-2">
             <Users size={20} />
-            <h3 className="font-bold text-white">Audience Size</h3>
+            <h3 className="font-bold text-gray-800">Audience Size</h3>
           </div>
           {loadingEmails ? (
             <p className="text-gray-400 text-sm flex items-center gap-2"><Loader size={14} className="animate-spin" /> Counting...</p>
           ) : (
             <div>
-              <p className="text-3xl font-black text-white">{emails.length}</p>
-              <p className="text-orange-200/50 text-xs mt-1">Unique customer emails collected</p>
+              <p className="text-3xl font-black text-gray-800">{emails.length}</p>
+              <p className="text-gray-500 font-medium text-xs mt-1">Unique customer emails collected</p>
             </div>
           )}
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="bg-[#1a0f08] border border-white/10 rounded-2xl p-6">
-        <h2 className="text-xl font-bold text-white mb-6">Compose Campaign</h2>
+      <form onSubmit={handleSubmit} className="bg-white border border-gray-100 shadow-sm rounded-3xl p-8">
+        <h2 className="text-xl font-bold text-gray-800 mb-6">Compose Campaign</h2>
 
         <div className="space-y-6">
           {/* Target Audience */}
           <div>
-            <label className="block text-sm font-bold text-orange-200 mb-2">Target Audience</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Target Audience</label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
@@ -144,7 +144,7 @@ export default function AdminCampaigns() {
                   onChange={() => setTargetType('ALL')}
                   className="accent-[#d07e20]"
                 />
-                <span className="text-white text-sm">All Collected Customers ({emails.length})</span>
+                <span className="text-gray-800 text-sm font-medium">All Collected Customers ({emails.length})</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input 
@@ -155,20 +155,20 @@ export default function AdminCampaigns() {
                   onChange={() => setTargetType('SPECIFIC')}
                   className="accent-[#d07e20]"
                 />
-                <span className="text-white text-sm">Specific Email</span>
+                <span className="text-gray-800 text-sm font-medium">Specific Email</span>
               </label>
             </div>
           </div>
 
           {targetType === 'SPECIFIC' && (
             <div>
-              <label className="block text-sm font-bold text-orange-200 mb-2">Recipient Email Address</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Recipient Email Address</label>
               <input
                 type="email"
                 value={targetEmail}
                 onChange={(e) => setTargetEmail(e.target.value)}
                 placeholder="customer@example.com"
-                className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d07e20] transition-colors"
+                className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-[#d07e20] focus:ring-1 focus:ring-[#d07e20] transition-all"
                 required={targetType === 'SPECIFIC'}
               />
             </div>
@@ -176,13 +176,13 @@ export default function AdminCampaigns() {
 
           {/* Subject */}
           <div>
-            <label className="block text-sm font-bold text-orange-200 mb-2">Subject Line</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Subject Line</label>
             <input
               type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Huge Festive Sale! 50% Off Dog Food 🐶"
-              className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d07e20] transition-colors font-semibold"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-[#d07e20] focus:ring-1 focus:ring-[#d07e20] transition-all font-semibold"
               required
             />
           </div>
@@ -190,20 +190,20 @@ export default function AdminCampaigns() {
           {/* Body */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-bold text-orange-200">Message Body</label>
-              <span className="text-[10px] text-gray-500 uppercase tracking-wider">HTML Supported</span>
+              <label className="block text-sm font-bold text-gray-700">Message Body</label>
+              <span className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">HTML Supported</span>
             </div>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               placeholder="Hi there! We are excited to announce..."
               rows={8}
-              className="w-full bg-black/50 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#d07e20] transition-colors resize-y"
+              className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-gray-800 focus:outline-none focus:border-[#d07e20] focus:ring-1 focus:ring-[#d07e20] transition-all resize-y"
               required
             />
             <div className="mt-2 flex items-start gap-2 bg-[#d07e20]/10 border border-[#d07e20]/20 rounded-lg p-3">
               <AlertCircle size={16} className="text-[#d07e20] flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-orange-200/70 leading-relaxed">
+              <p className="text-xs text-orange-800 leading-relaxed font-medium">
                 You can type normal text, or paste HTML (like <code>&lt;b&gt;bold&lt;/b&gt;</code> or <code>&lt;a href="..."&gt;links&lt;/a&gt;</code>) for advanced formatting. Line breaks are automatically converted.
               </p>
             </div>
@@ -211,7 +211,7 @@ export default function AdminCampaigns() {
 
           {/* Attachment */}
           <div>
-            <label className="block text-sm font-bold text-orange-200 mb-2">Attachment (Optional)</label>
+            <label className="block text-sm font-bold text-gray-700 mb-2">Attachment (Optional)</label>
             <div className="relative">
               <input
                 id="file-upload"
@@ -222,20 +222,20 @@ export default function AdminCampaigns() {
               />
               <label 
                 htmlFor="file-upload" 
-                className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-white/20 hover:border-[#d07e20] rounded-xl px-4 py-8 cursor-pointer transition-colors group"
+                className="flex items-center justify-center gap-2 w-full border-2 border-dashed border-gray-300 hover:border-[#d07e20] rounded-xl px-4 py-8 cursor-pointer transition-colors group bg-gray-50"
               >
                 {attachment ? (
                   <div className="text-center">
-                    <p className="text-white font-semibold group-hover:text-[#d07e20] transition-colors">{attachment.name}</p>
-                    <p className="text-xs text-gray-400 mt-1">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>
+                    <p className="text-gray-800 font-bold group-hover:text-[#d07e20] transition-colors">{attachment.name}</p>
+                    <p className="text-xs text-gray-500 mt-1 font-medium">{(attachment.size / 1024 / 1024).toFixed(2)} MB</p>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2">
-                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d07e20]/20 group-hover:text-[#d07e20] transition-colors text-white/50">
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center group-hover:bg-[#d07e20]/20 group-hover:text-[#d07e20] transition-colors text-gray-500">
                       <FileUp size={20} />
                     </div>
-                    <p className="text-white/50 text-sm font-medium group-hover:text-white transition-colors">Click to upload a file (Max 10MB)</p>
-                    <p className="text-xs text-white/30">Images, PDFs, Documents</p>
+                    <p className="text-gray-500 text-sm font-bold group-hover:text-gray-800 transition-colors">Click to upload a file (Max 10MB)</p>
+                    <p className="text-xs text-gray-400 font-medium">Images, PDFs, Documents</p>
                   </div>
                 )}
               </label>
@@ -243,7 +243,7 @@ export default function AdminCampaigns() {
                 <button
                   type="button"
                   onClick={() => { setAttachment(null); document.getElementById('file-upload').value = ''; }}
-                  className="absolute top-2 right-2 text-red-400 hover:text-red-300 text-xs font-bold px-2 py-1 bg-red-400/10 rounded-lg"
+                  className="absolute top-2 right-2 text-red-500 hover:text-red-700 text-xs font-bold px-2 py-1 bg-red-50 rounded-lg border border-red-100"
                 >
                   Remove
                 </button>
@@ -252,11 +252,11 @@ export default function AdminCampaigns() {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-white/10 flex justify-end">
+        <div className="mt-8 pt-6 border-t border-gray-100 flex justify-end">
           <button
             type="submit"
             disabled={sending}
-            className="flex items-center gap-2 bg-gradient-to-r from-[#d07e20] to-[#a65d14] text-white font-bold py-3 px-8 rounded-xl hover:scale-105 active:scale-95 transition-transform disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-[0_0_20px_rgba(208,126,32,0.3)]"
+            className="flex items-center gap-2 bg-[#d07e20] text-white font-bold py-3 px-8 rounded-xl hover:bg-orange-600 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[#d07e20] shadow-sm"
           >
             {sending ? (
               <>
