@@ -284,7 +284,7 @@ function TrustBar() {
     <section className="relative z-10 max-w-[1600px] mx-auto w-full px-4 md:px-6 mb-6 md:mb-10">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         {[
-          { icon: Truck, label: 'Free Delivery', sub: 'On orders above ₹499', color: '#d07e20' },
+          { icon: Truck, label: 'Fast Delivery', sub: 'Across India', color: '#d07e20' },
           { icon: Shield, label: 'Easy Returns', sub: 'Hassle-free returns', color: '#10B981' },
           { icon: Award, label: 'Trusted Brand', sub: '10+ years, 100+ stores', color: '#6366F1' },
           { icon: Zap, label: 'Secure Payment', sub: '100% safe & encrypted', color: '#F59E0B' },
@@ -449,7 +449,7 @@ export default function HomePage() {
   const { slides, products, deals, categories, banners, frontendSettings } = useData();
   const navigate = useNavigate();
 
-  const announcementRaw = frontendSettings?.announcementText || '[zap] [yellow]Up to 60% Off[/yellow] – Limited Time! | [yellow]FREE DELIVERY[/yellow] on orders above ₹499 | Use code: [orange]PAWDAY30[/orange] | 100+ Stores across India 🐾';
+  const announcementRaw = frontendSettings?.announcementText || '[zap] [yellow]Up to 60% Off[/yellow] – Limited Time! | Fast Shipping Across India | Use code: [orange]PAWDAY30[/orange] | 100+ Stores across India 🐾';
   const announcementItems = announcementRaw.split('|').map(s => s.trim()).filter(Boolean);
 
   const parseAnnouncementItem = (text) => {

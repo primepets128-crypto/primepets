@@ -215,7 +215,7 @@ export default function AdminSettings() {
                   <textarea name="announcementText" value={formData.announcementText || ''} onChange={handleChange}
                     rows={3}
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition-all font-medium resize-none"
-                    placeholder="Up to 60% Off – Limited Time! | FREE DELIVERY on orders above ₹499 | Use code: PAWDAY30 | 100+ Stores across India 🐾" />
+                    placeholder="Up to 60% Off – Limited Time! | Fast Shipping Across India | Use code: PAWDAY30 | 100+ Stores across India 🐾" />
                   <p className="text-xs text-gray-400 mt-2">Separate different scrolling statements/banners with a vertical line character (<code>|</code>).</p>
                 </div>
               </div>

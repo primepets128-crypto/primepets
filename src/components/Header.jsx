@@ -70,7 +70,7 @@ export default function Header() {
             <span className="flex items-center gap-1.5"><MapPin size={11} /> 100+ Stores across India</span>
           </div>
           <div className="flex items-center gap-4 text-orange-200">
-            <span>🚚 Free Delivery above ₹499</span>
+            <span>🚚 Fast & Reliable Delivery</span>
             <span>|</span>
             <span>↩️ Easy Returns</span>
             <span>|</span>

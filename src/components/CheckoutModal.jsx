@@ -6,9 +6,6 @@ import { useData } from '../context/DataContext';
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-const DELIVERY_THRESHOLD = 499;
-const DELIVERY_CHARGE    = 49;
-
 function getQty(cartItems) {
   if (!Array.isArray(cartItems)) return 1;
   return cartItems.reduce((acc, item) => acc + (item.qty || item.quantity || 1), 0);
@@ -16,7 +13,7 @@ function getQty(cartItems) {
 
 function deliveryFee(subtotal, cartItems) {
   const qty = getQty(cartItems);
-  return (subtotal >= DELIVERY_THRESHOLD ? 0 : DELIVERY_CHARGE) + (qty * 100);
+  return qty * 80;
 }
 
 function calculateGST(subtotal) {
@@ -126,7 +123,6 @@ function MiniOrderSummary({ cartItems, cartTotal }) {
   const [open, setOpen] = useState(false);
   const fee   = deliveryFee(cartTotal, cartItems);
   const total = grandTotal(cartTotal, cartItems);
-  const toFree = DELIVERY_THRESHOLD - cartTotal;
 
   return (
     <div className="rounded-2xl border border-orange-100 bg-orange-50 overflow-hidden">
@@ -141,11 +137,6 @@ function MiniOrderSummary({ cartItems, cartTotal }) {
           <span className="text-xs font-black text-gray-700 uppercase tracking-wide">
             {cartItems.length} item{cartItems.length !== 1 ? 's' : ''}
           </span>
-          {toFree > 0 && (
-            <span className="flex items-center gap-1 text-[10px] font-bold text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">
-              <Truck size={10} /> Add ₹{toFree} for FREE delivery
-            </span>
-          )}
         </div>
         <div className="flex items-center gap-2">
           <span className="text-sm font-black text-gray-900">₹{total}</span>
