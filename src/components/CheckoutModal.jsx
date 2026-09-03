@@ -258,10 +258,15 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
 
   function validateForm() {
     const e = {};
-    if (!form.name.trim())                   e.name    = 'Name is required.';
-    if (form.email.trim() && !/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = 'Enter a valid email address.';
-    if (!/^\d{10}$/.test(form.phone.trim())) e.phone   = 'Enter a valid 10-digit mobile number.';
-    if (!form.address.trim())                e.address = 'Please enter your delivery address.';
+    if (!form.name.trim()) e.name = 'Name is required.';
+    if (!form.email.trim()) e.email = 'Email is required.';
+    else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) e.email = 'Enter a valid email address.';
+    if (!/^\d{10}$/.test(form.phone.trim())) e.phone = 'Enter a valid 10-digit mobile number.';
+    if (!form.address.trim()) e.address = 'Please enter your delivery address.';
+    if (!form.pincode.trim()) e.pincode = 'Pincode is required.';
+    else if (!/^\d{6}$/.test(form.pincode.trim())) e.pincode = 'Enter a valid 6-digit pincode.';
+    if (!form.city.trim()) e.city = 'City is required.';
+    
     setErrors(e);
     return Object.keys(e).length === 0;
   }
@@ -461,7 +466,7 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
                     />
                   </Field>
 
-                  <Field label="Email Address (Optional)" icon={Mail} error={errors.email}>
+                  <Field label="Email Address *" icon={Mail} error={errors.email}>
                     <input
                       type="email"
                       value={form.email}
@@ -498,23 +503,23 @@ export default function CheckoutModal({ isOpen, onClose, cartItems, cartTotal, o
                   </Field>
 
                   <div className="grid grid-cols-2 gap-3">
-                    <Field label="Pincode">
+                    <Field label="Pincode *" error={errors.pincode}>
                       <input
                         type="text"
                         maxLength={6}
                         value={form.pincode}
                         onChange={e => setForm(f => ({ ...f, pincode: e.target.value.replace(/\D/g, '') }))}
                         placeholder="400001"
-                        className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition"
+                        className={`w-full border ${errors.pincode ? 'border-red-400 bg-red-50' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
                       />
                     </Field>
-                    <Field label="City">
+                    <Field label="City *" error={errors.city}>
                       <input
                         type="text"
                         value={form.city}
                         onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
                         placeholder="Mumbai"
-                        className="w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition"
+                        className={`w-full border ${errors.city ? 'border-red-400 bg-red-50' : 'border-gray-200'} rounded-xl px-3.5 py-2.5 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-[#d07e20] focus:ring-2 focus:ring-orange-100 transition`}
                       />
                     </Field>
                   </div>
