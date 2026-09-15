@@ -107,15 +107,21 @@ export default function AdminShipping() {
     setConnectionStatus('disconnected');
     try {
       const token = await getAuthToken();
+      
+      // Only send secrets if they were newly typed (not masked or empty)
+      const payload = { username: settings.username };
+      if (settings.password && !settings.password.includes('*')) payload.password = settings.password;
+      if (settings.apiKey && !settings.apiKey.includes('*')) payload.apiKey = settings.apiKey;
+
       const { data } = await axios.post('/api/shipping/dtdc/test', 
-        { username: settings.username, password: settings.password, apiKey: settings.apiKey },
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setConnectionStatus(data.success ? 'connected' : 'failed');
       setSaveMessage({ text: data.message || (data.success ? 'Connection successful!' : 'Connection failed.'), type: data.success ? 'success' : 'error' });
     } catch (error) {
       setConnectionStatus('failed');
-      setSaveMessage({ text: error.response?.data?.message || 'Connection failed. Please check credentials.', type: 'error' });
+      setSaveMessage({ text: error.response?.data?.message || 'Connection failed.', type: 'error' });
     } finally {
       setTesting(false);
     }
@@ -246,12 +252,18 @@ export default function AdminShipping() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Live Password</label>
-                  <input type="password" value={settings.password || ''} onChange={(e) => setSettings({ ...settings, password: e.target.value })}
+                  <input type="password" 
+                    value={settings.password || ''} 
+                    onChange={(e) => setSettings({ ...settings, password: e.target.value })}
+                    placeholder={settings.hasPassword ? '******** (Saved securely)' : ''}
                     className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">LIVE API Key</label>
-                  <input type="text" value={settings.apiKey || ''} onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                  <input type="text" 
+                    value={settings.apiKey || ''} 
+                    onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
+                    placeholder={settings.hasApiKey ? '******************************** (Saved securely)' : ''}
                     className="w-full bg-gray-50 border border-gray-200 focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 rounded-xl px-4 py-2.5 outline-none transition-all font-mono text-sm" />
                 </div>
               </div>
@@ -261,7 +273,7 @@ export default function AdminShipping() {
                   {saving ? <RefreshCw className="animate-spin" size={18} /> : <Save size={18} />}
                   Save Credentials
                 </button>
-                <button type="button" onClick={testConnection} disabled={testing || !settings.apiKey} className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2">
+                <button type="button" onClick={testConnection} disabled={testing || (!settings.apiKey && !settings.hasApiKey)} className="bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 px-6 py-2.5 rounded-xl font-medium transition-all flex items-center gap-2">
                   <RefreshCw size={18} className={testing ? 'animate-spin' : ''} />
                   Test Connection
                 </button>
@@ -326,7 +338,7 @@ export default function AdminShipping() {
                 <p className="text-sm text-gray-500">Push a pending order to DTDC to generate an AWB and schedule pickup.</p>
               </div>
 
-              {!settings.apiKey || !settings.senderPincode ? (
+              {!(settings.apiKey || settings.hasApiKey) || !settings.senderPincode ? (
                 <div className="bg-yellow-50 text-yellow-700 p-4 rounded-xl flex items-start gap-3">
                   <AlertCircle className="shrink-0" />
                   <p className="text-sm">You must configure your <strong>API Credentials</strong> and <strong>Pickup Details</strong> before you can book shipments.</p>

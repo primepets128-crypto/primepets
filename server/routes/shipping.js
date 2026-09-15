@@ -36,7 +36,15 @@ router.get('/dtdc', verifyAdminToken, async (req, res) => {
         data: { provider: 'DTDC', isActive: false }
       });
     }
-    res.json(settings);
+    // Scrub sensitive data before sending to frontend
+    const safeSettings = {
+      ...settings,
+      hasPassword: !!settings.password,
+      hasApiKey: !!settings.apiKey,
+      password: '',
+      apiKey: ''
+    };
+    res.json(safeSettings);
   } catch (error) {
     console.error('Error fetching DTDC settings:', error);
     res.status(500).json({ error: 'Failed to fetch settings' });
@@ -47,12 +55,19 @@ router.get('/dtdc', verifyAdminToken, async (req, res) => {
 router.put('/dtdc', verifyAdminToken, async (req, res) => {
   try {
     const { username, password, apiKey, isActive, senderName, senderPhone, senderAddress, senderPincode, senderCity, senderState } = req.body;
+    
+    const existing = await prisma.shippingSetting.findUnique({ where: { provider: 'DTDC' } });
+    
+    // Only update secrets if new values are provided
+    const updatedPassword = password ? password : (existing?.password || null);
+    const updatedApiKey = apiKey ? apiKey : (existing?.apiKey || null);
+
     const settings = await prisma.shippingSetting.upsert({
       where: { provider: 'DTDC' },
       update: {
         username: username || null,
-        password: password || null,
-        apiKey: apiKey || null,
+        password: updatedPassword,
+        apiKey: updatedApiKey,
         isActive: isActive !== undefined ? isActive : true,
         senderName: senderName || null,
         senderPhone: senderPhone || null,
@@ -64,8 +79,8 @@ router.put('/dtdc', verifyAdminToken, async (req, res) => {
       create: {
         provider: 'DTDC',
         username: username || null,
-        password: password || null,
-        apiKey: apiKey || null,
+        password: updatedPassword,
+        apiKey: updatedApiKey,
         isActive: isActive !== undefined ? isActive : true,
         senderName: senderName || null,
         senderPhone: senderPhone || null,
@@ -75,7 +90,15 @@ router.put('/dtdc', verifyAdminToken, async (req, res) => {
         senderState: senderState || null
       }
     });
-    res.json(settings);
+    
+    // Scrub before returning
+    res.json({
+      ...settings,
+      hasPassword: !!settings.password,
+      hasApiKey: !!settings.apiKey,
+      password: '',
+      apiKey: ''
+    });
   } catch (error) {
     console.error('Error updating DTDC settings:', error);
     res.status(500).json({ error: 'Failed to update settings' });
@@ -85,7 +108,13 @@ router.put('/dtdc', verifyAdminToken, async (req, res) => {
 // POST test DTDC connection (API Indicator)
 router.post('/dtdc/test', verifyAdminToken, async (req, res) => {
   try {
-    const { apiKey } = req.body;
+    let { apiKey } = req.body;
+    
+    // Use the provided key (if testing before save), otherwise fallback to the database
+    if (!apiKey) {
+      const settings = await prisma.shippingSetting.findUnique({ where: { provider: 'DTDC' } });
+      apiKey = settings?.apiKey;
+    }
     
     if (!apiKey) {
       return res.status(400).json({ success: false, message: 'Missing API Key' });
