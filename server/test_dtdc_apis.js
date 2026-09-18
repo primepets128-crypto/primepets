@@ -1,8 +1,8 @@
 const axios = require('axios');
 
-const USERNAME = 'PO4418';
-const PASSWORD = 'Ab@123456';
-const API_KEY = '3f7bac4827bc43f6bf6ea6de401846';
+const USERNAME = process.env.DTDC_USERNAME;
+const PASSWORD = process.env.DTDC_PASSWORD;
+const API_KEY = process.env.DTDC_API_KEY;
 
 async function testDTDC() {
   console.log('--- Testing Auth for Tracking ---');
